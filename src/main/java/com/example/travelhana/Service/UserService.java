@@ -2,6 +2,7 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.DeviceDto;
+import com.example.travelhana.Dto.SignupRequestDto;
 import com.example.travelhana.Dto.UserResponseDto;
 import com.example.travelhana.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +53,9 @@ public class UserService {
         return dtos;
     }
 
+    public void signup(SignupRequestDto dto)
+    {
+
+    }
 
 }
