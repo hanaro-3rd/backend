@@ -1,18 +1,32 @@
 package com.example.travelhana.Service;
 
 
+import com.example.travelhana.Dto.CodeDto;
+import com.example.travelhana.Dto.MessageDto;
+import com.example.travelhana.Dto.SMSRequestDto;
+import com.example.travelhana.Dto.SMSResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.awt.image.PackedColorModel;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -27,6 +41,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.Mac;
@@ -43,16 +59,21 @@ public class PhoneAuthService {
 
     @Value("${SMS_SERVICE_ID}")
     private String serviceid;
-
+    @Value("${SMS_FROM_NUMBER}")
+    private String fromNum;
 
     public static int generateRandomNumber() {
         return ThreadLocalRandom.current().nextInt(100000, 1000000);
     }
 
-    private String makeSignature(String url, String timestamp, String method, String accessKey, String secretKey) throws NoSuchAlgorithmException, InvalidKeyException {
+    public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";
         String newLine = "\n";
-
+        String method = "POST";
+        String url = "/sms/v2/services/"+ serviceid+"/messages";
+        String timestamp = time.toString();
+        String accessKey = accesskey;
+        String secretKey = secretkey;
 
         String message = new StringBuilder()
                 .append(method)
@@ -64,95 +85,60 @@ public class PhoneAuthService {
                 .append(accessKey)
                 .toString();
 
-        SecretKeySpec signingKey;
-        String encodeBase64String;
-        try {
+        SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(signingKey);
 
-            signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(signingKey);
-            byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-            encodeBase64String = Base64.encodeBase64String(rawHmac);
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            encodeBase64String = e.toString();
-        }
-
+        byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+        String encodeBase64String = Base64.encodeBase64String(rawHmac);
 
         return encodeBase64String;
     }
 
-    public void sendSMS(String phoneNum) {
+
+
+    public SMSResponseDto sendMessageWithResttemplate(String phoneNum)
+            throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
+        Long time = System.currentTimeMillis();
         System.out.println(accesskey+" "+secretkey+" "+serviceid);
         String code=String.valueOf(generateRandomNumber());
-        String hostNameUrl = "https://sens.apigw.ntruss.com";
-        String requestUrl= "/sms/v2/services/";
-        String requestUrlType = "/messages";
-        String accessKey = accesskey;
-        String secretKey = secretkey;
-        String serviceId = serviceid;
-        String method = "POST";
-        String timestamp = Long.toString(System.currentTimeMillis());
-        requestUrl += serviceId + requestUrlType;
-        String apiUrl = hostNameUrl + requestUrl;
 
-        // JSON 을 활용한 body data 생성
-        JSONObject bodyJson = new JSONObject();
-        JSONObject toJson = new JSONObject();
-        JSONArray toArr = new JSONArray();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-ncp-apigw-timestamp", time.toString());
+        headers.set("x-ncp-iam-access-key", accesskey);
+        headers.set("x-ncp-apigw-signature-v2", makeSignature(time));
 
-        toJson.put("to",phoneNum);//수신번호, -를 제외한 숫자만 입력 가능
-        toJson.put("content",code);
-        toArr.put(toJson);
+        MessageDto msg=new MessageDto(phoneNum,code);
+        List<MessageDto> messages = new ArrayList<>();
+        messages.add(msg);
 
-        bodyJson.put("type","SMS");
-        bodyJson.put("from","01063685605");
-        bodyJson.put("content",code);
-        bodyJson.put("messages", toArr);
+        SMSRequestDto request = SMSRequestDto.builder()
+                .type("SMS")
+                .from(fromNum)
+                .content(msg.getContent())
+                .messages(messages)
+                .build();
 
-        String body = bodyJson.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(request);
+        HttpEntity<String> httpBody = new HttpEntity<>(body, headers);
 
-        System.out.println(body);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceid +"/messages"), httpBody, SMSResponseDto.class);
 
-        try {
-            URL url = new URL(apiUrl);
-
-            HttpURLConnection con = (HttpURLConnection)url.openConnection();
-            con.setUseCaches(false);
-            con.setDoOutput(true);
-            con.setDoInput(true);
-            con.setRequestProperty("content-type", "application/json");
-            con.setRequestProperty("x-ncp-apigw-timestamp", timestamp);
-            con.setRequestProperty("x-ncp-iam-access-key", accessKey);
-            con.setRequestProperty("x-ncp-apigw-signature-v2", makeSignature(requestUrl, timestamp, method, accessKey, secretKey));
-            con.setRequestMethod(method);
-            con.setDoOutput(true);
-            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-
-            wr.write(body.getBytes());
-            wr.flush();
-            wr.close();
-
-            int responseCode = con.getResponseCode();
-            BufferedReader br;
-            System.out.println("responseCode" +" " + responseCode);
-            if(responseCode == 202) { // 정상 호출
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            } else { // 에러 발생
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            }
-
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = br.readLine()) != null) {
-                response.append(inputLine);
-            }
-            br.close();
-
-            System.out.println(response.toString());
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        return response;
     }
+
+
+
+    public CodeDto returnCode(String code)
+    {
+        return new CodeDto(code);
+    }
+
+
+
+
 }

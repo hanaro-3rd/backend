@@ -1,13 +1,19 @@
 package com.example.travelhana.Dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Builder
+public class MessageDto {
 
-public interface DeviceIdResponseDto {
+    private String to;
+    private String content;
 
-    Boolean getIsRegistrate();
-    String getName();
+
 }

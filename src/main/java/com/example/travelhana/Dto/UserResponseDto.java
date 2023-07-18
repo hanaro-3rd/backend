@@ -15,7 +15,7 @@ import javax.persistence.Id;
 @Getter
 public class UserResponseDto {
 
-    private Long id;
+    private int id;
 
     private String name;
 

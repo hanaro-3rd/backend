@@ -2,17 +2,14 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.DeviceDto;
-import com.example.travelhana.Dto.DeviceIdResponseDto;
 import com.example.travelhana.Dto.UserResponseDto;
 import com.example.travelhana.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Tuple;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
