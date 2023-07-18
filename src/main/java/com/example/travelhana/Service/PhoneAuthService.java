@@ -1,10 +1,7 @@
 package com.example.travelhana.Service;
 
 
-import com.example.travelhana.Dto.CodeDto;
-import com.example.travelhana.Dto.MessageDto;
-import com.example.travelhana.Dto.SMSRequestDto;
-import com.example.travelhana.Dto.SMSResponseDto;
+import com.example.travelhana.Dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -47,6 +45,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpSession;
 
 @Service
 @RequiredArgsConstructor
@@ -97,7 +96,7 @@ public class PhoneAuthService {
 
 
 
-    public SMSResponseDto sendMessageWithResttemplate(String phoneNum)
+    public SMSAndCodeDto sendMessageWithResttemplate(String phoneNum)
             throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
         System.out.println(accesskey+" "+secretkey+" "+serviceid);
@@ -128,7 +127,9 @@ public class PhoneAuthService {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceid +"/messages"), httpBody, SMSResponseDto.class);
 
-        return response;
+
+
+        return new SMSAndCodeDto(response,code);
     }
 
 
