@@ -88,8 +88,6 @@ public class HolidayUtil {
 				}
 			}
 			file.write("\n\t);\n}");
-
-			System.out.println("공휴일 파일이 성공적으로 작성되었습니다.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -100,10 +98,8 @@ public class HolidayUtil {
 		DayOfWeek dayOfWeek = today.getDayOfWeek();
 
 		if (dayOfWeek.getValue() >= 6 ) {
-			System.out.println("주말입니다.");
 			return true;
 		} else {
-			System.out.println("주말이 아닙니다.");
 			return false;
 		}
 	}
@@ -115,10 +111,8 @@ public class HolidayUtil {
 		String strToday = today.toString().replace("-", "");
 
 		if (holidays.contains(strToday)) {
-			System.out.println("공휴일입니다.");
 			return true;
 		} else {
-			System.out.println("공휴일이 아닙니다.");
 			return false;
 		}
 	}
@@ -128,7 +122,6 @@ public class HolidayUtil {
 		LocalDate today = LocalDate.now();
 
 		if (today.toString().endsWith("-01-01")) {
-			System.out.println("1월 1일입니다. 공휴일 목록을 갱신합니다.");
 			makeHolidaysFile();
 			return false;
 		}
