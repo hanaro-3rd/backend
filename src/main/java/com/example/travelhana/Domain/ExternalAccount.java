@@ -13,18 +13,14 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Account {
+public class ExternalAccount {
 
     @Id
-    @Column(name="ACCOUNT_ID")
+    @Column(name="EXTERNAL_ACCOUNT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "USER_ID")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
-
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String accountNum;
 
     @Column(nullable = false)
@@ -41,5 +37,8 @@ public class Account {
 
     @Column(nullable = false)
     private Long balance;
+
+    @Column(nullable = false)
+    private String registrationNum;
 
 }
