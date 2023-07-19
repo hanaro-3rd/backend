@@ -63,4 +63,10 @@ public class UserController {
                     .build();
         }
     }
+
+    @PostMapping("/signup")
+    public void signup(@RequestBody SignupRequestDto dto)
+    {
+        userService.signup(dto);
+    }
 }
