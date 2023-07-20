@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class CategoryPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column
+    @Column(name="CATEGORYPLAN_ID")
     private int id;
 
     @ManyToOne

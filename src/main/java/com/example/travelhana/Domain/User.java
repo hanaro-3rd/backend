@@ -1,17 +1,14 @@
 package com.example.travelhana.Domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -38,6 +35,10 @@ public class User {
 
     @Column(nullable = false)
     private Boolean isWithdrawl; //디폴트 =false
+
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private UserRole role;
 
 
 }
