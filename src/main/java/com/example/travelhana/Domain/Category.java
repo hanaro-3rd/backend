@@ -13,11 +13,13 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class Category {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
-    private Long id;
 
-    @Column
-    private String name;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Column
+	private String name;
+
 }

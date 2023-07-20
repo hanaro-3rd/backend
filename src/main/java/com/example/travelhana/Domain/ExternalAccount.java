@@ -15,30 +15,30 @@ import java.util.Date;
 @Entity
 public class ExternalAccount {
 
-    @Id
-    @Column(name="EXTERNAL_ACCOUNT_ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@Column(name="EXTERNAL_ACCOUNT_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String accountNum;
+	@Column(nullable = false)
+	private String accountNum;
 
-    @Column(nullable = false)
-    private String bank;
+	@Column(nullable = false)
+	private String bank;
 
-    @Column(nullable = false)
-    private Date openDate;
+	@Column(nullable = false)
+	private Date openDate;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Column
-    private String salt;
+	@Column
+	private String salt;
 
-    @Column(nullable = false)
-    private Long balance;
+	@Column(nullable = false)
+	private Long balance;
 
-    @Column(nullable = false)
-    private String registrationNum;
+	@Column(nullable = false)
+	private String registrationNum;
 
 }

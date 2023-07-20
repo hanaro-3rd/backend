@@ -13,18 +13,20 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class KeyMoney {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="KEYMONEY_ID")
-    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name="USER_ID")
-    private User user;
-    @Column
-    private String unit;
+	@Id
+	@Column(name="KEYMONEY_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private Long balance;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="USER_ID")
+	private User user;
+
+	@Column
+	private String unit;
+
+	@Column
+	private Long balance;
 
 }

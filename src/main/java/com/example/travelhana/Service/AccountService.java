@@ -9,7 +9,7 @@ import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.SaltUtil;
-import com.example.travelhana.mapper.AccountInfoMapper;
+import com.example.travelhana.Projection.AccountInfoProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +40,10 @@ public class AccountService {
 		});
 	}
 
-	public ResponseEntity<List<AccountInfoMapper>> findExternalAccountList(Long userId) {
+	public ResponseEntity<List<AccountInfoProjection>> findExternalAccountList(Long userId) {
 		try {
 			Optional<User> user = userRepository.findById(userId);
-			List<AccountInfoMapper> result = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
+			List<AccountInfoProjection> result = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
 
 //			salt 생성 및 비밀번호 암호화해서 DB 업데이트
 //			setSaltAndSaltedPassword(result);

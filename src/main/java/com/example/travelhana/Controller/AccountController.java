@@ -3,7 +3,7 @@ package com.example.travelhana.Controller;
 import com.example.travelhana.Dto.AccountConnectResultDto;
 import com.example.travelhana.Dto.ConnectAccountDto;
 import com.example.travelhana.Service.AccountService;
-import com.example.travelhana.mapper.AccountInfoMapper;
+import com.example.travelhana.Projection.AccountInfoProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ public class AccountController {
 	private final AccountService accountService;
 
 	@GetMapping("/external")
-	public ResponseEntity<List<AccountInfoMapper>> getExternalAccountList(@RequestParam Long userId) {
+	public ResponseEntity<List<AccountInfoProjection>> getExternalAccountList(@RequestParam Long userId) {
 		return accountService.findExternalAccountList(userId);
 	}
 

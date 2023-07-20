@@ -13,26 +13,28 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class Marker {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="MARKER_ID")
-    private Long id;
 
-    @Column
-    private Double lat;
-    @Column
-    private Double lng;
+	@Id
+	@Column(name="MARKER_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private Long amount;
+	@Column
+	private Double lat;
 
-    @Column
-    private String place;
+	@Column
+	private Double lng;
 
-    @Column
-    private Long limitAmount;
+	@Column
+	private Long amount;
 
-    @Column
-    private String unit;
+	@Column
+	private String place;
+
+	@Column
+	private Long limitAmount;
+
+	@Column
+	private String unit;
 
 }

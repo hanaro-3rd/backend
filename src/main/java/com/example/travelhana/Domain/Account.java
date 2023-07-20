@@ -15,40 +15,41 @@ import java.util.Date;
 @Entity
 public class Account {
 
-    @Id
-    @Column(name="ACCOUNT_ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@Column(name="ACCOUNT_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @JoinColumn(name = "USER_ID")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+	@JoinColumn(name = "USER_ID")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User user;
 
-    @Column (nullable = false)
-    private String accountNum;
+	@Column (nullable = false)
+	private String accountNum;
 
-    @Column(nullable = false)
-    private String bank;
+	@Column(nullable = false)
+	private String bank;
 
-    @Column(nullable = false)
-    private Date openDate;
+	@Column(nullable = false)
+	private Date openDate;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Column
-    private String salt;
+	@Column
+	private String salt;
 
-    @Column(nullable = false)
-    private Long balance;
+	@Column(nullable = false)
+	private Long balance;
 
-    public Account(User user, String accountNum, String bank, Date openDate, String password, String salt, Long balance) {
-        this.user = user;
-        this.accountNum = accountNum;
-        this.bank = bank;
-        this.openDate = openDate;
-        this.password = password;
-        this.salt = salt;
-        this.balance = balance;
-    }
+	public Account(User user, String accountNum, String bank, Date openDate, String password, String salt, Long balance) {
+		this.user = user;
+		this.accountNum = accountNum;
+		this.bank = bank;
+		this.openDate = openDate;
+		this.password = password;
+		this.salt = salt;
+		this.balance = balance;
+	}
+
 }

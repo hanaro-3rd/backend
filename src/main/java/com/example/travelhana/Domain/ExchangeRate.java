@@ -14,21 +14,22 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 public class ExchangeRate {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
-    private Long id;
 
-    @Column
-    private Double exchangeRate;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private String unit;
+	@Column
+	private Double exchangeRate;
 
-    @Column
-    private LocalDateTime updatedAt;
+	@Column
+	private String unit;
 
-    @Column
-    private Double appreciationRate;
+	@Column
+	private LocalDateTime updatedAt;
+
+	@Column
+	private Double appreciationRate;
 
 }
