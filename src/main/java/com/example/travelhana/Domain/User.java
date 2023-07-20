@@ -25,6 +25,9 @@ public class User {
     private String password;
 
     @Column(nullable = false)
+    private String registrationNum;
+
+    @Column(nullable = false)
     private String phoneNum;
 
     @Column(nullable = false)

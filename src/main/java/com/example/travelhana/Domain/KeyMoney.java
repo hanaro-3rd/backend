@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Key {
+public class KeyMoney {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name="KEYMONEY_ID")
