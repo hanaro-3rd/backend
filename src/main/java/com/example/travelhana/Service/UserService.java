@@ -8,6 +8,9 @@ import com.example.travelhana.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -120,7 +124,7 @@ public class UserService{
 
 
     @Transactional
-    public void login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public  ResponseEntity<?> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String username = loginRequestDto.getDeviceId();
         String password = loginRequestDto.getPassword(); //입력받은 비밀번호
 
@@ -143,13 +147,22 @@ public class UserService{
         String refreshToken = jwtUtil.createRefreshToken(user.getName(), user.getRole());
 
         // 액세스 토큰을 HTTP 응답 헤더에 추가
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
         // 리프레시 토큰을 HTTP Only 쿠키에 추가 (보안상의 이유로 쿠키에 저장)
-        Cookie refreshTokenCookie = new Cookie(JwtUtil.REFRESH_TOKEN_COOKIE_NAME, refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge((int) (JwtUtil.REFRESH_TOKEN_EXPIRATION / 1000)); // 리프레시 토큰의 만료 시간 설정
-        refreshTokenCookie.setPath("/"); // 전체 애플리케이션에서 쿠키 접근 가능하도록 설정
-        response.addCookie(refreshTokenCookie);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(JwtUtil.REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/") // 전체 애플리케이션에서 쿠키 접근 가능하도록 설정
+                .maxAge((int) (JwtUtil.REFRESH_TOKEN_EXPIRATION / 1000))// 리프레시 토큰의 만료 시간 설정
+                .build();
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body("success");
+
     }
 }

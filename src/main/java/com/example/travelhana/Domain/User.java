@@ -33,12 +33,15 @@ public class User {
     @Column
     private String salt;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Boolean isWithdrawl; //디폴트 =false
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRole role;
+
+    @Column(nullable = false)
+    private String registrationNum;
 
 
 }

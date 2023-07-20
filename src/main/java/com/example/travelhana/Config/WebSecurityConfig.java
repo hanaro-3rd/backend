@@ -1,9 +1,10 @@
-//package com.example.travelhana.Config;
+//import com.example.travelhana.Config.JwtAuthenticationEntryPoint;
+//import com.example.travelhana.Config.JwtRequestFilter;
+//import com.example.travelhana.Service.UserDetailsServiceImpl;
 //import com.example.travelhana.Service.UserService;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
-//import org.springframework.http.HttpMethod;
 //import org.springframework.security.authentication.AuthenticationManager;
 //import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 //import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -20,14 +21,37 @@
 //@EnableGlobalMethodSecurity(prePostEnabled = true)
 //public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //
-//    @Autowired
-//    private UserService userService;
+//    private final UserService userDetailsService;
+//    private final JwtRequestFilter jwtRequestFilter;
+//    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 //
 //    @Autowired
-//    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+//    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, JwtRequestFilter jwtRequestFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+//        this.userDetailsService = userDetailsService;
+//        this.jwtRequestFilter = jwtRequestFilter;
+//        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+//    }
+//
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.csrf().disable()
+//                .authorizeRequests()
+//                .antMatchers("/api/auth/login").permitAll() // 인증 없이 로그인 엔드포인트 허용
+//                .anyRequest().authenticated()
+//                .and()
+//                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//                .and()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//
+//        // 사용자 정의 JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
+//        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+//    }
 //
 //    @Autowired
-//    private JwtRequestFilter jwtRequestFilter;
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        // 사용자 정의 userDetailsService와 passwordEncoder 설정
+//        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//    }
 //
 //    @Bean
 //    public PasswordEncoder passwordEncoder() {
@@ -38,25 +62,5 @@
 //    @Override
 //    public AuthenticationManager authenticationManagerBean() throws Exception {
 //        return super.authenticationManagerBean();
-//    }
-//
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
-//    }
-//
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers(HttpMethod.POST, "/api/login").permitAll() // 로그인은 모두 접근 가능
-//                .anyRequest().authenticated() // 그 외의 요청은 인증이 필요
-//                .and()
-//                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-//                .and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//        // JWT 필터 추가
-//        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 //    }
 //}

@@ -77,12 +77,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
-        String deviceId = loginRequest.getDeviceId();
-        String password = loginRequest.getPassword();
-
-        userService.login(loginRequest,response);
-       return "success";
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
+        return userService.login(loginRequest,response);
     }
 
 }
