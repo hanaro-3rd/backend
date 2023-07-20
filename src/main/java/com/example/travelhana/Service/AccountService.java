@@ -63,17 +63,19 @@ public class AccountService {
 			Optional<User> user = userRepository.findById(userId);
 			Optional<ExternalAccount> externalAccount = externalAccountRepository.findById(externalAccountId);
 
-			String accountNum = externalAccount.get().getAccountNum();
-			Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
-			if (existAccount) {
-				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-			}
-
+			// 비밀번호 확인
 			String storedSalt = externalAccount.get().getSalt();
 			String storedPassword = externalAccount.get().getPassword();
 			String encodedPassword = saltUtil.encodePassword(storedSalt, accountPassword);
 			if (!storedPassword.equals(encodedPassword)) {
 				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			}
+
+			// 이미 연결된 계좌 여부 확인
+			String accountNum = externalAccount.get().getAccountNum();
+			Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
+			if (existAccount) {
+				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 			}
 
 			String bank = externalAccount.get().getBank();
