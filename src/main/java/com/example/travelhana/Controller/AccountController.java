@@ -1,10 +1,7 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Domain.Account;
-import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Dto.AccountConnectResultDto;
 import com.example.travelhana.Dto.ConnectAccountDto;
-import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.mapper.AccountInfoMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +18,7 @@ public class AccountController {
 	private final AccountService accountService;
 
 	@GetMapping("/external")
-	public ResponseEntity<List<ExternalAccount>> getExternalAccountList(@RequestParam Long userId) {
+	public ResponseEntity<List<AccountInfoMapper>> getExternalAccountList(@RequestParam Long userId) {
 		return accountService.findExternalAccountList(userId);
 	}
 
@@ -29,6 +26,5 @@ public class AccountController {
 	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(@RequestBody ConnectAccountDto connectAccountDto) {
 		return accountService.connectExternalAccount(connectAccountDto);
 	}
-
 
 }

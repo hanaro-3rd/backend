@@ -40,10 +40,10 @@ public class AccountService {
 		});
 	}
 
-	public ResponseEntity<List<ExternalAccount>> findExternalAccountList(Long userId) {
+	public ResponseEntity<List<AccountInfoMapper>> findExternalAccountList(Long userId) {
 		try {
 			Optional<User> user = userRepository.findById(userId);
-			List<ExternalAccount> result = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
+			List<AccountInfoMapper> result = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
 
 //			salt 생성 및 비밀번호 암호화해서 DB 업데이트
 //			setSaltAndSaltedPassword(result);
@@ -64,7 +64,9 @@ public class AccountService {
 			Optional<ExternalAccount> externalAccount = externalAccountRepository.findById(externalAccountId);
 
 			String accountNum = externalAccount.get().getAccountNum();
+
 			Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
+
 			if (existAccount) {
 				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 			}
@@ -86,6 +88,7 @@ public class AccountService {
 			accountRepository.save(account);
 
 			AccountConnectResultDto result = new AccountConnectResultDto(userId, account.getId(), accountNum, bank, balance);
+
 			return new ResponseEntity<>(result, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
