@@ -42,5 +42,4 @@ public class User {
     @Column(nullable = false)
     private Boolean isWithdrawl; //디폴트 =false
 
-
 }
