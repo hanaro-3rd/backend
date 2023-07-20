@@ -30,7 +30,7 @@ public class Marker {
     private String place;
 
     @Column
-    private Long limit;
+    private Long limitAmount;
 
     @Column
     private String unit;
