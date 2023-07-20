@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface ExternalAccountRepository extends JpaRepository<ExternalAccount, Long> {
 
-	List<AccountInfoMapper> findAllByRegistrationNum(String registrationNum);
+	List<ExternalAccount> findAllByRegistrationNum(String registrationNum);
 
 }
