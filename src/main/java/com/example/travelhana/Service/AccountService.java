@@ -1,6 +1,5 @@
 package com.example.travelhana.Service;
 
-<<<<<<< HEAD
 import com.example.travelhana.Util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
