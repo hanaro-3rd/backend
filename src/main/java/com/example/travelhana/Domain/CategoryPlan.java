@@ -13,25 +13,24 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class CategoryPlan {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
-    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name="PLAN_ID")
-    private Plan plan;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @OneToOne
-    @JoinColumn(name="CATEGORY_ID")
-    private Category category;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="PLAN_ID")
+	private Plan plan;
 
-    @Column(nullable = false)
-    private Long categoryBudget; //디폴트 0
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="CATEGORY_ID")
+	private Category category;
 
-    @Column(nullable = false)
-    private Long categoryBalance;//디폴트 0
+	@Column(nullable = false)
+	private Long categoryBudget; //디폴트 0
 
-
+	@Column(nullable = false)
+	private Long categoryBalance;//디폴트 0
 
 }
