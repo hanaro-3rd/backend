@@ -138,7 +138,7 @@ public class AccountService {
 			Account account = new Account(user.get(), accountNum, bank, openDate, password, salt, balance);
 			accountRepository.save(account);
 
-			AccountConnectResultDto result = new AccountConnectResultDto(userId, account.getId(), accountNum, bank, balance);
+			AccountConnectResultDto result = new AccountConnectResultDto(userId, account.getId(), cryptoUtil.decrypt(accountNum), bank, balance);
 
 			return new ResponseEntity<>(result, HttpStatus.CREATED);
 		} catch (Exception e) {
