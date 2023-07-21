@@ -5,12 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountDto {
-	Long id;
-	String accountNum;
-	Long Balance;
+public class ConnectedAccountListDto {
+	List<ConnectedAccountDto> accountDtos;
+	Boolean isBusinessDay;
+	Double exchangeRate;
+	Double appreciationRate;
 }
