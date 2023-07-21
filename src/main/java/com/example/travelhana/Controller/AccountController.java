@@ -23,7 +23,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/external")
-	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@RequestParam Long userId) {
+	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@PathVariable Long userId) {
 		return accountService.findExternalAccountList(userId);
 	}
 
