@@ -15,38 +15,37 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 public class ExchangeHistory {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="EXCHANGEHISTORY_ID")
-    private Long id;
 
-    @Column
-    private Long userId;
+	@Id
+	@Column(name="EXCHANGEHISTORY_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private Long keyId;
+	@Column
+	private Long userId;
 
-    @Column
-    private Long accountId;
+	@Column
+	private Long keyId;
 
-    @Column
-    private Long won;
+	@Column
+	private Long accountId;
 
-    @Column
-    private Long foreignCurrency;
+	@Column
+	private Long won;
 
-    @Column
-    private Boolean isBought;
+	@Column
+	private Long foreignCurrency;
 
-    @Column
-    private Double exchangeRate;
+	@Column
+	private Boolean isBought;
 
-    @Column
-    private LocalDateTime exchangeDate;
+	@Column
+	private Double exchangeRate;
 
-    @Column
-    private Boolean isBusinessday;
+	@Column
+	private LocalDateTime exchangeDate;
 
-
+	@Column
+	private Boolean isBusinessday;
 
 }

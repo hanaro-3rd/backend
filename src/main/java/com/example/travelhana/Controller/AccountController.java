@@ -1,21 +1,25 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Dto.AccountListDto;
+import com.example.travelhana.Dto.AccountConnectResultDto;
+import com.example.travelhana.Dto.AccountConnectDto;
+import com.example.travelhana.Dto.AccountDummyDto;
 import com.example.travelhana.Service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/account")
 public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping("/accountlist")
+	@GetMapping("")
 	public String getAccountList() throws URISyntaxException, IOException {
 		Boolean isBusinessDay = accountService.isBusinessDay();
 
@@ -25,4 +29,20 @@ public class AccountController {
 			return "영업일이 아닙니다.";
 		}
 	}
+
+	@PostMapping("/dummy")
+	public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(@RequestBody AccountDummyDto accountDummyDto) {
+		return accountService.createDummyExternalAccounts(accountDummyDto);
+	}
+
+	@GetMapping(value = "/external/{userId}")
+	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@PathVariable Long userId) {
+		return accountService.findExternalAccountList(userId);
+	}
+
+	@PostMapping("/connect")
+	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(@RequestBody AccountConnectDto connectAccountDto) {
+		return accountService.connectExternalAccount(connectAccountDto);
+	}
+
 }

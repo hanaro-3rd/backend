@@ -15,49 +15,48 @@ import java.time.LocalDateTime;
 @Entity
 public class PaymentHistory {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
-    private Long id;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private Long price;
+	@Column
+	private Long price;
 
-    @Column
-    private Long balance;
+	@Column
+	private Long balance;
 
-    @Column
-    private String unit;
-    @Column
-    private String store;
+	@Column
+	private String unit;
 
-    @Column
-    private String category;
+	@Column
+	private String store;
 
-    @Column
-    private LocalDateTime createdAt;
+	@Column
+	private String category;
 
+	@Column
+	private LocalDateTime createdAt;
 
-    @Column
-    private Double lat;
+	@Column
+	private Double lat;
 
-    @Column
-    private Double lng;
+	@Column
+	private Double lng;
 
-    @Column
-    private String address;
+	@Column
+	private String address;
 
-    @Column
-    private String memo;
+	@Column
+	private String memo;
 
-    @Column
-    private Long userId;
+	@Column
+	private Long userId;
 
-    @Column
-    private Long keyId;
+	@Column
+	private Long keyId;
 
-    @Column
-    private Boolean isSuccess;
-
+	@Column
+	private Boolean isSuccess;
 
 }

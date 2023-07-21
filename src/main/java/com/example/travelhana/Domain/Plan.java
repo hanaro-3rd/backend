@@ -14,33 +14,35 @@ import java.util.Date;
 @Builder
 @Entity
 public class Plan {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="PLAN_ID")
-    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    private User user;
+	@Id
+	@Column(name="PLAN_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private Long totalBudget; //디폴트 0
-    @Column(nullable = false)
-    private String title; //디폴트값 설정해주기
-    @Column(nullable = false)
-    private String country;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "USER_ID")
+	private User user;
 
-    @Column
-    private String city;
+	@Column(nullable = false)
+	private Long totalBudget; //디폴트 0
 
-    @Column(nullable = false)
-    private Date startDate;
+	@Column(nullable = false)
+	private String title; //디폴트값 설정해주기
 
-    @Column(nullable = false)
-    private Date endDate;
+	@Column(nullable = false)
+	private String country;
 
-    @Column
-    private Long totalBalance; //디폴트 0
+	@Column
+	private String city;
 
+	@Column(nullable = false)
+	private Date startDate;
+
+	@Column(nullable = false)
+	private Date endDate;
+
+	@Column
+	private Long totalBalance; //디폴트 0
 
 }

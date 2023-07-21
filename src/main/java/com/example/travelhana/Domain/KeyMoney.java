@@ -6,30 +6,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-public class ExchangeRate {
+public class KeyMoney {
 
 	@Id
-	@Column
+	@Column(name="KEYMONEY_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column
-	private Double exchangeRate;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="USER_ID")
+	private User user;
 
 	@Column
 	private String unit;
 
 	@Column
-	private LocalDateTime updatedAt;
-
-	@Column
-	private Double appreciationRate;
+	private Long balance;
 
 }
