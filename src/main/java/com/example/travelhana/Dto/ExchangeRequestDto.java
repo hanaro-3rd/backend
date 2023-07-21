@@ -10,12 +10,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class ExchangeRequestDto {
-    private String accountId;
+    private int accountId;
     private Long won;
     private Double exchangeRate;
     private Boolean isBusinessday;
     private Boolean isBought;
     private Boolean isNow;
+    private String unit;
 
 
 }

@@ -27,4 +27,8 @@ public class KeyMoney {
     @Column
     private Long balance;
 
+    public void updateBalance(Long pay)
+    {
+        this.balance+=pay;
+    }
 }

@@ -10,14 +10,20 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -98,6 +104,18 @@ public class JwtUtil {
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = getUserInfoFromToken(token);
+
+        String username = claims.getSubject();
+        String role = claims.get(JwtUtil.AUTHORIZATION_KEY, String.class);
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role)); // "ROLE_" 접두어를 붙여야 함에 주의
+
+        return new UsernamePasswordAuthenticationToken(username, null, authorities);
     }
 }
 
