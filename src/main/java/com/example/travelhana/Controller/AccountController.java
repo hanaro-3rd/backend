@@ -22,7 +22,7 @@ public class AccountController {
 		return accountService.createDummyExternalAccounts(accountDummyDto);
 	}
 
-	@GetMapping("/external")
+	@GetMapping(value = "/external/{userId}")
 	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@PathVariable Long userId) {
 		return accountService.findExternalAccountList(userId);
 	}
