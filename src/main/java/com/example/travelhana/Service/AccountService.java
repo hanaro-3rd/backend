@@ -4,11 +4,12 @@ import com.example.travelhana.Domain.Account;
 import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.AccountConnectResultDto;
-import com.example.travelhana.Dto.ConnectAccountDto;
-import com.example.travelhana.Dto.DummyAccountDto;
+import com.example.travelhana.Dto.AccountConnectDto;
+import com.example.travelhana.Dto.AccountDummyDto;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
 import com.example.travelhana.Projection.AccountInfoProjection;
 import lombok.RequiredArgsConstructor;
@@ -25,20 +26,29 @@ import java.util.*;
 public class AccountService {
 
 	private final SaltUtil saltUtil;
+	private final CryptoUtil cryptoUtil;
 
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final ExternalAccountRepository externalAccountRepository;
 
-	public ResponseEntity<List<AccountInfoProjection>> createDummyExternalAccounts(DummyAccountDto dummyAccountDto) {
+	private List<AccountConnectResultDto> decryptAccountNum(List<AccountInfoProjection> projections) throws Exception {
+		List<AccountConnectResultDto> result = new ArrayList<>();
+		for (AccountInfoProjection projection : projections) {
+			result.add(new AccountConnectResultDto(null, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
+		}
+		return result;
+	}
+
+	public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(AccountDummyDto accountDummyDto) {
 		try {
-			String userName = dummyAccountDto.getUserName();
-			String registrationNum = dummyAccountDto.getRegistrationNum();
-			String accountPassword = dummyAccountDto.getAccountPassword();
+			Random random = new Random();
+
+			String userName = accountDummyDto.getUserName();
+			String registrationNum = accountDummyDto.getRegistrationNum();
+			String accountPassword = accountDummyDto.getAccountPassword();
 
 			List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
-
-			Random random = new Random();
 
 			String userSalt = saltUtil.generateSalt();
 
@@ -63,7 +73,7 @@ public class AccountService {
 				String accountNum = group1 + "-" + group2 + "-" + group3;
 
 				ExternalAccount externalAccount = new ExternalAccount();
-				externalAccount.setAccountNum(accountNum);
+				externalAccount.setAccountNum(cryptoUtil.encrypt(accountNum));
 				externalAccount.setBank(banks.get(random.nextInt(banks.size())));
 				externalAccount.setOpenDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))));
 				externalAccount.setSalt(accountSalt);
@@ -72,26 +82,25 @@ public class AccountService {
 				externalAccount.setBalance(0L);
 				externalAccountRepository.save(externalAccount);
 			}
-			List<AccountInfoProjection> result = externalAccountRepository.findAllByRegistrationNum(registrationNum);
+			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
-			return new ResponseEntity<>(result, HttpStatus.CREATED);
+			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	public ResponseEntity<List<AccountInfoProjection>> findExternalAccountList(Long userId) {
+	public ResponseEntity<List<AccountConnectResultDto>> findExternalAccountList(Long userId) {
 		try {
 			Optional<User> user = userRepository.findById(userId);
-			List<AccountInfoProjection> result = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
-
-			return new ResponseEntity<>(result, HttpStatus.OK);
+			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
+			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(ConnectAccountDto connectAccountDto) {
+	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(AccountConnectDto connectAccountDto) {
 		try {
 			Long userId = connectAccountDto.getUserId();
 			Long externalAccountId = connectAccountDto.getExternalAccountId();

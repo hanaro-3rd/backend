@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class DummyAccountDto {
+public class AccountConnectDto {
 
-	String userName;
-	String registrationNum;
+	Long userId;
+	Long externalAccountId;
 	String accountPassword;
 
 }
