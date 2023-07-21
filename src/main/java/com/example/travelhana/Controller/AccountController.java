@@ -2,6 +2,7 @@ package com.example.travelhana.Controller;
 
 import com.example.travelhana.Dto.AccountConnectResultDto;
 import com.example.travelhana.Dto.ConnectAccountDto;
+import com.example.travelhana.Dto.DummyAccountDto;
 import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Projection.AccountInfoProjection;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,11 @@ import java.util.List;
 public class AccountController {
 
 	private final AccountService accountService;
+
+	@PostMapping("/dummy")
+	public ResponseEntity<List<AccountInfoProjection>> createDummyExternalAccounts(@RequestBody DummyAccountDto dummyAccountDto) {
+		return accountService.createDummyExternalAccounts(dummyAccountDto);
+	}
 
 	@GetMapping("/external")
 	public ResponseEntity<List<AccountInfoProjection>> getExternalAccountList(@RequestParam Long userId) {
