@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class ExchangeRateDto {
 
 	Double exchangeRate;
-	Double appreciationRate;
+	Double changePrice;
 
 }

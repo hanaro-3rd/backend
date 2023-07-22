@@ -32,12 +32,12 @@ public class HolidayUtil {
 	private JSONArray getHolidaysByAPI() throws URISyntaxException {
 		String year = String.valueOf(LocalDate.now().getYear());
 
-		StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo"); /*URL*/
-		urlBuilder.append("?" + URLEncoder.encode("serviceKey",StandardCharsets.UTF_8) + "=" + apikey); /*Service Key*/
-		urlBuilder.append("&" + URLEncoder.encode("_type",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("json", StandardCharsets.UTF_8)); /*페이지번호*/
-		urlBuilder.append("&" + URLEncoder.encode("pageNo",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8)); /*페이지번호*/
-		urlBuilder.append("&" + URLEncoder.encode("numOfRows",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("30", StandardCharsets.UTF_8)); /*한 페이지 결과 수*/
-		urlBuilder.append("&" + URLEncoder.encode("solYear",StandardCharsets.UTF_8) + "=" + URLEncoder.encode(year, StandardCharsets.UTF_8)); /*연*/
+		StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo");
+		urlBuilder.append("?" + URLEncoder.encode("serviceKey",StandardCharsets.UTF_8) + "=" + apikey);
+		urlBuilder.append("&" + URLEncoder.encode("_type",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("json", StandardCharsets.UTF_8));
+		urlBuilder.append("&" + URLEncoder.encode("pageNo",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8));
+		urlBuilder.append("&" + URLEncoder.encode("numOfRows",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("30", StandardCharsets.UTF_8));
+		urlBuilder.append("&" + URLEncoder.encode("solYear",StandardCharsets.UTF_8) + "=" + URLEncoder.encode(year, StandardCharsets.UTF_8));
 
 		HttpHeaders headers = new HttpHeaders();
 
@@ -62,10 +62,10 @@ public class HolidayUtil {
 
 		List<String> locdates = new ArrayList<>();
 
-		for(Object o : resp) {
+		for (Object o : resp) {
 			JSONObject holiday = (JSONObject) o;
 			String isHoliday = (String)holiday.get("isHoliday");
-			if(isHoliday.equals("Y")) {
+			if (isHoliday.equals("Y")) {
 				locdates.add(String.valueOf(holiday.getInt("locdate")));
 			}
 		}
@@ -81,7 +81,7 @@ public class HolidayUtil {
 			file.write("public class Holidays {" + newLine);
 			file.write("\tpublic static final List<String> HOLIDAYS = Arrays.asList(" + newLine);
 			file.write("\t\t");
-			for(int i = 0; i < locdates.size(); i++) {
+			for (int i = 0; i < locdates.size(); i++) {
 				file.write("\"" + locdates.get(i) + "\"");
 				if(i != locdates.size() - 1) {
 					file.write(", ");
