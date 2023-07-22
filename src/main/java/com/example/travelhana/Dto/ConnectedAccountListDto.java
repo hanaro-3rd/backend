@@ -1,5 +1,6 @@
 package com.example.travelhana.Dto;
 
+import com.example.travelhana.Projection.AccountInfoProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +13,11 @@ import java.util.List;
 @Getter
 @Builder
 public class ConnectedAccountListDto {
-	List<ConnectedAccountDto> accountDtos;
+
+	List<AccountConnectResultDto> accounts;
 	Boolean isBusinessDay;
-	Double exchangeRate;
-	Double appreciationRate;
+	ExchangeRateDto usd;
+	ExchangeRateDto jpy;
+	ExchangeRateDto eur;
+
 }

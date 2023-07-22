@@ -1,6 +1,9 @@
 package com.example.travelhana.Util;
 
+import com.example.travelhana.Domain.ExchangeRate;
 import com.example.travelhana.Dto.ExchangeRateDto;
+import com.example.travelhana.Repository.ExchangeRateRepository;
+import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +18,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 @Configuration
+@RequiredArgsConstructor
 public class ExchangeRateUtil {
+
+	private final ExchangeRateRepository exchangeRateRepository;
+
 	public ExchangeRateDto getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
 
 		System.setProperty( "https.protocols", "TLSv1.2" );
@@ -38,11 +46,17 @@ public class ExchangeRateUtil {
 		JSONArray parser = new JSONArray(response.getBody());
 		JSONObject object = parser.getJSONObject(0);
 
-		Double exchangeRate = object.getDouble("basePrice");
+		Double basePrice = object.getDouble("basePrice");
 		Double changePrice = object.getDouble("signedChangePrice");
 
-		ExchangeRateDto exchangeRateDto = new ExchangeRateDto(exchangeRate, changePrice);
+		ExchangeRate exchangeRate = new ExchangeRate();
+		exchangeRate.setExchangeRate(basePrice);
+		exchangeRate.setChangePrice(changePrice);
+		exchangeRate.setUnit(currencyCode);
+		exchangeRate.setUpdatedAt(LocalDateTime.now());
 
-		return exchangeRateDto;
+		exchangeRateRepository.save(exchangeRate);
+
+		return new ExchangeRateDto(basePrice, changePrice);
 	}
 }

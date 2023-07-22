@@ -1,6 +1,5 @@
 package com.example.travelhana.Service;
 
-import com.example.travelhana.Dto.ConnectedAccountDto;
 import com.example.travelhana.Dto.ConnectedAccountListDto;
 import com.example.travelhana.Dto.ExchangeRateDto;
 import com.example.travelhana.Util.ExchangeRateUtil;
@@ -42,12 +41,30 @@ public class AccountService {
 	private final AccountRepository accountRepository;
 	private final ExternalAccountRepository externalAccountRepository;
 
-	private List<AccountConnectResultDto> decryptAccountNum(List<AccountInfoProjection> projections) throws Exception {
+	private List<AccountConnectResultDto> decryptAccountNum(Long userId, List<AccountInfoProjection> projections) throws Exception {
 		List<AccountConnectResultDto> result = new ArrayList<>();
 		for (AccountInfoProjection projection : projections) {
-			result.add(new AccountConnectResultDto(null, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
+			result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
 		}
 		return result;
+	}
+
+	public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(Long userId) {
+		try {
+			List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
+
+			Boolean isBusinessDay = holidayUtil.isBusinessDay();
+
+			ExchangeRateDto usdExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("USD");
+			ExchangeRateDto jpyExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("JPY");
+			ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
+			ConnectedAccountListDto result = new ConnectedAccountListDto(decryptAccountNum(userId, connectedAccounts), isBusinessDay, usdExchangeRateDto, jpyExchangeRateDto, eurExchangeRateDto);
+
+			return new ResponseEntity<>(result, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(AccountDummyDto accountDummyDto) {
@@ -94,7 +111,7 @@ public class AccountService {
 			}
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
-			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.CREATED);
+			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -104,7 +121,7 @@ public class AccountService {
 		try {
 			Optional<User> user = userRepository.findById(userId);
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
-			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.OK);
+			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -154,18 +171,6 @@ public class AccountService {
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	public ConnectedAccountListDto getConnectedAccountList(String currencyCode) throws URISyntaxException, IOException {
-
-		List<ConnectedAccountDto> connectedAccounts = new ArrayList<>();
-
-		Boolean isBusinessdDay = holidayUtil.isBusinessDay();
-		ExchangeRateDto exchangeRateDto = exchangeRateUtil.getExchangeRateByAPI(currencyCode);
-
-		ConnectedAccountListDto connectedAccountListDto = new ConnectedAccountListDto(connectedAccounts, isBusinessdDay, exchangeRateDto.getExchangeRate(), exchangeRateDto.getAppreciationRate());
-
-		return connectedAccountListDto;
 	}
 
 }

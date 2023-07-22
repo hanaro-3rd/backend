@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class ExchangeRateDto {
+
 	Double exchangeRate;
 	Double appreciationRate;
+
 }

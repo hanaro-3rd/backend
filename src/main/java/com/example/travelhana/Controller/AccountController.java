@@ -25,9 +25,9 @@ public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping("/accountlist/{currencyCode}")
-	public ConnectedAccountListDto getAccountList(@PathVariable String currencyCode) throws URISyntaxException, IOException {
-		return accountService.getConnectedAccountList(currencyCode);
+	@GetMapping(value ="/list/{userId}")
+	public ResponseEntity<ConnectedAccountListDto> getAccountList(@PathVariable Long userId) {
+		return accountService.getConnectedAccountList(userId);
 	}
 
 	@PostMapping("/dummy")
