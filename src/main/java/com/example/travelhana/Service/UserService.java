@@ -5,29 +5,18 @@ import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserRole;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -62,8 +51,6 @@ public class UserService{
         for (int i = 0; i < user.size(); i++) {
             UserResponseDto dto = new UserResponseDto(user.get(i));
             dtos.add(dto);
-
-
         }
         return dtos;
     }

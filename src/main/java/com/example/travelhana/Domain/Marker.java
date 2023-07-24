@@ -18,21 +18,24 @@ public class Marker {
     @Column(name="MARKER_ID")
     private int id;
 
-    @Column
-    private Double lat;
-    @Column
-    private Double lng;
 
-    @Column
-    private Long amount;
+	@Column
+	private Double lat;
 
-    @Column
-    private String place;
+	@Column
+	private Double lng;
 
-    @Column
-    private Long limitAmount;
 
-    @Column
-    private String unit;
+	@Column
+	private Long amount;
+
+	@Column
+	private String place;
+
+	@Column
+	private Long limitAmount;
+
+	@Column
+	private String unit;
 
 }

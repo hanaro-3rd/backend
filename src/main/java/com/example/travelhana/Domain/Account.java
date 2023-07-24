@@ -19,29 +19,41 @@ public class Account {
     @Column(name="ACCOUNT_ID")
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    private User user; //fetch= LAZY
+	@JoinColumn(name = "USER_ID")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User user;
 
-    @Column (nullable = false)
-    private String accountNum;
+	@Column(nullable = false)
+	private String accountNum;
 
-    @Column(nullable = false)
-    private Date openDate;
+	@Column(nullable = false)
+	private String bank;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private Date openDate;
 
-    @Column
-    private String salt;
-
-    @Column(nullable = false)
-    private Long balance;
+	@Column(nullable = false)
+	private String password;
 
     public void updateBalance(Long pay)
     {
         this.balance+=pay;
     }
+	@Column
+	private String salt;
+
+	@Column(nullable = false)
+	private Long balance;
+
+	public Account(User user, String accountNum, String bank, Date openDate, String password, String salt, Long balance) {
+		this.user = user;
+		this.accountNum = accountNum;
+		this.bank = bank;
+		this.openDate = openDate;
+		this.password = password;
+		this.salt = salt;
+		this.balance = balance;
+	}
 
 
 }
