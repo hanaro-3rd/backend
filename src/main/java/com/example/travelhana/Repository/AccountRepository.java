@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Integer> {
 
 	Boolean existsAccountByAccountNum(String accountNum);
 
-	List<AccountInfoProjection> findAllByUser_Id(Long userId);
+	List<AccountInfoProjection> findAllByUser_Id(int userId);
 
 }

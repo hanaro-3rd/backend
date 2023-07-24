@@ -9,12 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountConnectResultDto {
+public class MarkerDummyDto {
 
-	int userId;
-	int accountId;
-	String accountNum;
-	String bank;
-	Long balance;
+	Double lat;
+	Double lng;
+	Long amount;
+	String place;
+	int limitAmount;
+	String unit;
 
 }

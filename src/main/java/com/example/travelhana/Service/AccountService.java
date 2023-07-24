@@ -41,7 +41,7 @@ public class AccountService {
 	private final AccountRepository accountRepository;
 	private final ExternalAccountRepository externalAccountRepository;
 
-	private List<AccountConnectResultDto> decryptAccountNum(Long userId, List<AccountInfoProjection> projections) throws Exception {
+	private List<AccountConnectResultDto> decryptAccountNum(int userId, List<AccountInfoProjection> projections) throws Exception {
 		List<AccountConnectResultDto> result = new ArrayList<>();
 		for (AccountInfoProjection projection : projections) {
 			result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
@@ -49,7 +49,7 @@ public class AccountService {
 		return result;
 	}
 
-	public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(Long userId) {
+	public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(int userId) {
 		try {
 			List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
 
@@ -111,17 +111,17 @@ public class AccountService {
 			}
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
-			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.CREATED);
+			return new ResponseEntity<>(decryptAccountNum(0, projections), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	public ResponseEntity<List<AccountConnectResultDto>> findExternalAccountList(Long userId) {
+	public ResponseEntity<List<AccountConnectResultDto>> findExternalAccountList(int userId) {
 		try {
 			Optional<User> user = userRepository.findById(userId);
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
-			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.OK);
+			return new ResponseEntity<>(decryptAccountNum(0, projections), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -129,8 +129,8 @@ public class AccountService {
 
 	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(AccountConnectDto connectAccountDto) {
 		try {
-			Long userId = connectAccountDto.getUserId();
-			Long externalAccountId = connectAccountDto.getExternalAccountId();
+			int userId = connectAccountDto.getUserId();
+			int externalAccountId = connectAccountDto.getExternalAccountId();
 			String accountPassword = connectAccountDto.getAccountPassword();
 
 			Optional<User> user = userRepository.findById(userId);

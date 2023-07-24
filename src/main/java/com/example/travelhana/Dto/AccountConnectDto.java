@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AccountConnectDto {
 
-	Long userId;
-	Long externalAccountId;
+	int userId;
+	int externalAccountId;
 	String accountPassword;
 
 }

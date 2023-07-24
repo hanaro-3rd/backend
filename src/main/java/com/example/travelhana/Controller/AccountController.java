@@ -8,14 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.travelhana.Dto.ConnectedAccountListDto;
-import com.example.travelhana.Service.AccountService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -26,7 +22,7 @@ public class AccountController {
 	private final AccountService accountService;
 
 	@GetMapping(value ="/list/{userId}")
-	public ResponseEntity<ConnectedAccountListDto> getAccountList(@PathVariable Long userId) {
+	public ResponseEntity<ConnectedAccountListDto> getAccountList(@PathVariable int userId) {
 		return accountService.getConnectedAccountList(userId);
 	}
 
@@ -36,7 +32,7 @@ public class AccountController {
 	}
 
 	@GetMapping(value = "/external/{userId}")
-	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@PathVariable Long userId) {
+	public ResponseEntity<List<AccountConnectResultDto>> getExternalAccountList(@PathVariable int userId) {
 		return accountService.findExternalAccountList(userId);
 	}
 
