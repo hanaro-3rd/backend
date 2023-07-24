@@ -1,5 +1,14 @@
 package com.example.travelhana.Service;
 
+import com.example.travelhana.Dto.ConnectedAccountListDto;
+import com.example.travelhana.Dto.ExchangeRateDto;
+import com.example.travelhana.Util.ExchangeRateUtil;
+import com.example.travelhana.Util.HolidayUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import com.example.travelhana.Domain.Account;
 import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.User;
@@ -12,10 +21,8 @@ import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
 import com.example.travelhana.Projection.AccountInfoProjection;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
@@ -27,17 +34,37 @@ public class AccountService {
 
 	private final SaltUtil saltUtil;
 	private final CryptoUtil cryptoUtil;
+	private final HolidayUtil holidayUtil;
+	private final ExchangeRateUtil exchangeRateUtil;
 
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final ExternalAccountRepository externalAccountRepository;
 
-	private List<AccountConnectResultDto> decryptAccountNum(List<AccountInfoProjection> projections) throws Exception {
+	private List<AccountConnectResultDto> decryptAccountNum(Long userId, List<AccountInfoProjection> projections) throws Exception {
 		List<AccountConnectResultDto> result = new ArrayList<>();
 		for (AccountInfoProjection projection : projections) {
-			result.add(new AccountConnectResultDto(null, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
+			result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
 		}
 		return result;
+	}
+
+	public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(Long userId) {
+		try {
+			List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
+
+			Boolean isBusinessDay = holidayUtil.isBusinessDay();
+
+			ExchangeRateDto usdExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("USD");
+			ExchangeRateDto jpyExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("JPY");
+			ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
+			ConnectedAccountListDto result = new ConnectedAccountListDto(decryptAccountNum(userId, connectedAccounts), isBusinessDay, usdExchangeRateDto, jpyExchangeRateDto, eurExchangeRateDto);
+
+			return new ResponseEntity<>(result, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(AccountDummyDto accountDummyDto) {
@@ -84,7 +111,7 @@ public class AccountService {
 			}
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
-			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.CREATED);
+			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -94,7 +121,7 @@ public class AccountService {
 		try {
 			Optional<User> user = userRepository.findById(userId);
 			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
-			return new ResponseEntity<>(decryptAccountNum(projections), HttpStatus.OK);
+			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}

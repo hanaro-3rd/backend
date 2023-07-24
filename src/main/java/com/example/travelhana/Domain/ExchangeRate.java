@@ -30,6 +30,6 @@ public class ExchangeRate {
 	private LocalDateTime updatedAt;
 
 	@Column
-	private Double appreciationRate;
+	private Double changePrice;
 
 }
