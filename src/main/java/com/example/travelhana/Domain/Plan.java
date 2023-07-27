@@ -1,5 +1,6 @@
 package com.example.travelhana.Domain;
 
+import com.example.travelhana.Dto.UpdateTravelBudgetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,5 +45,13 @@ public class Plan {
 
 	@Column
 	private Long totalBalance; //디폴트 0
+
+	public void updatePlan(UpdateTravelBudgetDto updateTravelBudgetDto) {
+		this.city = updateTravelBudgetDto.getCity();
+		this.country = updateTravelBudgetDto.getCountry();
+		this.startDate = updateTravelBudgetDto.getStartDate();
+		this.endDate = updateTravelBudgetDto.getEndDate();
+		this.title = updateTravelBudgetDto.getTitle();
+	}
 
 }

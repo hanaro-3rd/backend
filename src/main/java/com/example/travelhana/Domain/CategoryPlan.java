@@ -1,5 +1,6 @@
 package com.example.travelhana.Domain;
 
+import com.example.travelhana.Dto.UpdateCategoryBudgetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,5 +33,12 @@ public class CategoryPlan {
 
 	@Column(nullable = false)
 	private Long categoryBalance;//디폴트 0
+
+	public void updateCategoryBudget(UpdateCategoryBudgetDto updateCategoryBudgetDto) {
+		this.categoryBudget = updateCategoryBudgetDto.getCategoryBudget();
+		this.categoryBalance = updateCategoryBudgetDto.getCategoryBalance();
+	}
+
+
 
 }

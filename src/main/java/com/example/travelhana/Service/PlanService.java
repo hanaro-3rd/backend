@@ -4,19 +4,15 @@ import com.example.travelhana.Domain.Category;
 import com.example.travelhana.Domain.CategoryPlan;
 import com.example.travelhana.Domain.Plan;
 import com.example.travelhana.Domain.User;
-import com.example.travelhana.Dto.PlanDto;
-import com.example.travelhana.Dto.PlanSuccessDto;
-import com.example.travelhana.Repository.CategoryPlanRepository;
-import com.example.travelhana.Repository.CategoryRepository;
-import com.example.travelhana.Repository.PlanRepository;
-import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Dto.*;
+import com.example.travelhana.Repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -27,6 +23,8 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryPlanRepository categoryPlanRepository;
+    private final TravelBudgetRepository travelBudgetRepository;
+    //경비 생성
     public PlanSuccessDto savePlan(PlanDto planDto) {
         Plan plan = new Plan();
         plan.setTitle(planDto.getTitle());
@@ -38,9 +36,8 @@ public class PlanService {
         plan.setTotalBudget(planDto.getTotalBudget());
         Optional<User> user = userRepository.findById(planDto.getUserId());
         plan.setUser(user.get());
+        Plan returnPlan = planRepository.save(plan);  //save return이 클래스
         //category 테이블에 id,name이 다 존재한다는 조건에 분기처리
-
-
         if (!categoryRepository.existsById(1L)){
             Category nullCategory1 = new Category(1L,"식비");
             Category nullCategory2 = new Category(2L,"교통");
@@ -58,58 +55,17 @@ public class PlanService {
             categoryRepository.saveAll(categoryList);
         }
 
-        Optional<Category> category1 = categoryRepository.findById(1L); // findById null일 수도 있어서 optional<>에 걸어줌
-        Optional<Category> category2 = categoryRepository.findById(2L);
-        Optional<Category> category3 = categoryRepository.findById(3L);
-        Optional<Category> category4 = categoryRepository.findById(4L);
-        Optional<Category> category5 = categoryRepository.findById(5L);
-        Optional<Category> category6 = categoryRepository.findById(6L);
-
-        Plan returnPlan = planRepository.save(plan);  //save return이 클래스
-
-        CategoryPlan categoryPlan1 = new CategoryPlan();
-        CategoryPlan categoryPlan2 = new CategoryPlan();
-        CategoryPlan categoryPlan3 = new CategoryPlan();
-        CategoryPlan categoryPlan4 = new CategoryPlan();
-        CategoryPlan categoryPlan5 = new CategoryPlan();
-        CategoryPlan categoryPlan6 = new CategoryPlan();
-        categoryPlan1.setPlan(returnPlan);
-        categoryPlan1.setCategory(category1.get()); // optional이면 .get()으로 한 번 더 풀어야함
-        categoryPlan1.setCategoryBudget(planDto.getCategoryBalance1());
-        categoryPlan1.setCategoryBalance(planDto.getCategoryBalance1());
-
-        categoryPlan2.setPlan(returnPlan);
-        categoryPlan2.setCategory(category2.get()); // optional이면 .get()으로 한 번 더 풀어야함
-        categoryPlan2.setCategoryBudget(planDto.getCategoryBalance2());
-        categoryPlan2.setCategoryBalance(planDto.getCategoryBalance2());
-
-        categoryPlan3.setPlan(returnPlan);
-        categoryPlan3.setCategory(category3.get());
-        categoryPlan3.setCategoryBudget(planDto.getCategoryBalance3());
-        categoryPlan3.setCategoryBalance(planDto.getCategoryBalance3());
-
-        categoryPlan4.setPlan(returnPlan);
-        categoryPlan4.setCategory(category4.get());
-        categoryPlan4.setCategoryBudget(planDto.getCategoryBalance4());
-        categoryPlan4.setCategoryBalance(planDto.getCategoryBalance4());
-
-        categoryPlan5.setPlan(returnPlan);
-        categoryPlan5.setCategory(category5.get());
-        categoryPlan5.setCategoryBudget(planDto.getCategoryBalance5());
-        categoryPlan5.setCategoryBalance(planDto.getCategoryBalance5());
-
-        categoryPlan6.setPlan(returnPlan);
-        categoryPlan6.setCategory(category6.get());
-        categoryPlan6.setCategoryBudget(planDto.getCategoryBalance6());
-        categoryPlan6.setCategoryBalance(planDto.getCategoryBalance6());
-
         List<CategoryPlan> categoryPlanList = new ArrayList<>();
-        categoryPlanList.add(categoryPlan1);
-        categoryPlanList.add(categoryPlan2);
-        categoryPlanList.add(categoryPlan3);
-        categoryPlanList.add(categoryPlan4);
-        categoryPlanList.add(categoryPlan5);
-        categoryPlanList.add(categoryPlan6);
+        List<UpdateCategoryBudgetDto> updateCategoryBudgetDtoList = planDto.getCategory();
+        for(UpdateCategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
+            CategoryPlan categoryPlan = new CategoryPlan();
+            categoryPlan.setCategory(categoryRepository.getById(updateCategoryBudgetDto.getCategoryId()));
+            categoryPlan.setPlan(returnPlan);
+            categoryPlan.setCategoryBudget(updateCategoryBudgetDto.getCategoryBudget());
+            categoryPlan.setCategoryBalance(updateCategoryBudgetDto.getCategoryBalance());
+            categoryPlanList.add(categoryPlan);
+        }
+
         categoryPlanRepository.saveAll(categoryPlanList);
 
         PlanSuccessDto planSuccessDto = new PlanSuccessDto();
@@ -117,5 +73,72 @@ public class PlanService {
         planSuccessDto.setPlanId(returnPlan.getId());
         return planSuccessDto;
     }
-    public
+    public ResponseEntity<List<TravelElementDto>> getPlanList(Long id) {
+        //userId에 해당하는 plan 테이블
+        List<Plan> planList = planRepository.findAllByUser_Id(id);
+        List<TravelElementDto> travelElementDtoList = new ArrayList<>();
+
+        for (Plan plan : planList) {
+            TravelElementDto travelElementDto = new TravelElementDto();
+            travelElementDto.setPlanId(plan.getId());
+            travelElementDto.setTitle(plan.getTitle());
+            travelElementDto.setCountry(plan.getCountry());
+            travelElementDto.setStartDate(plan.getStartDate());
+            travelElementDto.setEndDate(plan.getEndDate());
+            travelElementDto.setCity(plan.getCity());
+            travelElementDto.setTotalBudget(plan.getTotalBudget());
+            travelElementDto.setTotalBalance(plan.getTotalBalance());
+            travelElementDtoList.add(travelElementDto);
+        }
+        return new ResponseEntity<>(travelElementDtoList, HttpStatus.OK);
+        // 1. request의 키값을 읽어올수 있나
+        // 2. 왜 existsByID를 통과하나
+    }
+    public ResponseEntity<Map<String, Object>> getPlan(Long id) {
+        Optional <Plan> plan = planRepository.findById(id);
+        TravelBudgetDto travelBudgetDto = new TravelBudgetDto();
+        travelBudgetDto.setTitle(plan.get().getTitle());
+        travelBudgetDto.setCity(plan.get().getCity());
+        travelBudgetDto.setEndDate(plan.get().getEndDate());
+        travelBudgetDto.setStartDate(plan.get().getStartDate());
+        travelBudgetDto.setCountry(plan.get().getCountry());
+        List<CategoryPlan> categoryPlanList = categoryPlanRepository.findAllByPlan_Id(id);
+        List<CategoryPlanDto> categoryPlanDtoList = new ArrayList<>();
+        for(CategoryPlan categoryPlan : categoryPlanList) {
+            CategoryPlanDto categoryPlanDto = new CategoryPlanDto();
+            categoryPlanDto.setCategoryId(categoryPlan.getCategory().getId());
+            categoryPlanDto.setCategoryBalance(categoryPlan.getCategoryBalance());
+            categoryPlanDto.setCategoryBudget(categoryPlan.getCategoryBudget());
+            categoryPlanDtoList.add(categoryPlanDto);
+        }
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("travelBudget", travelBudgetDto);
+        responseData.put("category", categoryPlanDtoList);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+    public String deletePlan(Long id) {
+        categoryPlanRepository.deleteAllByPlan_Id(id);
+        planRepository.deleteById(id);
+        return "Success Delete";
+    }
+
+    @Transactional
+    public String updatePlan(UpdateTravelBudgetDto updateTravelBudgetDto) {
+        Optional <Plan> plan = planRepository.findById(updateTravelBudgetDto.getPlanId());
+        plan.get().updatePlan(updateTravelBudgetDto);
+        planRepository.save(plan.get());
+        return "Update Success";
+    }
+
+    @Transactional
+    public String updateCategoryPlan(Long plan_Id, UpdateCategoryArrayDto updateCategoryArrayDto) {
+        List<UpdateCategoryBudgetDto> updateCategoryBudgetDtoList = updateCategoryArrayDto.getCategory();
+        for(UpdateCategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
+            Optional <CategoryPlan> categoryPlan = categoryPlanRepository.findByIdAndPlan_Id(updateCategoryBudgetDto.getCategoryId(),plan_Id);
+            categoryPlan.get().updateCategoryBudget(updateCategoryBudgetDto);
+            categoryPlanRepository.save(categoryPlan.get());
+        }
+        return "CategoryPlan Update Success";
+    }
+    // Illegal
 }

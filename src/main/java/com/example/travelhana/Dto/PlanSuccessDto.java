@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter @Setter
 public class PlanSuccessDto {
+
     Long planId;
     Long userId;
-
 
 }

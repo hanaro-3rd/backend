@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @Getter @Setter
 public class PlanDto {
@@ -18,12 +19,7 @@ public class PlanDto {
     Date startDate;
     Date endDate;
 
-    Long categoryBalance1;
-    Long categoryBalance2;
-    Long categoryBalance3;
-    Long categoryBalance4;
-    Long categoryBalance5;
-    Long categoryBalance6;
+    List<UpdateCategoryBudgetDto> category;
     Long userId;
 }
 
