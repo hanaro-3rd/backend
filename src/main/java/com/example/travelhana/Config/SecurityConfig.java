@@ -41,7 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션 사용 X
-        http.authorizeRequests().antMatchers("/signup/**", "/signin/password/**", "/api/refresh/**","/userrole/**").permitAll();
+        http.authorizeRequests().antMatchers("/signup/**", "/signin/password/**", "/refresh/**","/userrole/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);

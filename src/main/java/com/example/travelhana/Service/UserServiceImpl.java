@@ -92,9 +92,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
         return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getSalt(), authorities,true,true,true,true);
     }
-
-
-
     @Override
     public void saveAccount(SignupRequestDto dto) {
         validateDuplicateUsername(dto);

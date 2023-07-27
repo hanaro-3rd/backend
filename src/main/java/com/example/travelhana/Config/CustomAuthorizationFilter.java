@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.travelhana.Config.JwtConstants.LOGIN_OR_REFRESH;
 import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -41,16 +42,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String authrizationHeader = request.getHeader(AUTHORIZATION);
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-        if (authrizationHeader == null) {
+        if (servletPath.equals("/signin/password") || servletPath.equals("/refresh")) {
             System.out.println("CustomAuthorizationFilter");
-            SecurityContextHolder.getContext().setAuthentication(null);
+//            SecurityContextHolder.getContext().setAuthentication(null);
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
-            if(authrizationHeader.startsWith("roleadd"))
-            {
+            if(authrizationHeader.startsWith("roleadd")) {
                 SecurityContextHolder.getContext().setAuthentication(null);
-
             }
             System.out.println("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
             response.setStatus(SC_BAD_REQUEST);
@@ -63,11 +62,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 // Access Token만 꺼내옴
                 String accessToken = authrizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
-                // === Access Token 검증 === //
+                //Access Token 검증
                 JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
                 DecodedJWT decodedJWT = verifier.verify(accessToken);
 
-                // === Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장 === //
+                //Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
                 List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
                 List<SimpleGrantedAuthority> authorities = strAuthorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
                 String username = decodedJWT.getSubject();
@@ -83,6 +82,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             } catch (Exception e) {
+                System.out.println();
                 log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType(APPLICATION_JSON_VALUE);

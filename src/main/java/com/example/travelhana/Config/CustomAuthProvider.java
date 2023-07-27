@@ -1,5 +1,7 @@
 package com.example.travelhana.Config;
 
+import com.example.travelhana.Service.CustomUserDetails;
+import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -8,7 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
 @Component
