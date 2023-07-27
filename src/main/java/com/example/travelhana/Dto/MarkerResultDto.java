@@ -9,11 +9,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class MarkerPickUpDto {
+public class MarkerResultDto {
 
-	int userId;
-	int markerId;
+	int id;
 	Double lat;
 	Double lng;
+	Long amount;
+	String place;
+	int limitAmount;
+	String unit;
+	Boolean isPickUp;
 
 }

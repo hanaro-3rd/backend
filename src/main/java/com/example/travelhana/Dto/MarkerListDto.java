@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class MarkerPickUpDto {
+public class MarkerListDto {
 
-	int userId;
-	int markerId;
-	Double lat;
-	Double lng;
+	List<MarkerResultDto> markers;
 
 }

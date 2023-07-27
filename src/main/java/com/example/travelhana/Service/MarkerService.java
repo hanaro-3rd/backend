@@ -4,9 +4,7 @@ import com.example.travelhana.Domain.KeyMoney;
 import com.example.travelhana.Domain.Marker;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserToMarker;
-import com.example.travelhana.Dto.MarkerDummyDto;
-import com.example.travelhana.Dto.MarkerPickUpDto;
-import com.example.travelhana.Dto.MarkerPickUpResultDto;
+import com.example.travelhana.Dto.*;
 import com.example.travelhana.Repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,27 @@ public class MarkerService {
 	private final UserToMarkerRepository userToMarkerRepository;
 	private final KeyMoneyRepository keyMoneyRepository;
 
-	public ResponseEntity<List<Marker>> createDummyMarker(MarkerDummyDto markerDummyDto) {
+	private MarkerListDto parseMarkerEntitiesToMarkerListDto(int userId, List<Marker> markers) {
+		List<MarkerResultDto> returnMarkers = new ArrayList<>();
+		for (Marker marker : markers) {
+			MarkerResultDto returnMarker = MarkerResultDto
+					.builder()
+					.id(marker.getId())
+					.lng(marker.getLng())
+					.lat(marker.getLat())
+					.place(marker.getPlace())
+					.unit(marker.getUnit())
+					.amount(marker.getAmount())
+					.limitAmount(marker.getLimitAmount())
+					.isPickUp(userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, marker.getId()))
+					.build();
+			returnMarkers.add(returnMarker);
+		}
+		return new MarkerListDto(returnMarkers);
+	}
+
+	@Transactional
+	public ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto) {
 
 		Boolean isExist = markerRepository.existsById(1);
 		if (!isExist) {
@@ -78,34 +97,56 @@ public class MarkerService {
 		markerRepository.save(marker);
 
 		List<Marker> markers = markerRepository.findAll();
+		MarkerListDto returnMarkers = parseMarkerEntitiesToMarkerListDto(0, markers);
 
-		return new ResponseEntity<>(markers, HttpStatus.OK);
+		return new ResponseEntity<>(returnMarkers, HttpStatus.OK);
 	}
 
 	@Transactional
 	public ResponseEntity<?> pickUpMarker(MarkerPickUpDto markerPickUpDto) {
 
+		// userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
 		int userId = markerPickUpDto.getUserId();
-		int markerId = markerPickUpDto.getMarkerId();
-
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
-		Marker marker = markerRepository.findById(markerId)
-				.orElseThrow(() -> new RuntimeException("마커가 존재하지 않습니다."));
-
-		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 존재할 시 오류 RESPONSE
-		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, markerId);
-		if (isAlreadyPickUp) {
-			return new ResponseEntity<>("이미 주운 마커입니다.", HttpStatus.CONFLICT);
+		User user = userRepository.findByIdAndIsWithdrawal(userId, false).orElse(null);
+		if (user == null) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(404, "유저를 찾을 수 없습니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.NOT_FOUND);
 		}
 
-		String unit = marker.getUnit();
-		Long amount = marker.getAmount();
+		// markerId에 해당하는 마커가 있는지 확인
+		int markerId = markerPickUpDto.getMarkerId();
+		Marker marker = markerRepository.findById(markerId).orElse(null);
+		if (marker == null) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(404, "마커를 찾을 수 없습니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.BAD_REQUEST);
+		}
 
-		Optional<KeyMoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
+		// 현재 위치의 위도, 경도와 마커의 위도, 경도가 같은지 확인
+		Double lat = markerPickUpDto.getLat();
+		Double lng = markerPickUpDto.getLng();
+		if (!marker.getLat().equals(lat) || !marker.getLng().equals(lng)) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(406, "현재 위치와 마커 위치가 다릅니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		// 해당 마커의 수량이 남아있지 않은 경우
+		if (marker.getLimitAmount() < 1) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(400, "모두 주워진 마커입니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.BAD_REQUEST);
+		}
+
+		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인
+		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, markerId);
+		if (isAlreadyPickUp) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(409, "이미 주운 마커입니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.CONFLICT);
+		}
 
 		// 해당 유저와 통화에 대한 외화 계좌가 있는 지 확인
+		String unit = marker.getUnit();
+		Long amount = marker.getAmount();
 		Long storedKeyMoney;
+		Optional<KeyMoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
 		if (!keyMoney.isPresent()) {
 			// 없으면 포인트만큼 추가한 외화 계좌 생성
 			storedKeyMoney = amount;
@@ -126,6 +167,25 @@ public class MarkerService {
 
 		MarkerPickUpResultDto result = new MarkerPickUpResultDto(userId, marker.getPlace(), storedKeyMoney, marker.getUnit());
 		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
+	@Transactional(readOnly = true)
+	public ResponseEntity<?> getMarkerList(int userId) {
+
+		// userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
+		User user = userRepository.findByIdAndIsWithdrawal(userId, false).orElse(null);
+		if (user == null) {
+			ErrorMessageDto errorMessageDto = new ErrorMessageDto(404, "유저를 찾을 수 없습니다.");
+			return new ResponseEntity<>(errorMessageDto, HttpStatus.NOT_FOUND);
+		}
+
+		// 모든 마커를 가져옴
+		List<Marker> markers = markerRepository.findAll();
+
+		// userId에 대한 유저가 마커를 이미 주웠는지 여부를 추가한 returnMarker에 파싱
+		MarkerListDto returnMarkers = parseMarkerEntitiesToMarkerListDto(userId, markers);
+
+		return new ResponseEntity<>(returnMarkers, HttpStatus.OK);
 	}
 
 }
