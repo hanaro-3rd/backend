@@ -5,6 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +36,6 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         UserDetails user = (UserDetails) authentication.getPrincipal();
-        System.out.println(user.getUsername());
 
         String accessToken = JWT.create()
              .withSubject(user.getUsername())

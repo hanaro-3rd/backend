@@ -5,12 +5,8 @@ import com.example.travelhana.Dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,42 +16,22 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.awt.image.PackedColorModel;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpSession;
-
 @Service
 @RequiredArgsConstructor
 public class PhoneAuthService {
     @Value("${SMS_ACCESS_KEY}")
     private String accesskey;
-
     @Value("${SMS_SECRETE_KEY}")
     private String secretkey;
-
     @Value("${SMS_SERVICE_ID}")
     private String serviceid;
     @Value("${SMS_FROM_NUMBER}")
@@ -94,8 +70,6 @@ public class PhoneAuthService {
         return encodeBase64String;
     }
 
-
-
     public SMSAndCodeDto sendMessageWithResttemplate(String phoneNum)
             throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
@@ -127,19 +101,12 @@ public class PhoneAuthService {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceid +"/messages"), httpBody, SMSResponseDto.class);
 
-
-
         return new SMSAndCodeDto(response,code);
     }
-
-
 
     public CodeDto returnCode(String code)
     {
         return new CodeDto(code);
     }
-
-
-
 
 }

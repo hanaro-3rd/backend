@@ -29,20 +29,14 @@ public class UserController {
     private final UserService userService;
     private final PhoneAuthService phoneAuthService;
     private final HttpSession session;
-    private final AuthenticationManager authenticationManager;
+
+    //기기 존재 여부 확인
     @GetMapping("/registration/{deviceId}")
-    public DeviceDto isExistDevice(@PathVariable("deviceId") String deviceId)
-    {
+    public DeviceDto isExistDevice(@PathVariable("deviceId") String deviceId) {
         return userService.isExistDevice(deviceId);
     }
 
-    @GetMapping("/user")
-    public List<UserResponseDto> userIdexists()
-    {
-        return userService.userExist();
-    }
-
-
+    //휴대폰 인증코드 전송
     @PostMapping("/verification")
     public SMSResponseDto sendMessagewithRest(@RequestBody PhonenumDto dto) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, UnsupportedEncodingException, URISyntaxException {
         SMSAndCodeDto response= phoneAuthService.sendMessageWithResttemplate(dto.getPhonenum());
@@ -50,9 +44,9 @@ public class UserController {
         return response.getResponse();
     }
 
+    //휴대폰 인증코드 일치여부 확인
     @PostMapping("/verification/auth")
-    public PhonenumResponseDto isSusccessAuth(@RequestBody CodeDto codedto)
-    {
+    public PhonenumResponseDto isSusccessAuth(@RequestBody CodeDto codedto) {
         String code= (String) session.getAttribute("code");
         if(codedto.getCode().equals(code))
         {
@@ -72,14 +66,18 @@ public class UserController {
         }
     }
 
+    //회원가입
     @PostMapping("/signup")
     public void signup(@RequestBody SignupRequestDto dto) {
         userService.saveAccount(dto);
     }
+
     @PostMapping("/userrole")
     public ResponseEntity<Integer> addRoleToUser(@RequestBody RoleToUserRequestDto dto) {
         return ResponseEntity.ok(userService.addRoleToUser(dto));
     }
+
+    //refresh token 요청
     @GetMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);

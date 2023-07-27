@@ -42,7 +42,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
         if (authrizationHeader == null) {
-            System.out.println("CustomAuthorizationFilter 걸림");
+            System.out.println("CustomAuthorizationFilter");
             SecurityContextHolder.getContext().setAuthentication(null);
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {

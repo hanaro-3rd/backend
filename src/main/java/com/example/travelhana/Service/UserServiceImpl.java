@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final SaltUtil saltUtil;
     private final JwtConstants jwtConstants;
@@ -80,7 +78,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         if (dto.getName().length() > 15) {
             throw new IllegalArgumentException("이름은 15글자 이내로 입력해주세요.");
         }
-
         return true;
     }
 
@@ -93,17 +90,10 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         List<SimpleGrantedAuthority> authorities = user.getRoles()
              .stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
 
-
-
         return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getSalt(), authorities,true,true,true,true);
-
     }
 
-    @Override
-    public String userSalt(User user){
-        String salt=user.getSalt();
-        return salt;
-    }
+
 
     @Override
     public void saveAccount(SignupRequestDto dto) {
@@ -149,8 +139,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         return user.getId();
     }
 
-    // =============== TOKEN ============ //
-
+    //토큰발급
     @Override
     public void updateRefreshToken(String deviceId, String refreshToken) {
         User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -160,11 +149,11 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public Map<String, String> refresh(String refreshToken) {
 
-        // === Refresh Token 유효성 검사 === //
+        //Refresh Token 유효성 검사
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
         DecodedJWT decodedJWT = verifier.verify(refreshToken);
 
-        // === Access Token 재발급 === //
+        //Access Token 재발급
         long now = System.currentTimeMillis();
         String username = decodedJWT.getSubject();
         User user = userRepository.findByDeviceId(username)
@@ -180,8 +169,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
              .sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
         Map<String, String> accessTokenResponseMap = new HashMap<>();
 
-        // === 현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산 === //
-        // === Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급 === //
+        //현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산
+        //Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
         long refreshExpireTime = decodedJWT.getClaim("exp").asLong() * 1000;
         long diffDays = (refreshExpireTime - now) / 1000 / (24 * 3600);
         long diffMin = (refreshExpireTime - now) / 1000 / 60;
@@ -197,8 +186,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         accessTokenResponseMap.put(AT_HEADER, accessToken);
         return accessTokenResponseMap;
     }
-
-
 
 
 }

@@ -1,6 +1,8 @@
 package com.example.travelhana.Config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,48 +26,28 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         if (request.getContentType() == null || !request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
             // If the content type is not JSON, fallback to the default behavior
-            System.out.println("CustomAuthenticationFilter 걸림");
+            System.out.println("CustomAuthenticationFilter");
             return super.attemptAuthentication(request, response);
         }
 
         try {
             // Parse the JSON request body
             JsonAuthRequest authRequest = objectMapper.readValue(request.getReader(), JsonAuthRequest.class);
-
-            System.out.println("CustomAuthenticationFilter 유저네임"+authRequest.getDeviceId());
-
-            // Create an authentication token with the parsed values
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                  authRequest.getDeviceId(),
                  authRequest.getPassword()
             );
 
-            // Delegate the authentication to the AuthenticationManager
             return authenticationManager.authenticate(token);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Getter
+    @Setter
     private static class JsonAuthRequest {
         private String deviceId;
         private String password;
-
-        public String getDeviceId() {
-            return deviceId;
-        }
-
-        public void setDeviceId(String deviceId) {
-            this.deviceId = deviceId;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-        // Getters and setters for username and password
     }
 }
