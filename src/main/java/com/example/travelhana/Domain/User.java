@@ -3,6 +3,13 @@ package com.example.travelhana.Domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
 
 @Entity
 @Data
@@ -31,13 +38,11 @@ public class User {
 	@Column(nullable = false)
 	private String pattern;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Boolean isWithdrawl; //디폴트 =false
 
-    @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private UserRole role;
-
+	@ManyToMany
+	private List<Role> roles = new ArrayList<>();
 
 
 	@Column(nullable = false)
@@ -46,7 +51,11 @@ public class User {
 	@Column
 	private String salt;
 
-	@Column(nullable = false)
-	private Boolean isWithdrawal; //디폴트 =false
+	private String refreshToken;
+	public void updateRefreshToken(String newToken) {
+		this.refreshToken = newToken;
+	}
+
+
 
 }

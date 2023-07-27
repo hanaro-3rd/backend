@@ -2,8 +2,8 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.ExchangeRequestDto;
-import com.example.travelhana.Exception.BusinessException;
-import com.example.travelhana.Exception.ErrorCode;
+//import com.example.travelhana.Exception.BusinessException;
+//import com.example.travelhana.Exception.ErrorCode;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
 import com.example.travelhana.Repository.KeyMoneyRepository;
@@ -106,7 +106,6 @@ public class ExchangeService {
     //여러 사람이 공휴일에 환전신청을 해도 "다음 영업일"은 모두에게 동일함.
     //그러니까 없으면 다음 영업일을 저장해놓고
     //있으면 그날 실행하기 -> 환전내역에서 쫙 읽어오기
-
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정마다 스케줄링
     public void yourScheduledMethod() {
         // 입력받은 날짜를 LocalDate로 파싱
@@ -122,9 +121,7 @@ public class ExchangeService {
 
         // 현재 날짜와 스케줄링 대상 날짜가 같으면 로직을 실행
         if (today.isEqual(localDate)) {
-            //환전 내역을 쭉 읽어서 환전해야할 데이터들 처리하기
-
-
+            // 환전 내역을 쭉 읽어서 환전해야할 데이터들 처리하기
         }
     }
 
@@ -142,14 +139,13 @@ public class ExchangeService {
         return newKeyMoney;
     }
 
-
     @Transactional
     public void exchangeInAccountBusinessDay(Account account,KeyMoney keyMoney,ExchangeRequestDto dto)
     {
         //원화 -> 외화
         Currency currency = Currency.getByCode(keyMoney.getUnit());
         if (currency == null) {
-            throw new BusinessException("유효하지 않은 화폐단위입니다.",ErrorCode.INVALID_EXCHANGEUNIT);
+            throw new IllegalArgumentException("유효하지 않은 화폐단위입니다.");
             //response 500으로 던져주기
         }
         saveExchangeThings(keyMoney,account,dto);
@@ -199,7 +195,7 @@ public class ExchangeService {
     {
         Currency currency = Currency.getByCode(keyMoney.getUnit());
         if (currency == null) {
-            throw new BusinessException("유효하지 않은 화폐단위입니다.",ErrorCode.INVALID_EXCHANGEUNIT);
+            throw new IllegalArgumentException("유효하지 않은 화폐단위입니다.");
             //response 500으로 던져주기
         }
         Double key=(double)won*(double)currency.getBaseCurrency()/rate;
@@ -217,20 +213,15 @@ public class ExchangeService {
         account.updateBalance(won*(-1));
     }
 
-
     //계좌의 여러 유효성검사
     public Account validateAccount(int accountId,Long won)
     {
-        Account account=accountRepository.findById(accountId).orElseThrow(
-             ()-> new BusinessException("계좌가 존재하지 않습니다.", ErrorCode.NO_ACCOUNT)
-        );
+        Account account=accountRepository.findById(accountId).orElseThrow(()->new IllegalArgumentException("화폐단위ㄴ"));
         if(account.getBalance()< won){
-            throw new BusinessException("잔액이 부족합니다.",ErrorCode.INSUFFICIENT_BALANCE);
+            throw new IllegalArgumentException("유효하지 않은 화폐단위입니다.");
         }
         //에러 발생 시 특정 액션이 있으면 try-catch
-
         //히스토리성 테이블은 주기적으로 폐기처리
-
 
         return account;
     }

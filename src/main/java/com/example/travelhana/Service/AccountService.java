@@ -81,7 +81,7 @@ public class AccountService {
 
 			User user = new User();
 			user.setDeviceId("1234");
-			user.setIsWithdrawal(false);
+			user.setIsWithdrawl(false);
 			user.setName(userName);
 			user.setPassword(saltUtil.encodePassword(userSalt, "1234"));
 			user.setPattern(saltUtil.encodePassword(userSalt, "1234"));

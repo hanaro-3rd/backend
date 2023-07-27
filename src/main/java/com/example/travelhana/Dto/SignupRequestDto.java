@@ -15,4 +15,8 @@ public class SignupRequestDto {
     private String phonenum;
     private String pattern;
     private String deviceId;
+    private String registrationNum;
+    public void encodePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
