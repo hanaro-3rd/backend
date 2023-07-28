@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class ErrorMessageDto {
+public class AccountDummyDto {
 
-	int code;
-	String message;
+	String userName;
+	String registrationNum;
+	String accountPassword;
 
 }
