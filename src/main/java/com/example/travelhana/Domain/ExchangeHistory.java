@@ -22,13 +22,13 @@ public class ExchangeHistory {
 	private Long id;
 
 	@Column
-	private Long userId;
+	private int userId;
 
 	@Column
-	private Long keyId;
+	private int keyId;
 
 	@Column
-	private Long accountId;
+	private int accountId;
 
 	@Column
 	private Long won;

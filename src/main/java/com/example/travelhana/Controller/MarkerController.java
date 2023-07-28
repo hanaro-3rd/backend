@@ -22,7 +22,7 @@ public class MarkerController {
 	@PostMapping("/dummy")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerListDto.class),
-			@ApiResponse(code = 404, message = "NOT_FOUND", response = MessageDto.class)
+			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
 	public ResponseEntity<MarkerListDto> createDummyExternalAccounts(@RequestBody MarkerDummyDto markerDummyDto) {
 		return markerService.createDummyMarker(markerDummyDto);
@@ -31,10 +31,10 @@ public class MarkerController {
 	@PostMapping("/pick-up")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerPickUpResultDto.class),
-			@ApiResponse(code = 404, message = "NOT_FOUND", response = MessageDto.class),
-			@ApiResponse(code = 406, message = "NOT_ACCEPTABLE", response = MessageDto.class),
-			@ApiResponse(code = 409, message = "CONFLICT", response = MessageDto.class),
-			@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR", response = MessageDto.class)
+			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class),
+			@ApiResponse(code = 406, message = "NOT_ACCEPTABLE", response = ResponseDto.class),
+			@ApiResponse(code = 409, message = "CONFLICT", response = ResponseDto.class),
+			@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR", response = ResponseDto.class)
 	})
 	public ResponseEntity<MarkerPickUpResultDto> pickUpMarker(@RequestBody MarkerPickUpDto markerPickUpDto) {
 		return markerService.pickUpMarker(markerPickUpDto);
@@ -43,7 +43,7 @@ public class MarkerController {
 	@GetMapping("/{userId}")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerListDto.class),
-			@ApiResponse(code = 404, message = "NOT_FOUND", response = MessageDto.class)
+			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
 	public ResponseEntity<MarkerListDto> getMarkerList(@PathVariable int userId) {
 		return markerService.getMarkerList(userId);

@@ -117,9 +117,8 @@ public class HolidayUtil {
 		}
 	}
 
-	public Boolean isBusinessDay() throws URISyntaxException {
-
-		LocalDate today = LocalDate.now();
+	public Boolean isBusinessDay(LocalDate today) throws URISyntaxException
+	{
 
 		if (today.toString().endsWith("-01-01")) {
 			makeHolidaysFile();

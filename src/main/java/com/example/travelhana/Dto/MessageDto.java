@@ -1,5 +1,6 @@
 package com.example.travelhana.Dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MessageDto {
 
-	int code;
-	String message;
+    private String to;
+    private String content;
+
 
 }

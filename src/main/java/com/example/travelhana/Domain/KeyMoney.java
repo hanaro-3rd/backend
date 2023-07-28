@@ -14,23 +14,23 @@ import javax.persistence.*;
 @Entity
 public class KeyMoney {
 
-	@Id
-	@Column(name="KEYMONEY_ID")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+    @Id
+    @Column(name="KEYMONEY_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="USER_ID")
-	private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="USER_ID")
+    private User user;
 
-	@Column
-	private String unit;
+    @Column
+    private String unit;
 
-	@Column
-	private Long balance;
+    @Column
+    private Long balance;
 
-	public void addBalance(Long amount) {
-		this.balance += amount;
-	}
+    public void updateBalance(Long amount) {
+        this.balance += amount;
+    }
 
 }
