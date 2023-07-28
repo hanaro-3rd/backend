@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.travelhana.Exception.ErrorResponse;
+import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.travelhana.Config.JwtConstants.LOGIN_OR_REFRESH;
 import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -36,21 +37,29 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final JwtConstants jwtConstants;
 
+    private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html",
+            "/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
+            "/webjars/springfox-swagger-ui/swagger-ui-bundle.js", "/webjars/springfox-swagger-ui/swagger-ui.css",
+            "/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
+            "/webjars/springfox-swagger-ui/springfox.js", "/swagger-resources/configuration/ui",
+            "/webjars/springfox-swagger-ui/favicon-32x32.png", "/swagger-resources/configuration/security",
+            "/swagger-resources", "/v2/api-docs",
+            "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-700.woff2",
+            "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2",
+            "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-700.woff2",
+            "/webjars/springfox-swagger-ui/favicon-16x16.png"));
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String servletPath = request.getServletPath();
         String authrizationHeader = request.getHeader(AUTHORIZATION);
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-        if (servletPath.equals("/signin/password") || servletPath.equals("/refresh")) {
+        if (servletPath.equals("/swagger-ui/index.html")||servletPath.equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
             System.out.println("CustomAuthorizationFilter");
 //            SecurityContextHolder.getContext().setAuthentication(null);
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
-            if(authrizationHeader.startsWith("roleadd")) {
-                SecurityContextHolder.getContext().setAuthentication(null);
-            }
             System.out.println("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
             response.setStatus(SC_BAD_REQUEST);
             response.setContentType(APPLICATION_JSON_VALUE);
@@ -92,4 +101,17 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             }
         }
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        if (excludeUrlPatterns.contains(path)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 }
