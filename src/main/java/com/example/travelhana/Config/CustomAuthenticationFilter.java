@@ -3,6 +3,7 @@ package com.example.travelhana.Config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.reflections.Reflections.log;
+
+@Log4j2
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -31,6 +35,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         }
 
         try {
+            log.info("CustomAuthenticationFilter");
+
             // Parse the JSON request body
             JsonAuthRequest authRequest = objectMapper.readValue(request.getReader(), JsonAuthRequest.class);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -42,12 +48,15 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     @Getter
     @Setter
     private static class JsonAuthRequest {
+
         private String deviceId;
         private String password;
+
     }
 }

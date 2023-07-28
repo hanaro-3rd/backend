@@ -31,146 +31,146 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AccountService {
 
-	private final SaltUtil saltUtil;
-	private final CryptoUtil cryptoUtil;
-	private final HolidayUtil holidayUtil;
-	private final ExchangeRateUtil exchangeRateUtil;
+    private final SaltUtil saltUtil;
+    private final CryptoUtil cryptoUtil;
+    private final HolidayUtil holidayUtil;
+    private final ExchangeRateUtil exchangeRateUtil;
 
-	private final UserRepository userRepository;
-	private final AccountRepository accountRepository;
-	private final ExternalAccountRepository externalAccountRepository;
+    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final ExternalAccountRepository externalAccountRepository;
 
-	private List<AccountConnectResultDto> decryptAccountNum(Integer userId, List<AccountInfoProjection> projections) throws Exception {
-		List<AccountConnectResultDto> result = new ArrayList<>();
-		for (AccountInfoProjection projection : projections) {
-			result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
-		}
-		return result;
-	}
+    private List<AccountConnectResultDto> decryptAccountNum(Integer userId, List<AccountInfoProjection> projections) throws Exception {
+        List<AccountConnectResultDto> result = new ArrayList<>();
+        for (AccountInfoProjection projection : projections) {
+            result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
+        }
+        return result;
+    }
 
-	public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(int userId) {
-		try {
-			List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
+    public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(int userId) {
+        try {
+            List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
 
-			LocalDate today=LocalDate.now();
-			Boolean isBusinessDay = holidayUtil.isBusinessDay(today);
+            LocalDate today = LocalDate.now();
+            Boolean isBusinessDay = holidayUtil.isBusinessDay(today);
 
-			ExchangeRateDto usdExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("USD");
-			ExchangeRateDto jpyExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("JPY");
-			ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
+            ExchangeRateDto usdExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("USD");
+            ExchangeRateDto jpyExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("JPY");
+            ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
 
-			ConnectedAccountListDto result = new ConnectedAccountListDto(decryptAccountNum(userId, connectedAccounts), isBusinessDay, usdExchangeRateDto, jpyExchangeRateDto, eurExchangeRateDto);
+            ConnectedAccountListDto result = new ConnectedAccountListDto(decryptAccountNum(userId, connectedAccounts), isBusinessDay, usdExchangeRateDto, jpyExchangeRateDto, eurExchangeRateDto);
 
-			return new ResponseEntity<>(result, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-	public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(AccountDummyDto accountDummyDto) {
-		try {
-			Random random = new Random();
+    public ResponseEntity<List<AccountConnectResultDto>> createDummyExternalAccounts(AccountDummyDto accountDummyDto) {
+        try {
+            Random random = new Random();
 
-			String userName = accountDummyDto.getUserName();
-			String registrationNum = accountDummyDto.getRegistrationNum();
-			String accountPassword = accountDummyDto.getAccountPassword();
+            String userName = accountDummyDto.getUserName();
+            String registrationNum = accountDummyDto.getRegistrationNum();
+            String accountPassword = accountDummyDto.getAccountPassword();
 
-			List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
+            List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
 
-			String userSalt = saltUtil.generateSalt();
+            String userSalt = saltUtil.generateSalt();
 
-			User user = new User();
-			user.setDeviceId("1234");
-			user.setIsWithdrawl(false);
-			user.setName(userName);
-			user.setPassword(saltUtil.encodePassword(userSalt, "1234"));
-			user.setPattern(saltUtil.encodePassword(userSalt, "1234"));
-			user.setPhoneNum("010-1234-1234");
-			user.setRegistrationNum(registrationNum);
-			user.setSalt(userSalt);
-			userRepository.save(user);
+            User user = new User();
+            user.setDeviceId("1234");
+            user.setIsWithdrawl(false);
+            user.setName(userName);
+            user.setPassword(saltUtil.encodePassword(userSalt, "1234"));
+            user.setPattern(saltUtil.encodePassword(userSalt, "1234"));
+            user.setPhoneNum("010-1234-1234");
+            user.setRegistrationNum(registrationNum);
+            user.setSalt(userSalt);
+            userRepository.save(user);
 
-			for (int i = 0; i < 10; i++) {
-				String accountSalt = saltUtil.generateSalt();
+            for (int i = 0; i < 10; i++) {
+                String accountSalt = saltUtil.generateSalt();
 
-				String group1 = String.format("%03d", random.nextInt(1000));
-				String group2 = String.format("%04d", random.nextInt(10000));
-				String group3 = String.format("%04d", random.nextInt(10000));
+                String group1 = String.format("%03d", random.nextInt(1000));
+                String group2 = String.format("%04d", random.nextInt(10000));
+                String group3 = String.format("%04d", random.nextInt(10000));
 
-				String accountNum = group1 + "-" + group2 + "-" + group3;
+                String accountNum = group1 + "-" + group2 + "-" + group3;
 
-				ExternalAccount externalAccount = new ExternalAccount();
-				externalAccount.setAccountNum(cryptoUtil.encrypt(accountNum));
-				externalAccount.setBank(banks.get(random.nextInt(banks.size())));
-				externalAccount.setOpenDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))));
-				externalAccount.setSalt(accountSalt);
-				externalAccount.setPassword(saltUtil.encodePassword(accountSalt, accountPassword));
-				externalAccount.setRegistrationNum(registrationNum);
-				externalAccount.setBalance(0L);
-				externalAccountRepository.save(externalAccount);
-			}
-			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
+                ExternalAccount externalAccount = new ExternalAccount();
+                externalAccount.setAccountNum(cryptoUtil.encrypt(accountNum));
+                externalAccount.setBank(banks.get(random.nextInt(banks.size())));
+                externalAccount.setOpenDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))));
+                externalAccount.setSalt(accountSalt);
+                externalAccount.setPassword(saltUtil.encodePassword(accountSalt, accountPassword));
+                externalAccount.setRegistrationNum(registrationNum);
+                externalAccount.setBalance(0L);
+                externalAccountRepository.save(externalAccount);
+            }
+            List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
-			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+            return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-	public ResponseEntity<List<AccountConnectResultDto>> findExternalAccountList(int userId) {
-		try {
-			Optional<User> user = userRepository.findById(userId);
-			List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
-			return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    public ResponseEntity<List<AccountConnectResultDto>> findExternalAccountList(int userId) {
+        try {
+            Optional<User> user = userRepository.findById(userId);
+            List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.get().getRegistrationNum());
+            return new ResponseEntity<>(decryptAccountNum(null, projections), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(AccountConnectDto connectAccountDto) {
-		try {
-			int userId = connectAccountDto.getUserId();
-			int externalAccountId = connectAccountDto.getExternalAccountId();
-			String accountPassword = connectAccountDto.getAccountPassword();
+    public ResponseEntity<AccountConnectResultDto> connectExternalAccount(AccountConnectDto connectAccountDto) {
+        try {
+            int userId = connectAccountDto.getUserId();
+            int externalAccountId = connectAccountDto.getExternalAccountId();
+            String accountPassword = connectAccountDto.getAccountPassword();
 
-			Optional<User> user = userRepository.findById(userId);
-			Optional<ExternalAccount> externalAccount = externalAccountRepository.findById(externalAccountId);
+            Optional<User> user = userRepository.findById(userId);
+            Optional<ExternalAccount> externalAccount = externalAccountRepository.findById(externalAccountId);
 
-			// 계좌 소유 여부 확인
-			if (!user.get().getRegistrationNum().equals(externalAccount.get().getRegistrationNum())) {
-				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-			}
+            // 계좌 소유 여부 확인
+            if (!user.get().getRegistrationNum().equals(externalAccount.get().getRegistrationNum())) {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
 
-			// 비밀번호 확인
-			String storedSalt = externalAccount.get().getSalt();
-			String storedPassword = externalAccount.get().getPassword();
-			String encodedPassword = saltUtil.encodePassword(storedSalt, accountPassword);
-			if (!storedPassword.equals(encodedPassword)) {
-				return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-			}
+            // 비밀번호 확인
+            String storedSalt = externalAccount.get().getSalt();
+            String storedPassword = externalAccount.get().getPassword();
+            String encodedPassword = saltUtil.encodePassword(storedSalt, accountPassword);
+            if (!storedPassword.equals(encodedPassword)) {
+                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            }
 
-			// 이미 연결된 계좌 여부 확인
-			String accountNum = externalAccount.get().getAccountNum();
-			Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
-			if (existAccount) {
-				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-			}
+            // 이미 연결된 계좌 여부 확인
+            String accountNum = externalAccount.get().getAccountNum();
+            Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
+            if (existAccount) {
+                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            }
 
-			String bank = externalAccount.get().getBank();
-			Date openDate = externalAccount.get().getOpenDate();
-			String password = externalAccount.get().getPassword();
-			String salt = externalAccount.get().getSalt();
-			Long balance = externalAccount.get().getBalance();
+            String bank = externalAccount.get().getBank();
+            Date openDate = externalAccount.get().getOpenDate();
+            String password = externalAccount.get().getPassword();
+            String salt = externalAccount.get().getSalt();
+            Long balance = externalAccount.get().getBalance();
 
-			Account account = new Account(user.get(), accountNum, bank, openDate, password, salt, balance);
-			accountRepository.save(account);
+            Account account = new Account(user.get(), accountNum, bank, openDate, password, salt, balance);
+            accountRepository.save(account);
 
-			AccountConnectResultDto result = new AccountConnectResultDto(userId, account.getId(), cryptoUtil.decrypt(accountNum), bank, balance);
+            AccountConnectResultDto result = new AccountConnectResultDto(userId, account.getId(), cryptoUtil.decrypt(accountNum), bank, balance);
 
-			return new ResponseEntity<>(result, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

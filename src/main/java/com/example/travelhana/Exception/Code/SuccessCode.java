@@ -18,11 +18,10 @@ public enum SuccessCode {
     // 수정 성공 코드 (HTTP Response: 201 Created)
     UPDATE_SUCCESS(204, "204", "UPDATE SUCCESS"),
     // 인증 성공 코드 (HTTP Response: 200 OK)
-    AUTH_SUCCESS(200,"200","SIGNIN SUCCESS")
+    AUTH_SUCCESS(200, "200", "SIGNIN SUCCESS");
 
-
-    ;
-    private int statusCode; //404
-    private String status; //NOT_FOUNT
+    private int statusCode;
+    private String status;
     private String message;
+
 }

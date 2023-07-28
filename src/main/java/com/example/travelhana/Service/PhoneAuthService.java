@@ -45,7 +45,7 @@ public class PhoneAuthService {
         String space = " ";
         String newLine = "\n";
         String method = "POST";
-        String url = "/sms/v2/services/"+ serviceid+"/messages";
+        String url = "/sms/v2/services/" + serviceid + "/messages";
         String timestamp = time.toString();
         String accessKey = accesskey;
         String secretKey = secretkey;
@@ -70,11 +70,9 @@ public class PhoneAuthService {
         return encodeBase64String;
     }
 
-    public SMSAndCodeDto sendMessageWithResttemplate(String phoneNum)
-            throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
+    public SMSAndCodeDto sendMessageWithResttemplate(String phoneNum) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
-        log.info(accesskey+" "+secretkey+" "+serviceid);
-        String code=String.valueOf(generateRandomNumber());
+        String code = String.valueOf(generateRandomNumber());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -82,7 +80,7 @@ public class PhoneAuthService {
         headers.set("x-ncp-iam-access-key", accesskey);
         headers.set("x-ncp-apigw-signature-v2", makeSignature(time));
 
-        MessageDto msg=new MessageDto(phoneNum,code);
+        MessageDto msg = new MessageDto(phoneNum, code);
         List<MessageDto> messages = new ArrayList<>();
         messages.add(msg);
 
@@ -99,14 +97,9 @@ public class PhoneAuthService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/"+ serviceid +"/messages"), httpBody, SMSResponseDto.class);
+        SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceid + "/messages"), httpBody, SMSResponseDto.class);
 
-        return new SMSAndCodeDto(response,code);
-    }
-
-    public CodeDto returnCode(String code)
-    {
-        return new CodeDto(code);
+        return new SMSAndCodeDto(response, code);
     }
 
 }

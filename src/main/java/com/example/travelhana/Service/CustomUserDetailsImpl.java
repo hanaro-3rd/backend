@@ -33,8 +33,6 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
         this.enabled = enabled;
     }
 
-
-
     @Override
     public String getSalt() {
         return salt;
@@ -74,5 +72,6 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
     public boolean isEnabled() {
         return enabled;
     }
+
 }
 

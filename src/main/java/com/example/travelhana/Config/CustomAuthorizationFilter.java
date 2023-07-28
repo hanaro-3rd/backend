@@ -49,8 +49,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2",
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-700.woff2",
             "/webjars/springfox-swagger-ui/favicon-16x16.png"));
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String servletPath = request.getServletPath();
         String authrizationHeader = request.getHeader(AUTHORIZATION);
 
@@ -65,6 +67,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("utf-8");
             ErrorResponse errorResponse = new ErrorResponse(400, "JWT Token이 존재하지 않습니다.");
+
             new ObjectMapper().writeValue(response.getWriter(), errorResponse);
         } else {
             try {
@@ -89,6 +92,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
+
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             } catch (Exception e) {
                 log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
@@ -96,6 +100,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
+
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             }
         }
@@ -103,14 +108,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
         String path = request.getRequestURI();
         if (excludeUrlPatterns.contains(path)) {
             return true;
         } else {
             return false;
         }
+
     }
-
-
 
 }

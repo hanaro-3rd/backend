@@ -16,6 +16,7 @@ import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,11 +28,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.*;
-@Slf4j
+
+@Log4j2
 @Transactional
 @RequiredArgsConstructor
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService{
+public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     private final UserRepository userRepository;
@@ -39,10 +41,12 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private final SaltUtil saltUtil;
     private final JwtConstants jwtConstants;
 
+    
+    //==============회원가입=================
+    //최초 접속 시 기기 존재 여부 확인
     public DeviceDto isExistDevice(String deviceId) {
         User user = userRepository.findByDeviceId(deviceId)
-             .orElseThrow(() -> new UsernameNotFoundException("UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
-
+                .orElseThrow(() -> new UsernameNotFoundException("UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
 
         Boolean isRegistrate;
         String name;
@@ -57,19 +61,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     }
 
-    public List<UserResponseDto> userExist() {
-        List<UserResponseDto> dtos = new ArrayList<>();
-        List<User> user = userRepository.findAll();
-        for (int i = 0; i < user.size(); i++) {
-            UserResponseDto dto = new UserResponseDto(user.get(i));
-            dtos.add(dto);
-        }
-        return dtos;
-    }
-
+    //회원가입 형식 유효성 검사
     public Boolean isValidUser(SignupRequestDto dto) {
         if (dto.getPassword().length() != 6) {
-            log.info(dto.getPassword().length());
             throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
         }
         if (!dto.getPassword().matches("\\d+")) {
@@ -81,32 +75,21 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         return true;
     }
 
-
-    @Override
-    public CustomUserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByDeviceId(username)
-             .orElseThrow(() -> new UsernameNotFoundException("UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
-
-        List<SimpleGrantedAuthority> authorities = user.getRoles()
-             .stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
-
-        return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getSalt(), authorities,true,true,true,true);
-    }
+    //회원가입 - 계정 저장
     @Override
     public void saveAccount(SignupRequestDto dto) {
         validateDuplicateUsername(dto);
         String salt = saltUtil.generateSalt();
-        log.info("회원가입 비밀번호: "+dto.getPassword());
         User user = new User().builder()
-             .password(saltUtil.encodePassword(salt, dto.getPassword()))
-             .pattern(saltUtil.encodePassword(salt, dto.getPattern()))
-             .phoneNum(dto.getPhonenum())
-             .deviceId(dto.getDeviceId())
-             .salt(salt)
-             .isWithdrawl(false) //탈퇴했는지
-             .name(dto.getName())
-             .registrationNum(dto.getRegistrationNum())
-             .build();
+                .password(saltUtil.encodePassword(salt, dto.getPassword()))
+                .pattern(saltUtil.encodePassword(salt, dto.getPattern()))
+                .phoneNum(dto.getPhonenum())
+                .deviceId(dto.getDeviceId())
+                .salt(salt)
+                .isWithdrawl(false) //탈퇴했는지
+                .name(dto.getName())
+                .registrationNum(dto.getRegistrationNum())
+                .build();
         userRepository.save(user);
     }
 
@@ -136,7 +119,22 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         return user.getId();
     }
 
-    //토큰발급
+    //==============로그인=================
+    //로그인 시 권한 확인
+    @Override
+    public CustomUserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByDeviceId(username)
+                .orElseThrow(() -> new UsernameNotFoundException("UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
+
+        List<SimpleGrantedAuthority> authorities = user.getRoles()
+                .stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+
+        return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getSalt(), authorities, true, true, true, true);
+    }
+
+
+
+    //==============토큰발급=================
     @Override
     public void updateRefreshToken(String deviceId, String refreshToken) {
         User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -154,16 +152,16 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         long now = System.currentTimeMillis();
         String username = decodedJWT.getSubject();
         User user = userRepository.findByDeviceId(username)
-             .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         if (!user.getRefreshToken().equals(refreshToken)) {
             throw new JWTVerificationException("유효하지 않은 Refresh Token 입니다.");
         }
         String accessToken = JWT.create()
-             .withSubject(user.getDeviceId())
-             .withExpiresAt(new Date(now + AT_EXP_TIME))
-             .withClaim("roles", user.getRoles().stream().map(Role::getName)
-                  .collect(Collectors.toList()))
-             .sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
+                .withSubject(user.getDeviceId())
+                .withExpiresAt(new Date(now + AT_EXP_TIME))
+                .withClaim("roles", user.getRoles().stream().map(Role::getName)
+                        .collect(Collectors.toList()))
+                .sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
         Map<String, String> accessTokenResponseMap = new HashMap<>();
 
         //현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산
@@ -173,9 +171,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         long diffMin = (refreshExpireTime - now) / 1000 / 60;
         if (diffMin < 5) {
             String newRefreshToken = JWT.create()
-                 .withSubject(user.getDeviceId())
-                 .withExpiresAt(new Date(now + RT_EXP_TIME))
-                 .sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
+                    .withSubject(user.getDeviceId())
+                    .withExpiresAt(new Date(now + RT_EXP_TIME))
+                    .sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
             accessTokenResponseMap.put(RT_HEADER, newRefreshToken);
             user.updateRefreshToken(newRefreshToken);
         }
@@ -183,6 +181,5 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         accessTokenResponseMap.put(AT_HEADER, accessToken);
         return accessTokenResponseMap;
     }
-
-
+    
 }

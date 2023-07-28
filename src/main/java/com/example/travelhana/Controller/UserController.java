@@ -36,28 +36,31 @@ public class UserController {
         return userService.isExistDevice(deviceId);
     }
 
+    //로그인 테스트용
+    @PostMapping("/signin/password")
+    public void signin(@RequestBody LoginRequestDto dto){
+        return;
+    }
+
     //휴대폰 인증코드 전송
     @PostMapping("/verification")
     public SMSResponseDto sendMessagewithRest(@RequestBody PhonenumDto dto) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, UnsupportedEncodingException, URISyntaxException {
-        SMSAndCodeDto response= phoneAuthService.sendMessageWithResttemplate(dto.getPhonenum());
-        session.setAttribute("code",response.getCode());
+        SMSAndCodeDto response = phoneAuthService.sendMessageWithResttemplate(dto.getPhonenum());
+        session.setAttribute("code", response.getCode());
         return response.getResponse();
     }
 
     //휴대폰 인증코드 일치여부 확인
     @PostMapping("/verification/auth")
     public PhonenumResponseDto isSusccessAuth(@RequestBody CodeDto codedto) {
-        String code= (String) session.getAttribute("code");
-        if(codedto.getCode().equals(code))
-        {
+        String code = (String) session.getAttribute("code");
+        if (codedto.getCode().equals(code)) {
             session.removeAttribute("code");
             return PhonenumResponseDto.builder()
                     .statusCode("200")
                     .statusMessage("Success")
                     .build();
-        }
-        else
-        {
+        } else {
             session.removeAttribute("code");
             return PhonenumResponseDto.builder()
                     .statusCode("500")

@@ -8,6 +8,7 @@ import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.Authenticator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.example.travelhana.Config.JwtConstants.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Log4j2
 @RequiredArgsConstructor
 @Component
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
@@ -35,10 +37,10 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     private final UserService userService;
     private final JwtConstants jwtConstants;
 
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         UserDetails user = (UserDetails) authentication.getPrincipal();
+        log.info("CustomSuccessHandler");
 
         String accessToken = JWT.create()
              .withSubject(user.getUsername())

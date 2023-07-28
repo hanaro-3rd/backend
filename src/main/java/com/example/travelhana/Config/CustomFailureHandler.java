@@ -2,6 +2,7 @@ package com.example.travelhana.Config;
 
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.reflections.Reflections.log;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Log4j2
 @Component
 public class CustomFailureHandler implements AuthenticationFailureHandler {
 

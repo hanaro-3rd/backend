@@ -28,11 +28,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
+
         auth.authenticationProvider(authenticationProvider);
+
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         CustomAuthenticationFilter customAuthenticationFilter =
              new CustomAuthenticationFilter(authenticationManagerBean());
         customAuthenticationFilter.setFilterProcessesUrl("/signin/password");
@@ -47,11 +50,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+
     }
 
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
+
         return super.authenticationManagerBean();
+
     }
+
 }

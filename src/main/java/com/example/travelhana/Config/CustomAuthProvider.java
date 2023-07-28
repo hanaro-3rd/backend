@@ -4,6 +4,7 @@ import com.example.travelhana.Service.CustomUserDetails;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import static org.reflections.Reflections.log;
+
+@Log4j2
 @RequiredArgsConstructor
 @Component
 public class CustomAuthProvider implements AuthenticationProvider {
@@ -26,6 +30,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
 
+        log.info("CustomAuthProvider");
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
         String salt=userDetails.getSalt();
         String userpassword=userDetails.getPassword();
