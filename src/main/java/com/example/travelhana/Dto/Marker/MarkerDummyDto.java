@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountConnectDto {
+public class MarkerDummyDto {
 
-	Long userId;
-	Long externalAccountId;
-	String accountPassword;
+	Double lat;
+	Double lng;
+	Long amount;
+	String place;
+	int limitAmount;
+	String unit;
 
 }

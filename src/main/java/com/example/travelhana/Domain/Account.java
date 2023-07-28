@@ -18,7 +18,7 @@ public class Account {
 	@Id
 	@Column(name="ACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@JoinColumn(name = "USER_ID")
 	@ManyToOne(fetch = FetchType.LAZY)

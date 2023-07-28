@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ExternalAccountRepository extends JpaRepository<ExternalAccount, Long> {
+public interface ExternalAccountRepository extends JpaRepository<ExternalAccount, Integer> {
 
 	List<AccountInfoProjection> findAllByRegistrationNum(String registrationNum);
 

@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Integer> {
 
 	Boolean existsAccountByAccountNum(String accountNum);
 
-	List<AccountInfoProjection> findAllByUser_Id(Long userId);
+	// QueryDSL 적용하고 각 컬럼만 가져오는 쿼리 짜도록 바꿀 예정
+	List<AccountInfoProjection> findAllByUser_Id(int userId);
 
 }

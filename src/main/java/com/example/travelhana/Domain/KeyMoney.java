@@ -17,7 +17,7 @@ public class KeyMoney {
 	@Id
 	@Column(name="KEYMONEY_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="USER_ID")
@@ -28,5 +28,9 @@ public class KeyMoney {
 
 	@Column
 	private Long balance;
+
+	public void addBalance(Long amount) {
+		this.balance += amount;
+	}
 
 }
