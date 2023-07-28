@@ -13,12 +13,13 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class Category {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Id
-    @Column(name="CATEGORY_ID")
+    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column
     private String name;
-}
 
+}

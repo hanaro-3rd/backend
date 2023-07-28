@@ -22,7 +22,6 @@ public class User {
     @Column(name="USER_ID")
     private int id;
 
-
 	@Column(nullable = false)
 	private String name;
 
@@ -39,10 +38,10 @@ public class User {
 	private String pattern;
 
     @Column(nullable = false)
-    private Boolean isWithdrawl; //디폴트 =false
+    private Boolean isWithdrawal; //디폴트 =false
 
 	@ManyToMany
-	private List<Role> roles = new ArrayList<>();
+	private final List<Role> roles = new ArrayList<>();
 
 
 	@Column(nullable = false)

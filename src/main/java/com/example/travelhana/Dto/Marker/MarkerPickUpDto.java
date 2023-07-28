@@ -1,5 +1,4 @@
-package com.example.travelhana.Dto;
-
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,10 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class MessageDto {
+public class MarkerPickUpDto {
 
-    private String to;
-    private String content;
-
+	int userId;
+	int markerId;
+	Double lat;
+	Double lng;
 
 }

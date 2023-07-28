@@ -12,13 +12,12 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Entity
-public class
-CategoryPlan {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="CATEGORYPLAN_ID")
-    private int id;
+public class CategoryPlan {
 
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="PLAN_ID")

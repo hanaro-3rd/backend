@@ -2,15 +2,21 @@ package com.example.travelhana.Exception.Handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.example.travelhana.Dto.ResponseDto;
+import com.example.travelhana.Exception.BusinessException;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static org.reflections.Reflections.log;
 
+@Log4j2
+@ControllerAdvice
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -33,11 +39,10 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(BusinessExceptionHandler.class)
-    public ResponseEntity<ErrorResponse> handleCustomException(BusinessExceptionHandler ex) {
-
-        final ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.valueOf(ex.getErrorCode().getStatusCode()));
-
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ResponseDto> handleBusinessException(BusinessException e) {
+        log.error("에러가 발생했습니다. : {}", e.getMessage(), e);
+        ResponseDto messageDto = new ResponseDto(e.getErrorCode().getStatusCode(), e.getMessage());
+        return new ResponseEntity<>(messageDto, HttpStatus.valueOf(e.getErrorCode().getStatusCode()));
     }
 }

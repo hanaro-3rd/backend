@@ -19,7 +19,6 @@ public class UserToMarker {
     @Column
     private int id;
 
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="USER_ID")
 	private User user;

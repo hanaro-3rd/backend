@@ -13,18 +13,17 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class Marker {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="MARKER_ID")
-    private int id;
 
+	@Id
+	@Column(name="MARKER_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
 	@Column
 	private Double lat;
 
 	@Column
 	private Double lng;
-
 
 	@Column
 	private Long amount;
@@ -33,9 +32,13 @@ public class Marker {
 	private String place;
 
 	@Column
-	private Long limitAmount;
+	private int limitAmount;
 
 	@Column
 	private String unit;
+
+	public void decreaseLimitAmount() {
+		this.limitAmount -= 1;
+	}
 
 }

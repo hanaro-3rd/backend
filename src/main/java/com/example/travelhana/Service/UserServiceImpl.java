@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .phoneNum(dto.getPhonenum())
                 .deviceId(dto.getDeviceId())
                 .salt(salt)
-                .isWithdrawl(false) //탈퇴했는지
+                .isWithdrawal(false) //탈퇴했는지
                 .name(dto.getName())
                 .registrationNum(dto.getRegistrationNum())
                 .build();

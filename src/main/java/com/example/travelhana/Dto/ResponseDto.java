@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class MessageDto {
+public class ResponseDto {
 
-    private String to;
-    private String content;
 
+	int code;
+	String message;
 
 }

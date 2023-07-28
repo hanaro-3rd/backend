@@ -5,11 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -35,7 +30,7 @@ public class UserResponseDto {
     {
         this.id=user.getId();
         this.deviceId=user.getDeviceId();
-        this.isWithdrawl=user.getIsWithdrawl();
+        this.isWithdrawl=user.getIsWithdrawal();
         this.name= user.getName();
         this.password=user.getPassword();
         this.pattern= user.getPattern();

@@ -8,8 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class) //스프링 시큐리티 기능 제거
 public class TravelhanaApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+	@Test
+	void contextLoads() {
+	}
 
 }

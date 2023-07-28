@@ -14,11 +14,11 @@ import java.util.Date;
 @Builder
 @Entity
 public class Plan {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="PLAN_ID")
-    private int id;
 
+	@Id
+	@Column(name="PLAN_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "USER_ID")

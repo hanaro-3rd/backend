@@ -1,19 +1,18 @@
-package com.example.travelhana.Dto;
-
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class MessageDto {
+public class MarkerListDto {
 
-    private String to;
-    private String content;
-
+	List<MarkerResultDto> markers;
 
 }
