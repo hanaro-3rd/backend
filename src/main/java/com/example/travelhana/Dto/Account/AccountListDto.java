@@ -13,6 +13,6 @@ import java.util.List;
 @Builder
 public class AccountListDto {
 
-    List<AccountConnectResultDto> externalAccounts;
+	List<AccountConnectResultDto> externalAccounts;
 
 }

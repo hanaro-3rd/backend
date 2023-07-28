@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

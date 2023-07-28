@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 //@SpringBootApplication
 public class TravelhanaApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(TravelhanaApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(TravelhanaApplication.class, args);
+	}
 
 }

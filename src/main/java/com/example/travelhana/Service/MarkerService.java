@@ -4,7 +4,7 @@ import com.example.travelhana.Domain.KeyMoney;
 import com.example.travelhana.Domain.Marker;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserToMarker;
-import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Marker.*;
 import com.example.travelhana.Exception.BusinessException;
 import com.example.travelhana.Exception.ErrorCode;
 import com.example.travelhana.Repository.*;

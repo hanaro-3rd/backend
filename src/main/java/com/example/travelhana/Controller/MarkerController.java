@@ -1,6 +1,10 @@
 package com.example.travelhana.Controller;
 
 import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Marker.MarkerDummyDto;
+import com.example.travelhana.Dto.Marker.MarkerListDto;
+import com.example.travelhana.Dto.Marker.MarkerPickUpDto;
+import com.example.travelhana.Dto.Marker.MarkerPickUpResultDto;
 import com.example.travelhana.Service.MarkerService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;

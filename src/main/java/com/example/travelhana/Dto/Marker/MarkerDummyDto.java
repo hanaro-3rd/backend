@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,15 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class MarkerResultDto {
+public class MarkerDummyDto {
 
-	int id;
 	Double lat;
 	Double lng;
 	Long amount;
 	String place;
 	int limitAmount;
 	String unit;
-	Boolean isPickUp;
 
 }
