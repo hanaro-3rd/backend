@@ -33,8 +33,8 @@
 //            Optional<String> optCsrfToken = Optional.ofNullable(request.getHeader(X_CSRF_TOKEN));
 //            Optional<Cookie> optCsrfCookie = CookieUtils.getCookie(request, CSRF_TOKEN);
 //
-//            System.out.println(optCsrfToken.isPresent() ? optCsrfToken.get() : "CSRF 토큰 헤더가 존재하지 않습니다.");
-//            System.out.println(optCsrfCookie.isPresent() ? optCsrfCookie.get().getValue() : "CSRF 쿠키가 존재하지 않습니다.");
+//            log.info(optCsrfToken.isPresent() ? optCsrfToken.get() : "CSRF 토큰 헤더가 존재하지 않습니다.");
+//            log.info(optCsrfCookie.isPresent() ? optCsrfCookie.get().getValue() : "CSRF 쿠키가 존재하지 않습니다.");
 //
 //            if (!optCsrfCookie.isPresent() || !optCsrfToken.isPresent() || !optCsrfToken.get().equals(optCsrfCookie.get().getValue())) {
 //                accessDeniedHandler.handle(request, response, new AccessDeniedException(

@@ -1,4 +1,4 @@
-package com.example.travelhana.Exception;
+package com.example.travelhana.Exception.Handler;
 
 import com.example.travelhana.Exception.Code.ErrorCode;
 import lombok.Getter;

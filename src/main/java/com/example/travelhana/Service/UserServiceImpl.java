@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     public Boolean isValidUser(SignupRequestDto dto) {
         if (dto.getPassword().length() != 6) {
-            System.out.println(dto.getPassword().length());
+            log.info(dto.getPassword().length());
             throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
         }
         if (!dto.getPassword().matches("\\d+")) {
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     public void saveAccount(SignupRequestDto dto) {
         validateDuplicateUsername(dto);
         String salt = saltUtil.generateSalt();
-        System.out.println("회원가입 비밀번호: "+dto.getPassword());
+        log.info("회원가입 비밀번호: "+dto.getPassword());
         User user = new User().builder()
              .password(saltUtil.encodePassword(salt, dto.getPassword()))
              .pattern(saltUtil.encodePassword(salt, dto.getPattern()))

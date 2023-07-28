@@ -1,15 +1,15 @@
-package com.example.travelhana.Exception;
+package com.example.travelhana.Exception.Handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import static org.reflections.Reflections.log;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,8 +31,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessExceptionHandler.class)
     public ResponseEntity<ErrorResponse> handleCustomException(BusinessExceptionHandler ex) {
+        log.info("여기로 오는가?!");
 
-        final ErrorResponse response = new ErrorResponse(ErrorCode.BUSINESS_EXCEPTION_ERROR.getStatusCode(),ex.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NO_ACCOUNT, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

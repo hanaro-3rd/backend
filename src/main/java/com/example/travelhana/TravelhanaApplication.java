@@ -9,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 //(exclude = SecurityAutoConfiguration.class) //스프링 시큐리티 기능 제거
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EnableScheduling
 public class TravelhanaApplication {
 

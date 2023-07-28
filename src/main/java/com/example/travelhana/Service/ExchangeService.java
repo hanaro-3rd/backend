@@ -3,12 +3,17 @@ package com.example.travelhana.Service;
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.ExchangeRequestDto;
 //import com.example.travelhana.Exception.BusinessException;
-//import com.example.travelhana.Exception.ErrorCode;
+//import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
+import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
 import com.example.travelhana.Repository.KeyMoneyRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.HolidayUtil;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,6 +23,8 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static org.reflections.Reflections.log;
 
 @Service
 @RequiredArgsConstructor
@@ -50,12 +57,12 @@ public class ExchangeService {
         if (account != null) {
             Boolean isBusinessDay = request.getIsBusinessday();
             if (isBusinessDay) {
-                System.out.println(account.getUser().getId()+request.getUnit());
+                log.info(account.getUser().getId()+request.getUnit());
                 if (keyMoney == null) {
                     //해당 화폐단위의 외환계좌가 존재하지 않으면 새로만들기
                     keyMoney=makeKeyMoney(account.getUser(), request.getUnit());
                 }
-                exchangeInAccountBusinessDay(account,keyMoney,request);
+                exchangeInAccountBusinessDay(request);
             }
             else{
                 //영업일이 아닐 때
@@ -76,7 +83,7 @@ public class ExchangeService {
                     //1. 다음날이 영업일이 아닐 때를 체크
                     //2. 다음 영업일을 찾아서 스케줄링 예약 걸어놓기
                     LocalDate today=LocalDate.now();
-                    System.out.println(today);
+                    log.info(today.toString());
                     while(!holidayUtil.isBusinessDay(today))
                     {
                         today= today.plusDays(1);
@@ -140,15 +147,39 @@ public class ExchangeService {
     }
 
     @Transactional
-    public void exchangeInAccountBusinessDay(Account account,KeyMoney keyMoney,ExchangeRequestDto dto)
+    public ApiResponse exchangeInAccountBusinessDay(ExchangeRequestDto dto)
     {
-        //원화 -> 외화
-        Currency currency = Currency.getByCode(keyMoney.getUnit());
-        if (currency == null) {
-            throw new IllegalArgumentException("유효하지 않은 화폐단위입니다.");
-            //response 500으로 던져주기
+        Account account = validateAccount(dto.getAccountId(), dto.getWon());
+        KeyMoney keyMoney = keyMoneyRepository.findByUserIdAndUnit(account.getUser().getId(), dto.getUnit());
+
+        ApiResponse ar=null;
+        try{
+            //원화 -> 외화
+            Currency currency = Currency.getByCode(keyMoney.getUnit());
+            if (currency == null) {
+                throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+                //response 500으로 던져주기
+            }
+            saveExchangeThings(keyMoney,account,dto);
+            ar=ApiResponse.builder()
+                    .result("Success")
+                    .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+                    .build();
         }
-        saveExchangeThings(keyMoney,account,dto);
+        catch (BusinessExceptionHandler e)
+        {
+//            log.info("!!!!!!!!!!1Error Exist!!!!!!!1");
+//            ar= ApiResponse.builder()
+//                    .result("Fail")
+//                    .resultCode(e.getErrorCode().getStatusCode())
+//                    .resultMsg(e.getErrorCode().getMessage())
+//                    .build();
+            throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+
+        }
+        return ar;
+
     }
 
     @Transactional
@@ -216,14 +247,66 @@ public class ExchangeService {
     //계좌의 여러 유효성검사
     public Account validateAccount(int accountId,Long won)
     {
-        Account account=accountRepository.findById(accountId).orElseThrow(()->new IllegalArgumentException("화폐단위ㄴ"));
-        if(account.getBalance()< won){
-            throw new IllegalArgumentException("유효하지 않은 화폐단위입니다.");
+        Account account=accountRepository.findById(accountId);
+
+        ApiResponse ar=null;
+
+
+        try {
+            log.info("account balance :"+account.getBalance());
+            log.info("won :"+won);
+            if (account.getBalance() < won) {
+                log.info("fail!!!!!!!1");
+                throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+            }
         }
+        catch (BusinessExceptionHandler e)
+        {
+            ar= ApiResponse.builder()
+                    .result("Fail")
+                    .resultCode(e.getErrorCode().getStatusCode())
+                    .resultMsg(e.getErrorCode().getMessage())
+                    .build();
+        }
+        return account;
+
+    }
         //에러 발생 시 특정 액션이 있으면 try-catch
         //히스토리성 테이블은 주기적으로 폐기처리
 
-        return account;
+
+
+    public ApiResponse accountErrorExample(ExchangeRequestDto dto)
+    {
+
+
+        ApiResponse ar=null;
+        try{
+            Account account=accountRepository.findById(dto.getAccountId());
+            if(account==null)
+            {
+                throw new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT);
+            }
+
+            ar=ApiResponse.builder()
+                    .result("Success")
+                    .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+                    .build();
+        }
+        catch (BusinessExceptionHandler e)
+        {
+//            log.info("!!!!!!!!!!1Error Exist!!!!!!!1");
+//            ar= ApiResponse.builder()
+//                    .result("Fail")
+//                    .resultCode(e.getErrorCode().getStatusCode())
+//                    .resultMsg(e.getErrorCode().getMessage())
+//                    .build();
+            throw new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT);
+
+        }
+        return ar;
+
     }
 
 

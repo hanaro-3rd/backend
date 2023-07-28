@@ -14,6 +14,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
 
 
+	Account findById(int id);
 	Boolean existsAccountByAccountNum(String accountNum);
 
 	List<AccountInfoProjection> findAllByUser_Id(int userId);

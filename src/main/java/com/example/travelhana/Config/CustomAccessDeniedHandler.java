@@ -1,6 +1,6 @@
 package com.example.travelhana.Config;
 
-import com.example.travelhana.Exception.ErrorResponse;
+import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -18,7 +18,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        System.out.println("AccessDeniedHandler");
+        log.info("AccessDeniedHandler");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         ErrorResponse errorResponse = new ErrorResponse(403, "해당 자원에 대한 접근 권한이 없습니다.");
         response.setContentType(APPLICATION_JSON_VALUE);

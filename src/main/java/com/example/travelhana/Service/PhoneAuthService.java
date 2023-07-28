@@ -73,7 +73,7 @@ public class PhoneAuthService {
     public SMSAndCodeDto sendMessageWithResttemplate(String phoneNum)
             throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
-        System.out.println(accesskey+" "+secretkey+" "+serviceid);
+        log.info(accesskey+" "+secretkey+" "+serviceid);
         String code=String.valueOf(generateRandomNumber());
 
         HttpHeaders headers = new HttpHeaders();

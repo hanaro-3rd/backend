@@ -37,6 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final JwtConstants jwtConstants;
 
+    //필터를 거치지 않을 url
     private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html",
             "/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
             "/webjars/springfox-swagger-ui/swagger-ui-bundle.js", "/webjars/springfox-swagger-ui/swagger-ui.css",
@@ -55,12 +56,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
         if (servletPath.equals("/swagger-ui/index.html")||servletPath.equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
-            System.out.println("CustomAuthorizationFilter");
-//            SecurityContextHolder.getContext().setAuthentication(null);
+            log.info("CustomAuthorizationFilter");
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
-            System.out.println("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
+            log.info("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
             response.setStatus(SC_BAD_REQUEST);
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("utf-8");
@@ -91,7 +91,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             } catch (Exception e) {
-                System.out.println();
                 log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType(APPLICATION_JSON_VALUE);

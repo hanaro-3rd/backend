@@ -26,7 +26,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         if (request.getContentType() == null || !request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
             // If the content type is not JSON, fallback to the default behavior
-            System.out.println("CustomAuthenticationFilter");
+            log.info("CustomAuthenticationFilter");
             return super.attemptAuthentication(request, response);
         }
 
