@@ -2,8 +2,11 @@ package com.example.travelhana.Config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.Authenticator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,10 +61,13 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         response.setHeader(AT_HEADER, accessToken);
         response.setHeader(RT_HEADER, refreshToken);
 
-        Map<String, String> responseMap = new HashMap<>();
-        responseMap.put(AT_HEADER, accessToken);
-        responseMap.put(RT_HEADER, refreshToken);
-        new ObjectMapper().writeValue(response.getWriter(), responseMap);
+        Map<String, Object> responseMap = new HashMap<>();
+        ApiResponse apiResponse= ApiResponse.builder()
+                .result("Success")
+                .resultCode(SuccessCode.AUTH_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.AUTH_SUCCESS.getMessage())
+                .build();
+        new ObjectMapper().writeValue(response.getWriter(), apiResponse);
 
     }
 }
