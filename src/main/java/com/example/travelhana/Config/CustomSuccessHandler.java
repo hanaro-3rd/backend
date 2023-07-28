@@ -63,7 +63,6 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         response.setHeader(AT_HEADER, accessToken);
         response.setHeader(RT_HEADER, refreshToken);
 
-        Map<String, Object> responseMap = new HashMap<>();
         ApiResponse apiResponse= ApiResponse.builder()
                 .result("Success")
                 .resultCode(SuccessCode.AUTH_SUCCESS.getStatusCode())
