@@ -44,7 +44,6 @@ public class User {
 	@ManyToMany
 	private final List<Role> roles = new ArrayList<>();
 
-
 	@Column(nullable = false)
 	private String deviceId;
 
@@ -55,7 +54,5 @@ public class User {
 	public void updateRefreshToken(String newToken) {
 		this.refreshToken = newToken;
 	}
-
-
 
 }

@@ -37,6 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final JwtConstants jwtConstants;
 
+    //필터를 거치지 않을 url
     private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html",
             "/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
             "/webjars/springfox-swagger-ui/swagger-ui-bundle.js", "/webjars/springfox-swagger-ui/swagger-ui.css",
@@ -59,32 +60,36 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        System.out.println("shouldNotFilter");
         if (excludeUrlPatterns.contains(path)) {
-            System.out.println("path:"+path);
             return true;
         } else {
             return false;
         }
     }
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String servletPath = request.getServletPath();
         String authrizationHeader = request.getHeader(AUTHORIZATION);
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
         if (servletPath.equals("/swagger-ui/index.html")||servletPath.equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
             System.out.println("CustomAuthorizationFilter");
-//            SecurityContextHolder.getContext().setAuthentication(null);
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
-            System.out.println("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
+            log.info("CustomAuthorizationFilter");
+            filterChain.doFilter(request, response);
+        } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
+            // 토큰값이 없거나 정상적이지 않다면 400 오류
+            log.info("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
             response.setStatus(SC_BAD_REQUEST);
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("utf-8");
             ErrorResponse errorResponse = new ErrorResponse(400, "JWT Token이 존재하지 않습니다.");
+
             new ObjectMapper().writeValue(response.getWriter(), errorResponse);
         } else {
             try {
@@ -110,20 +115,17 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
-            } catch (Exception e) {
-                System.out.println();
+            }
+            catch (Exception e) {
                 log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
-                new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+
+       new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             }
         }
     }
-
-
-
-
 
 }
