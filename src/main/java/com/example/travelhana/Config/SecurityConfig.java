@@ -28,7 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-
         auth.authenticationProvider(authenticationProvider);
 
     }
@@ -44,7 +43,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션 사용 X
-        http.authorizeRequests().antMatchers("/api/v2/**","/swagger-ui/index.html","/swagger-ui.html","/swagger/**","/swagger-resources/**","/v2/api-docs","/signup/**", "/signin/password/**", "/refresh/**","/userrole/**").permitAll();
+        http.authorizeRequests().antMatchers("/api/v2/**",
+                "/swagger-ui/index.html",
+                "/swagger-ui.html",
+                "/swagger/**",
+                "/swagger-resources/**",
+                "/v2/api-docs",
+                "/webjars/**",
+                "/signup/**", "/signin/password/**", "/refresh/**","/userrole/**").permitAll();
+
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -56,9 +63,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
-
         return super.authenticationManagerBean();
-
     }
 
+
 }
+

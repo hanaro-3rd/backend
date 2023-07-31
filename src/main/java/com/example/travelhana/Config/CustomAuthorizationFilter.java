@@ -48,7 +48,25 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-700.woff2",
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2",
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-700.woff2",
+            "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-regular.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-600.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-600.woff",
+            "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-regular.woff",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff",
             "/webjars/springfox-swagger-ui/favicon-16x16.png"));
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        if (excludeUrlPatterns.contains(path)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -58,6 +76,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
         if (servletPath.equals("/swagger-ui/index.html")||servletPath.equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
+            System.out.println("CustomAuthorizationFilter");
+            filterChain.doFilter(request, response);
+        } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
+            // 토큰값이 없거나 정상적이지 않다면 400 오류
             log.info("CustomAuthorizationFilter");
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
@@ -92,30 +114,18 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
-
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
 
-                new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+       new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             }
         }
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-
-        String path = request.getRequestURI();
-        if (excludeUrlPatterns.contains(path)) {
-            return true;
-        } else {
-            return false;
-        }
-
     }
 
 }
