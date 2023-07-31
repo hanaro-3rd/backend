@@ -47,13 +47,21 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-700.woff2",
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2",
             "/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-700.woff2",
+            "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-regular.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-600.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff2",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-600.woff",
+            "/webjars/springfox-swagger-ui/fonts/titillium-web-v6-latin-regular.woff",
+            "/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff",
             "/webjars/springfox-swagger-ui/favicon-16x16.png"));
 
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+        System.out.println("shouldNotFilter");
         if (excludeUrlPatterns.contains(path)) {
+            System.out.println("path:"+path);
             return true;
         } else {
             return false;

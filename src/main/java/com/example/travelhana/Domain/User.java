@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class User {
 	@Column(nullable = false)
 	private String pattern;
 
-    @Column(nullable = false)
+    @ColumnDefault("false")
     private Boolean isWithdrawal; //디폴트 =false
 
 	@ManyToMany
