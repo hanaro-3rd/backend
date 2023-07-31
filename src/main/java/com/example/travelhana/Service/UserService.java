@@ -18,4 +18,5 @@ public interface UserService {
     void updateRefreshToken(String username, String refreshToken);
 
     Map<String, String> refresh(String refreshToken);
+    User getUser(String header);
 }

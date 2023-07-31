@@ -12,6 +12,8 @@ import com.example.travelhana.Dto.DeviceDto;
 import com.example.travelhana.Dto.RoleToUserRequestDto;
 import com.example.travelhana.Dto.SignupRequestDto;
 import com.example.travelhana.Dto.UserResponseDto;
+import com.example.travelhana.Exception.BusinessException;
+import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.SaltUtil;
@@ -117,6 +119,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Role role = roleRepository.findById(dto.getRoleId()).orElseThrow(() -> new RuntimeException("ROLE을 찾을 수 없습니다."));
         user.getRoles().add(role);
         return user.getId();
+    }
+
+    //토큰에서 deviceId 추출해 User 객체 찾기
+    public User getUser(String header)
+    {
+        String accessToken = header.substring(TOKEN_HEADER_PREFIX.length());
+
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
+        DecodedJWT decodedJWT = verifier.verify(accessToken);
+
+        String deviceId = decodedJWT.getSubject();
+        User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        return user;
+
     }
 
     //==============로그인=================
