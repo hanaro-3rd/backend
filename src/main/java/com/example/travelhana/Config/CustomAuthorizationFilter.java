@@ -116,15 +116,15 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
                 new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             }
-//            catch (Exception e) {
-//                log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
-//                response.setStatus(SC_BAD_REQUEST);
-//                response.setContentType(APPLICATION_JSON_VALUE);
-//                response.setCharacterEncoding("utf-8");
-//                ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
-//
-//                new ObjectMapper().writeValue(response.getWriter(), errorResponse);
-//            }
+            catch (Exception e) {
+                log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage());
+                response.setStatus(SC_BAD_REQUEST);
+                response.setContentType(APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("utf-8");
+                ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
+
+                new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+            }
         }
     }
 

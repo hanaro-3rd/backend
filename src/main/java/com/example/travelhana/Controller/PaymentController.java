@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    @PostMapping("/pay")
+    @PostMapping("/pay") //결제하기 POST
     public ResponseEntity<?> pay (@RequestHeader(value = "Authorization") String accessToken, @RequestBody PaymentDto paymentDto) {
         return paymentService.payment(accessToken, paymentDto);
     }
 
 
-    @GetMapping("/payhistory")
+    @GetMapping("/payhistory") //결제내역 읽어오기
     public ResponseEntity<?> getPayhistory(@RequestHeader(value = "Authorization") String accessToken) {
          return paymentService.showPaymentHistory(accessToken);
     }
 
-    @PatchMapping("/payhistory")
+    @PatchMapping("/payhistory") //결제내역 메모 또는 카테고리 수정
     public ResponseEntity<?> updatePayhistory(@RequestHeader(value = "Authorization") String accessToken, @RequestBody PaymentMemoDto paymentMemoDto) {
         return paymentService.updatePaymentHistory(accessToken, paymentMemoDto);
     }

@@ -27,18 +27,13 @@ public class PaymentService {
     private final PaymentHistoryRepository paymentHistoryRepository;
     @Transactional
     public ResponseEntity<?> payment(String accessToken, PaymentDto paymentListDto) {
-            System.out.println("??");
-            System.out.println(accessToken);
             User user =  userService.getUser(accessToken);
             int getUserId = user.getId();
             KeyMoney keymoney = keyMoneyRepository.findByUserIdAndUnit(getUserId, paymentListDto.getUnit());
-            System.out.println(keymoney.getBalance());
             if(keymoney.getBalance()==null){
                 throw new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT);
             }
-
             Long nowBalance = keymoney.getBalance() - paymentListDto.getPrice();
-
             if(nowBalance < 0) { //잔액부족 에러처리
                 throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
             }
@@ -58,7 +53,6 @@ public class PaymentService {
                     .keyMoneyId(keymoney.getId())
                     .isSuccess(true)
                     .build();
-
             paymentHistoryRepository.save(paymentHistory);
             return new ResponseEntity<>(paymentHistory, HttpStatus.OK);
     }
