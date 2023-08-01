@@ -15,4 +15,6 @@ public interface KeyMoneyRepository extends JpaRepository<KeyMoney, Integer> {
 
     Optional<KeyMoney> findByUser_IdAndUnit(int userId, String unit);
 
+    @Query("SELECT km FROM KeyMoney km WHERE km.user.id = :userId")
+    KeyMoney findByUserId(@Param("userId") int getUserId);
 }

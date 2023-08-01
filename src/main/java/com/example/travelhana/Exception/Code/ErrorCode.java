@@ -10,7 +10,8 @@ import javax.annotation.security.DenyAll;
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ErrorCode {
-
+    //수정권한 에러
+    INVALID_UPDATE(500, "INVALID_UPDATE", "수정권한이 없습니다."),
     //비밀번호 형식 에러
     INVALID_PASSWORD(400, "INVALID_PASSWORD", "비밀번호는 6개의 숫자로 구성해주세요"),
     //환전 시 원화 잔액 부족 에러

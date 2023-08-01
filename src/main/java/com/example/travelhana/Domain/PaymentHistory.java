@@ -54,7 +54,7 @@ public class PaymentHistory {
 	private int userId;
 
 	@Column
-	private int keyId;
+	private int keyMoneyId;
 
 	@Column
 	private Boolean isSuccess;

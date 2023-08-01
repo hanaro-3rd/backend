@@ -4,11 +4,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter @Setter
-@Builder
 public class PaymentDto {
-    int keyId;
-    Boolean isSuccessed;
-    int userId;
-    RequestPaymentDto requestPaymentDto;
+    Long price;
+    String unit;
+    String store;
+    String category;
+    String address;
+    String memo;
+    LocalDateTime createdAt;
+    Double lat;
+    Double lng;
 }
