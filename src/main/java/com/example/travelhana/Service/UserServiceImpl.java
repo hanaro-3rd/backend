@@ -11,21 +11,26 @@ import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.DeviceDto;
 import com.example.travelhana.Dto.RoleToUserRequestDto;
 import com.example.travelhana.Dto.SignupRequestDto;
-import com.example.travelhana.Dto.UserResponseDto;
-import com.example.travelhana.Exception.BusinessException;
 import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
+import com.example.travelhana.Exception.Response.ApiResponse;
+import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
+import org.json.HTTPTokener;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,20 +51,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     
     //==============회원가입=================
     //최초 접속 시 기기 존재 여부 확인
-    public DeviceDto isExistDevice(String deviceId) {
-        User user = userRepository.findByDeviceId(deviceId)
-                .orElseThrow(() -> new UsernameNotFoundException("UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
-
+    public ResponseEntity<?> isExistDevice(String deviceId) {
         Boolean isRegistrate;
         String name;
-        if (user == null) {
-            isRegistrate = false;
-            name = "none";
-        } else {
-            isRegistrate = true;
-            name = user.getName();
+        try{
+            User user = userRepository.findByDeviceId(deviceId)
+                    .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+            DeviceDto deviceDto=DeviceDto.builder()
+                    .isRegistrate(true)
+                    .name(user.getName())
+                    .build();
+            ApiResponse apiResponse= ApiResponse.builder()
+                    .result(deviceDto)
+                    .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+                    .build();
+            return ResponseEntity.ok(apiResponse);
         }
-        return new DeviceDto(isRegistrate, name);
+        catch (BusinessExceptionHandler e)
+        {
+            ErrorResponse errorResponse=ErrorResponse.builder()
+                    .errorCode(ErrorCode.NO_USER.getStatusCode())
+                    .errorMessage(ErrorCode.NO_USER.getMessage())
+                    .build();
+            return ResponseEntity.ok(errorResponse);
+        }
 
     }
 
@@ -79,20 +95,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     //회원가입 - 계정 저장
     @Override
-    public void saveAccount(SignupRequestDto dto) {
-        validateDuplicateUsername(dto);
-        String salt = saltUtil.generateSalt();
-        User user = new User().builder()
-                .password(saltUtil.encodePassword(salt, dto.getPassword()))
-                .pattern(saltUtil.encodePassword(salt, dto.getPattern()))
-                .phoneNum(dto.getPhonenum())
-                .deviceId(dto.getDeviceId())
-                .salt(salt)
-                .isWithdrawal(false) //탈퇴했는지
-                .name(dto.getName())
-                .registrationNum(dto.getRegistrationNum())
-                .build();
-        userRepository.save(user);
+    public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
+
+        try{
+            validateDuplicateUsername(dto);
+            if(isValidUser(dto))
+            {
+                String salt = saltUtil.generateSalt();
+                User user = new User().builder()
+                        .password(saltUtil.encodePassword(salt, dto.getPassword()))
+                        .pattern(saltUtil.encodePassword(salt, dto.getPattern()))
+                        .phoneNum(dto.getPhonenum())
+                        .deviceId(dto.getDeviceId())
+                        .salt(salt)
+                        .isWithdrawal(false) //탈퇴했는지
+                        .name(dto.getName())
+                        .registrationNum(dto.getRegistrationNum())
+                        .build();
+                userRepository.save(user);
+            }
+
+            ApiResponse apiResponse=ApiResponse.builder()
+                    .result("save Success")
+                    .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+                    .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+                    .build();
+            return ResponseEntity.ok(apiResponse);
+
+        }catch (Exception e)
+        {
+            ErrorResponse errorResponse=ErrorResponse.builder()
+                    .errorMessage(e.getMessage())
+                    .build();
+            return ResponseEntity.ok(errorResponse);
+        }
+
     }
 
     private void validateDuplicateUsername(SignupRequestDto dto) {
@@ -148,17 +185,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getSalt(), authorities, true, true, true, true);
     }
 
-
-
     //==============토큰발급=================
+    //로그인 성공 시 refresh token 발급 후 DB에 저장
     @Override
     public void updateRefreshToken(String deviceId, String refreshToken) {
         User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         user.updateRefreshToken(refreshToken);
     }
 
+    //Refresh token 재발급
     @Override
-    public Map<String, String> refresh(String refreshToken) {
+    public Map<String,String> refresh(String refreshToken) {
 
         //Refresh Token 유효성 검사
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
@@ -196,6 +233,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         accessTokenResponseMap.put(AT_HEADER, accessToken);
         return accessTokenResponseMap;
+
     }
     
 }
