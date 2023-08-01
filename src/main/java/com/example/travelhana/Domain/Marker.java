@@ -17,7 +17,7 @@ public class Marker {
 	@Id
 	@Column(name="MARKER_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@Column
 	private Double lat;
@@ -32,9 +32,13 @@ public class Marker {
 	private String place;
 
 	@Column
-	private Long limitAmount;
+	private int limitAmount;
 
 	@Column
 	private String unit;
+
+	public void decreaseLimitAmount() {
+		this.limitAmount -= 1;
+	}
 
 }

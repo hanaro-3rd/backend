@@ -18,7 +18,7 @@ public class Account {
 	@Id
 	@Column(name="ACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@JoinColumn(name = "USER_ID")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -42,14 +42,10 @@ public class Account {
 	@Column(nullable = false)
 	private Long balance;
 
-	public Account(User user, String accountNum, String bank, Date openDate, String password, String salt, Long balance) {
-		this.user = user;
-		this.accountNum = accountNum;
-		this.bank = bank;
-		this.openDate = openDate;
-		this.password = password;
-		this.salt = salt;
-		this.balance = balance;
+
+	public void updateBalance(Long pay)
+	{
+		this.balance+=pay;
 	}
 
 }

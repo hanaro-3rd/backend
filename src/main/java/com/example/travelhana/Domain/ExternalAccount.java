@@ -19,7 +19,7 @@ public class ExternalAccount {
 	@Id
 	@Column(name="EXTERNAL_ACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@Column(nullable = false)
 	private String accountNum;
