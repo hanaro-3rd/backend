@@ -2,8 +2,6 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Dto.Account.*;
-import com.example.travelhana.Exception.BusinessException;
-import com.example.travelhana.Exception.ErrorCode;
 import com.example.travelhana.Util.ExchangeRateUtil;
 import com.example.travelhana.Util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
@@ -164,7 +162,7 @@ public class AccountService {
         String accountNum = externalAccount.getAccountNum();
         Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
         if (existAccount) {
-            throw new BusinessException("이미 연결된 계좌입니다.", ErrorCode.ALREADY_EXIST_ACCOUNT);
+            throw new BusinessException(ErrorCode.ALREADY_EXIST_ACCOUNT);
         }
 
         // 연결된 계좌 레코드 생성

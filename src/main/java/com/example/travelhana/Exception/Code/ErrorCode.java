@@ -4,25 +4,39 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.security.DenyAll;
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ErrorCode {
-    //수정권한 에러
-    INVALID_UPDATE(500, "INVALID_UPDATE", "수정권한이 없습니다."),
-    //비밀번호 형식 에러
-    INVALID_PASSWORD(400, "INVALID_PASSWORD", "비밀번호는 6개의 숫자로 구성해주세요"),
-    //환전 시 원화 잔액 부족 에러
-    INSUFFICIENT_BALANCE(500, "INSUFFICIENT_BALANCE", "계좌 잔액이 부족합니다."),
-    //환전 시 화폐단위 입력 에러
-    INVALID_EXCHANGEUNIT(500, "INVALID_EXCHANGEUNIT", "유효하지 않은 화폐단위입니다."),
-    //존재하지 않는 계좌 에러
-    NO_ACCOUNT(500, "NO_ACCOUNT", "계좌가 존재하지 않습니다.");
 
-    private int statusCode;
-    private String status;
+    INVALID_PASSWORD(400, "Internal Server Error", "비밀번호는 6개의 숫자로 구성해주세요"),
+    AUTH_FAILURE(500,"AUTH_FAILURE","인증코드가 일치하지 않습니다."),
+    SESSION_INVALID(500,"SESSION_INVALID","코드 입력기한이 지났습니다."),
+    BUSINESS_EXCEPTION_ERROR(500, "TOKEN isn't userId", "TOKEN isn't userId"),
+    INSUFFICIENT_BALANCE(500, "Insufficient balance in this account", "계좌 잔액이 부족합니다."),
+    INVALID_EXCHANGEUNIT(500, "Invalid exchange unit.", "유효하지 않은 화폐단위입니다."),
+    NO_ACCOUNT(500, "There is no account like this id", "계좌가 존재하지 않습니다."),
+    NO_USER(500,"NO_USER","유저가 존재하지 않습니다."),
+    NOT_ENOUGH_MARKER(400, "Not Enough Marker", "모두 주워진 마커입니다."),
+
+    UNAUTHORIZED_PASSWORD(401, "Unauthorized Password", "비밀번호가 일치하지 않습니다."),
+    UNAUTHORIZED_USER_ACCOUNT(401, "Unauthorized User to Account", "유저와 계좌 정보가 일치하지 않습니다."),
+
+    USER_NOT_FOUND(404, "User Not Found", "해당하는 유저를 찾을 수 없습니다."),
+    MARKER_NOT_FOUND(404, "Marker Not Found", "해당하는 마커를 찾을 수 없습니다."),
+    ACCOUNT_NOT_FOUND(404, "Account Not Found", "해당하는 계좌를 찾을 수 없습니다."),
+    EXTERNAL_ACCOUNT_NOT_FOUND(404, "External Account Not Found", "해당하는 외부 계좌를 찾을 수 없습니다."),
+
+    LOCATION_NOT_SAME(406, "Location Not Same", "마커의 위치와 현재 위치가 다릅니다."),
+
+    ALREADY_PICK_UPPED_MARKER(409, "Already Pick upped Marker", "이미 주운 마커입니다."),
+    ALREADY_EXIST_ACCOUNT(409, "Already Connected Account", "이미 연결된 계좌입니다."),
+
+
+    INTERNAL_SEVER_ERROR(500, "Internal Server Error", "서버 에러가 발생했습니다.");
+
+    private int statusCode; //404
+    private String status; //NOT_FOUNT
     private String message;
 
 }
