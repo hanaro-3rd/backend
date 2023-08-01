@@ -38,7 +38,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final JwtConstants jwtConstants;
 
     //필터를 거치지 않을 url
-    private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html",
+    private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html","/verification/auth","/verification",
             "/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
             "/webjars/springfox-swagger-ui/swagger-ui-bundle.js", "/webjars/springfox-swagger-ui/swagger-ui.css",
             "/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -123,7 +123,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 response.setCharacterEncoding("utf-8");
                 ErrorResponse errorResponse = new ErrorResponse(400, "잘못된 JWT Token 입니다.");
 
-       new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+                new ObjectMapper().writeValue(response.getWriter(), errorResponse);
             }
         }
     }
