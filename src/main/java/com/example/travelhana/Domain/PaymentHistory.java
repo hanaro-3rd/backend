@@ -51,10 +51,10 @@ public class PaymentHistory {
 	private String memo;
 
 	@Column
-	private Long userId;
+	private int userId;
 
 	@Column
-	private Long keyId;
+	private int keyId;
 
 	@Column
 	private Boolean isSuccess;

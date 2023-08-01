@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface KeyMoneyRepository extends JpaRepository<KeyMoney, Integer> {
+
+
     @Query("SELECT km FROM KeyMoney km WHERE km.user.id = :userId AND km.unit = :unit")
     KeyMoney findByUserIdAndUnit(@Param("userId") int userId, @Param("unit") String unit);
 
