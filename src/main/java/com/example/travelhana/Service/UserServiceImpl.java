@@ -121,6 +121,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
                     .build();
             return ResponseEntity.ok(apiResponse);
+
         }catch (Exception e)
         {
             ErrorResponse errorResponse=ErrorResponse.builder()
