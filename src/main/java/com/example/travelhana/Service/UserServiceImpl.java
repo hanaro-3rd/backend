@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     //토큰에서 deviceId 추출해 User 객체 찾기
-    public User getUser(String header)
+    public User getUserByAccessToken(String header)
     {
         String accessToken = header.substring(TOKEN_HEADER_PREFIX.length());
 
@@ -235,5 +235,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return accessTokenResponseMap;
 
     }
-    
+
+
+
 }
