@@ -95,6 +95,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             try {
                 // Access Token만 꺼내옴
                 String accessToken = authrizationHeader.substring(TOKEN_HEADER_PREFIX.length());
+                System.out.println("Access token: "+accessToken);
 
                 //Access Token 검증
                 JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
@@ -104,6 +105,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
                 List<SimpleGrantedAuthority> authorities = strAuthorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
                 String username = decodedJWT.getSubject();
+                System.out.println("CustomAuthorizationFilter에서 꺼낸 유저이름: "+username);
+
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 

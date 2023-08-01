@@ -121,7 +121,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
                     .build();
             return ResponseEntity.ok(apiResponse);
-
         }catch (Exception e)
         {
             ErrorResponse errorResponse=ErrorResponse.builder()
@@ -159,7 +158,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     //토큰에서 deviceId 추출해 User 객체 찾기
-    public User getUser(String header)
+    public User getUserByAccessToken(String header)
     {
         String accessToken = header.substring(TOKEN_HEADER_PREFIX.length());
 

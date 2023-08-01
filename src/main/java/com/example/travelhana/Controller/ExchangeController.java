@@ -19,9 +19,8 @@ public class ExchangeController {
     private final ExchangeService exchangeService;
 
     @PostMapping("/exchange")
-    public ResponseEntity<ApiResponse> exchange(@RequestBody ExchangeRequestDto dto) throws URISyntaxException {
-        ApiResponse apiresponse= exchangeService.accountErrorExample(dto);
-        return new ResponseEntity<>(apiresponse, HttpStatus.OK);
+    public ResponseEntity<?> exchange(@RequestBody ExchangeRequestDto dto) throws URISyntaxException {
+        return exchangeService.exchangeInAccountBusinessDay(dto);
     }
 
 }

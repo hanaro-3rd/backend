@@ -5,6 +5,8 @@ import com.example.travelhana.Domain.Marker;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserToMarker;
 import com.example.travelhana.Dto.Marker.*;
+import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -112,29 +114,30 @@ public class MarkerService {
 		// userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
 		int userId = markerPickUpDto.getUserId();
 		User user = userRepository.findByIdAndIsWithdrawal(userId, false)
-				.orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다.", ErrorCode.USER_NOT_FOUND));
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER));
+
 
 		// markerId에 해당하는 마커가 있는지 확인
 		int markerId = markerPickUpDto.getMarkerId();
 		Marker marker = markerRepository.findById(markerId)
-				.orElseThrow(() -> new BusinessException("마커를 찾을 수 없습니다.", ErrorCode.MARKER_NOT_FOUND));
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER));
 
 		// 현재 위치의 위도, 경도와 마커의 위도, 경도가 같은지 확인
 		Double lat = markerPickUpDto.getLat();
 		Double lng = markerPickUpDto.getLng();
 		if (!marker.getLat().equals(lat) || !marker.getLng().equals(lng)) {
-			throw new BusinessException("현재 위치와 마커 위치가 다릅니다.", ErrorCode.LOCATION_NOT_SAME);
+			throw new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER);
 		}
 
 		// 해당 마커의 수량이 남아있지 않은 경우
 		if (marker.getLimitAmount() < 1) {
-			throw new BusinessException("모두 주워진 마커입니다.", ErrorCode.LOCATION_NOT_SAME);
+			throw new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER);
 		}
 
 		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인
 		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, markerId);
 		if (isAlreadyPickUp) {
-			throw new BusinessException("이미 주운 마커입니다.", ErrorCode.ALREADY_PICK_UPPED_MARKER);
+			throw new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER);
 		}
 
 		// 해당 유저와 통화에 대한 외화 계좌가 있는 지 확인
@@ -168,7 +171,7 @@ public class MarkerService {
 	public ResponseEntity<MarkerListDto> getMarkerList(int userId) {
 		// userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
 		User user = userRepository.findByIdAndIsWithdrawal(userId, false)
-				.orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다.", ErrorCode.USER_NOT_FOUND));
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
 
 		// 모든 마커를 가져옴
 		List<Marker> markers = markerRepository.findAll();
