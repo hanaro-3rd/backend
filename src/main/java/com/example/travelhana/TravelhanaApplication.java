@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-//(exclude = SecurityAutoConfiguration.class) //스프링 시큐리티 기능 제거
 @SpringBootApplication
 @EnableScheduling
 public class TravelhanaApplication {
