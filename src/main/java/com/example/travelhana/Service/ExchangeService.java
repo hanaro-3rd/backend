@@ -49,7 +49,6 @@ public class ExchangeService {
         return exchangeInAccountBusinessDay(request);
     }
 
-
     //외환계좌 만들기
     @Transactional
     public KeyMoney makeKeyMoney(User user,String unit)
@@ -131,8 +130,6 @@ public class ExchangeService {
 
         return saveExchangeHistory(account,keymoney,exchangeResult,rate);
     }
-
-
 
     //환전내역 저장
     @Transactional
