@@ -145,11 +145,11 @@ public class AccountService {
         // externalAccountId에 대한 외부 계좌 존재 여부 확인
         int externalAccountId = connectAccountDto.getExternalAccountId();
         ExternalAccount externalAccount = externalAccountRepository.findById(externalAccountId)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
         // 해당 유저의 계좌 소유 여부 확인
         if (!user.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {
-            throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_PASSWORD);
+            throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
         }
 
         // 비밀번호 확인
@@ -164,7 +164,7 @@ public class AccountService {
         String accountNum = externalAccount.getAccountNum();
         Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
         if (existAccount) {
-            throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_PASSWORD);
+            throw new BusinessExceptionHandler(ErrorCode.ALREADY_EXIST_ACCOUNT);
         }
 
         // 연결된 계좌 레코드 생성

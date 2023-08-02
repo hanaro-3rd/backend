@@ -5,30 +5,23 @@ import com.example.travelhana.Dto.ExchangeRequestDto;
 import com.example.travelhana.Dto.ExchangeResponseDto;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Object.ExchangeSuccess;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
+
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
 import com.example.travelhana.Repository.KeyMoneyRepository;
 import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Util.HolidayUtil;
-import io.swagger.annotations.Api;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.*;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.reflections.Reflections.log;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +31,6 @@ public class ExchangeService {
     private final AccountRepository accountRepository;
     private final KeyMoneyRepository keyMoneyRepository;
     private final ExchangeHistoryRepository exchangeHistoryRepository;
-    private final HolidayUtil holidayUtil;
-    private final UserService userService;
 
 
     //1.유효한 계좌인지 확인 -> 전부 다 유효한 계좌임을 가정 O
@@ -58,6 +49,7 @@ public class ExchangeService {
         return exchangeInAccountBusinessDay(request);
     }
 
+
     //외환계좌 만들기
     @Transactional
     public KeyMoney makeKeyMoney(User user,String unit)
@@ -68,7 +60,6 @@ public class ExchangeService {
                 .balance(0L)
                 .build();
         keyMoneyRepository.save(newKeyMoney);
-        System.out.println("keymoney Save!");
         return newKeyMoney;
     }
 
@@ -141,6 +132,8 @@ public class ExchangeService {
         return saveExchangeHistory(account,keymoney,exchangeResult,rate);
     }
 
+
+
     //환전내역 저장
     @Transactional
     public ExchangeResponseDto saveExchangeHistory(Account account,KeyMoney keyMoney,ExchangeSuccess exchangeSuccess, Double rate)
@@ -155,7 +148,7 @@ public class ExchangeService {
                 .isBusinessday(exchangeSuccess.getIsBought())
                 .userId(account.getUser().getId())
                 .keymoneyBalance(exchangeSuccess.getKeymoneyBalance())
-                .won(exchangeSuccess.getWon()) //환전한 원화
+                .money(exchangeSuccess.getWon()) //환전한 원화
                 .build();
 
         exchangeHistoryRepository.save(exchangeHistory);
@@ -163,6 +156,7 @@ public class ExchangeService {
                 .key(exchangeSuccess.getKey())
                 .won(exchangeSuccess.getWon())
                 .build();
+        System.out.println("saveExchangeHistory SUCCESS");
 
         return responseDto;
     }
@@ -181,6 +175,7 @@ public class ExchangeService {
         keyMoney.updateBalance(realkey); //키머니 잔액 추가
         account.updateBalance(won*(-1)); //원화 잔액 차감
 
+        System.out.println("won to key SUCCESS");
         return new ExchangeSuccess(won,realkey,keyMoney.getBalance(),true,keyMoney.getBalance());
     }
 
@@ -202,3 +197,7 @@ public class ExchangeService {
     }
 
 }
+
+
+
+

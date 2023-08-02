@@ -13,10 +13,9 @@ import javax.persistence.*;
 @Builder
 @Entity
 public class KeyMoney {
-
-    @Id
-    @Column(name="KEYMONEY_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @Column(name="KEY_ID")
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,3 +33,4 @@ public class KeyMoney {
     }
 
 }
+

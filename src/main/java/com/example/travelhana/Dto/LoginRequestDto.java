@@ -14,9 +14,9 @@ public class LoginRequestDto {
     private String password;
     public User toEntity() {
         return User.builder()
-             .deviceId(deviceId)
-             .password(password)
-             .build();
+                .deviceId(deviceId)
+                .password(password)
+                .build();
     }
 
     public void encodePassword(String encodedPassword) {
@@ -24,4 +24,3 @@ public class LoginRequestDto {
     }
     // Getter, Setter, 생성자...
 }
-
