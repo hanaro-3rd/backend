@@ -121,7 +121,7 @@ public class ExchangeService {
     {
         Long money=dto.getMoney(); //요청 원화
         Double rate=dto.getExchangeRate();
-        ExchangeSuccess exchangeResult=new ExchangeSuccess();
+        ExchangeSuccess exchangeResult;
         if(dto.getIsBought()) { //원화 -> 외화
             exchangeResult=wonToKey(money,keymoney,account,rate); //money=원화
         }
