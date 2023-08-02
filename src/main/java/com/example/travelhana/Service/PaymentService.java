@@ -28,7 +28,7 @@ public class PaymentService {
     private final KeyMoneyRepository keyMoneyRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
 
-    public ResponseEntity<?> payment(String accessToken, PaymentDto paymentListDto) {
+    public ResponseEntity<?> payment(String accessToken, PaymentListDto paymentListDto) {
         try{
             User user =  userService.getUser(accessToken);
             int getUserId = user.getId();
@@ -94,7 +94,7 @@ public class PaymentService {
         try{
             User user =  userService.getUser(accessToken);
             int getUserId = user.getId();
-            KeyMoney keyMoney = keyMoneyRepository.findByUserId(getUserId);
+            KeyMoney keyMoney = keyMoneyRepository.findByUser_Id(getUserId);
             List<PaymentHistory> paymentHistories =  paymentHistoryRepository.findAllByKeyMoneyIdAndIsSuccess(keyMoney.getId(), true);
             List<PaymentListDto> paymentListDtos = new ArrayList<>();
             for(PaymentHistory paymentHistory : paymentHistories) {

@@ -1,6 +1,5 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Dto.PaymentDto;
 import com.example.travelhana.Dto.PaymentListDto;
 import com.example.travelhana.Dto.PaymentMemoDto;
 import com.example.travelhana.Service.PaymentService;
@@ -14,8 +13,8 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     @PostMapping("/pay") //결제하기 POST
-    public ResponseEntity<?> pay (@RequestHeader(value = "Authorization") String accessToken, @RequestBody PaymentDto paymentDto) {
-        return paymentService.payment(accessToken, paymentDto);
+    public ResponseEntity<?> pay (@RequestHeader(value = "Authorization") String accessToken, @RequestBody PaymentListDto paymentListDto) {
+        return paymentService.payment(accessToken, paymentListDto);
     }
 
 
