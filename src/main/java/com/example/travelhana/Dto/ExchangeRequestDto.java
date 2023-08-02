@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class ExchangeRequestDto {
     private int accountId;
-    private Long won;
+    private Long money;
     private Double exchangeRate;
     private Boolean isBusinessday;
     private Boolean isBought;
