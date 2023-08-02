@@ -48,4 +48,7 @@ public class ExchangeHistory {
 	@Column
 	private Boolean isBusinessday;
 
+	@Column
+	private Long keymoneyBalance;
+
 }

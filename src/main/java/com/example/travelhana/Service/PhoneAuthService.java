@@ -120,9 +120,6 @@ public class PhoneAuthService {
 
     public ResponseEntity<?> checkCode(String inputCode)
     {
-        //3분이 지나면 세션이 만료되는거랑, 코드가 틀린거랑 어떻게 구별할건지?
-        //세션 아이디는 존재하지만 일치하지 않는거
-        //세션 자체가 존재하지 않는거
 
         String code = (String) session.getAttribute("code");
         if(code!=null)

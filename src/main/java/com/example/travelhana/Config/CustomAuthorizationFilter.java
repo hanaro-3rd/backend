@@ -76,7 +76,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
         if (servletPath.equals("/swagger-ui/index.html")||servletPath.equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
-            System.out.println("CustomAuthorizationFilter");
+            log.info("CustomAuthorizationFilter");
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
