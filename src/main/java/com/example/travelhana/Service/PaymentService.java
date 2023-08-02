@@ -79,13 +79,14 @@ public class PaymentService {
                     .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
                     .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                     .build();
-            return ResponseEntity.ok(apiResponse);
+
+            return new ResponseEntity<>(apiResponse,HttpStatus.CREATED);
         } catch (BusinessExceptionHandler e){
             ErrorResponse errorResponse = ErrorResponse.builder()
                     .errorMessage(e.getMessage())
                     .errorCode(e.getErrorCode().getStatusCode())
                     .build();
-            return ResponseEntity.ok(errorResponse);
+            return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
