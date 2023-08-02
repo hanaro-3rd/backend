@@ -2,6 +2,8 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Dto.Account.*;
+import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Util.ExchangeRateUtil;
 import com.example.travelhana.Util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +125,7 @@ public class AccountService {
     public ResponseEntity<AccountListDto> findExternalAccountList(int userId) throws Exception {
         // userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
         User user = userRepository.findByIdAndIsWithdrawal(userId, false)
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다.", ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
 
         // 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
         List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.getRegistrationNum());
@@ -138,16 +140,16 @@ public class AccountService {
         // userId에 해당하는 탈퇴하지 않은 유저가 있는지 확인
         int userId = connectAccountDto.getUserId();
         User user = userRepository.findByIdAndIsWithdrawal(userId, false)
-                .orElseThrow(() -> new BusinessException("유저를 찾을 수 없습니다.", ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessExceptionHandler( ErrorCode.USER_NOT_FOUND));
 
         // externalAccountId에 대한 외부 계좌 존재 여부 확인
         int externalAccountId = connectAccountDto.getExternalAccountId();
         ExternalAccount externalAccount = externalAccountRepository.findById(externalAccountId)
-                .orElseThrow(() -> new BusinessException("외부 계좌를 찾을 수 없습니다.", ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
         // 해당 유저의 계좌 소유 여부 확인
         if (!user.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {
-            throw new BusinessException("유저와 계좌 정보가 일치하지 않습니다.", ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
+            throw new BusinessExceptionHandler( ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
         }
 
         // 비밀번호 확인
@@ -155,14 +157,14 @@ public class AccountService {
         String storedPassword = externalAccount.getPassword();
         String encodedPassword = saltUtil.encodePassword(storedSalt, connectAccountDto.getAccountPassword());
         if (!storedPassword.equals(encodedPassword)) {
-            throw new BusinessException("비밀번호가 일치하지 않습니다.", ErrorCode.UNAUTHORIZED_PASSWORD);
+            throw new BusinessExceptionHandler( ErrorCode.UNAUTHORIZED_PASSWORD);
         }
 
         // 이미 연결된 계좌 여부 확인
         String accountNum = externalAccount.getAccountNum();
         Boolean existAccount = accountRepository.existsAccountByAccountNum(accountNum);
         if (existAccount) {
-            throw new BusinessException(ErrorCode.ALREADY_EXIST_ACCOUNT);
+            throw new BusinessExceptionHandler(ErrorCode.ALREADY_EXIST_ACCOUNT);
         }
 
         // 연결된 계좌 레코드 생성

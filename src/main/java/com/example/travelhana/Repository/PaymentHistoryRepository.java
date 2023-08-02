@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory,Integer> {
 
-    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.keyMoneyId = :keyMoneyId AND ph.isSuccess = true")
-    List<PaymentHistory> findAllByKeyMoneyId(@Param("keyMoneyId") int keyMoneyId);
-
+//    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.keyMoneyId = :keyMoneyId AND ph.isSuccess = true")
+//    List<PaymentHistory> findAllByKeyMoneyId(@Param("keyMoneyId") int keyMoneyId);
+    List<PaymentHistory> findAllByKeyMoneyIdAndIsSuccess(int id,Boolean isSuccess);
     PaymentHistory findByIdAndUserId(Long id, int getUserId);
 
 }

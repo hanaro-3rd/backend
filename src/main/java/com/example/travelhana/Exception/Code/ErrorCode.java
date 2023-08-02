@@ -18,7 +18,9 @@ public enum ErrorCode {
     NO_ACCOUNT(500, "There is no account like this id", "계좌가 존재하지 않습니다."),
     NO_USER(500,"NO_USER","유저가 존재하지 않습니다."),
     NOT_ENOUGH_MARKER(400, "Not Enough Marker", "모두 주워진 마커입니다."),
-
+    //수창
+    INVALID_UPDATE(500, "Invalid Update Payment", "해당 결제내역에 대한 수정 권한이 없습니다."),
+    //
     UNAUTHORIZED_PASSWORD(401, "Unauthorized Password", "비밀번호가 일치하지 않습니다."),
     UNAUTHORIZED_USER_ACCOUNT(401, "Unauthorized User to Account", "유저와 계좌 정보가 일치하지 않습니다."),
 
