@@ -11,8 +11,6 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sun.net.httpserver.Authenticator;
-import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,8 +55,8 @@ public class UserController {
 
     //휴대폰 인증코드 일치여부 확인
     @PostMapping("/verification/auth")
-    public ResponseEntity<?> isSusccessAuth(@RequestBody CodeDto codedto) {
-        return phoneAuthService.checkCode(codedto.getCode());
+    public ResponseEntity<?> isSusccessAuth(@RequestBody CodeRequestDto codedto) {
+        return phoneAuthService.checkCode(codedto);
     }
 
     @GetMapping("/user")

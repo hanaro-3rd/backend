@@ -1,11 +1,14 @@
 package com.example.travelhana.Service;
 
 
+import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import com.example.travelhana.Repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,7 @@ public class PhoneAuthService {
     private String fromNum;
 
     private final HttpSession session;
+    private final UserRepository userRepository;
 
     public static int generateRandomNumber() {
         return ThreadLocalRandom.current().nextInt(100000, 1000000);
@@ -118,18 +122,33 @@ public class PhoneAuthService {
         session.setMaxInactiveInterval(180); //코드 유효기간 3뷴
     }
 
-    public ResponseEntity<?> checkCode(String inputCode)
+    public ResponseEntity<?> checkCode(CodeRequestDto codeDto)
     {
-        //3분이 지나면 세션이 만료되는거랑, 코드가 틀린거랑 어떻게 구별할건지?
-        //세션 아이디는 존재하지만 일치하지 않는거
-        //세션 자체가 존재하지 않는거
 
         String code = (String) session.getAttribute("code");
         if(code!=null)
         {
-            if (inputCode.equals(code)) {
+            if (codeDto.getCode().equals(code)) {
                 session.removeAttribute("code");
+                User user=userRepository.findByPhoneNum(codeDto.getPhonenum()).orElseThrow(
+                        ()->new BusinessExceptionHandler(ErrorCode.NO_USER));
+
+                CodeResponseDto codeResponseDto;
+                if(user==null)
+                {
+                    codeResponseDto=CodeResponseDto.builder()
+                            .isCodeEqual(true)
+                            .isExistUser(true)
+                            .build();
+                }
+                else {
+                    codeResponseDto=CodeResponseDto.builder()
+                            .isCodeEqual(true)
+                            .isExistUser(false)
+                            .build();
+                }
                 ApiResponse apiResponse=ApiResponse.builder()
+                        .result(codeResponseDto)
                         .resultCode(SuccessCode.AUTH_SUCCESS.getStatusCode())
                         .resultMsg(SuccessCode.AUTH_SUCCESS.getMessage())
                         .build();

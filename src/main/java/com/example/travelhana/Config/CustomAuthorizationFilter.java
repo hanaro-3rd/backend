@@ -80,10 +80,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
-            log.info("CustomAuthorizationFilter");
-            filterChain.doFilter(request, response);
-        } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
-            // 토큰값이 없거나 정상적이지 않다면 400 오류
             log.info("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");
             response.setStatus(SC_BAD_REQUEST);
             response.setContentType(APPLICATION_JSON_VALUE);
