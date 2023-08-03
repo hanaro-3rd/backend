@@ -19,5 +19,6 @@ public class PaymentListDto {
     LocalDateTime createdAt;
     Double lat;
     Double lng;
+    Boolean isSuccess;
 
 }

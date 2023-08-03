@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ public class PaymentService {
     private final KeyMoneyRepository keyMoneyRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
 
+    @Transactional
     public ResponseEntity<?> payment(String accessToken, PaymentListDto paymentListDto) {
         try{
             User user =  userService.getUser(accessToken);
@@ -44,7 +46,6 @@ public class PaymentService {
             }
 
             keymoney.updateMinusBalance(paymentListDto.getPrice());
-            keyMoneyRepository.save(keymoney);
             PaymentHistory paymentHistory =  PaymentHistory.builder()
                     .price(paymentListDto.getPrice())
                     .unit(paymentListDto.getUnit())
@@ -94,12 +95,13 @@ public class PaymentService {
         }
 
     }
+    @Transactional
     public ResponseEntity<?> showPaymentHistory (String accessToken) {
         try{
             User user =  userService.getUser(accessToken);
             int getUserId = user.getId();
             KeyMoney keyMoney = keyMoneyRepository.findByUser_Id(getUserId);
-            List<PaymentHistory> paymentHistories =  paymentHistoryRepository.findAllByKeyMoneyIdAndIsSuccess(keyMoney.getId(), true);
+            List<PaymentHistory> paymentHistories =  paymentHistoryRepository.findAllByKeyMoneyId(keyMoney.getId());
             List<PaymentListDto> paymentListDtos = new ArrayList<>();
             for(PaymentHistory paymentHistory : paymentHistories) {
                 PaymentListDto paymentListDto = PaymentListDto.builder()
@@ -112,6 +114,7 @@ public class PaymentService {
                         .lat(paymentHistory.getLat())
                         .lng(paymentHistory.getLng())
                         .memo(paymentHistory.getMemo())
+                        .isSuccess(paymentHistory.getIsSuccess())
                         .build();
                 paymentListDtos.add(paymentListDto);
             }
@@ -133,7 +136,7 @@ public class PaymentService {
 
     }
 
-    @Transactional //객체
+    @Transactional
     public ResponseEntity<?> updatePaymentHistory(String accessToken, PaymentMemoDto paymentMemoDto) {
         try{
             User user =  userService.getUser(accessToken);
@@ -141,8 +144,7 @@ public class PaymentService {
             PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentMemoDto.getId(),getUserId);
             if(paymentHistory==null) {
                 throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
-            }
-            PaymentHistory updatePaymentHistory= PaymentHistory
+            } PaymentHistory updatePaymentHistory= PaymentHistory
                     .builder()
                     .price(paymentHistory.getPrice())
                     .balance(paymentHistory.getBalance())
@@ -159,6 +161,7 @@ public class PaymentService {
                     .isSuccess(paymentHistory.getIsSuccess())
                     .id(paymentHistory.getId())
                     .build();
+
             PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
             UpdatePaymentHistoryDto updatePaymentHistoryDto = UpdatePaymentHistoryDto.builder()
                     .id(responsePaymentHistory.getId())
@@ -171,12 +174,13 @@ public class PaymentService {
                     .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
                     .build();
             return new ResponseEntity<>(apiResponse,HttpStatus.ACCEPTED);
-        }catch (RuntimeException e) { //
+        }catch(BusinessExceptionHandler e) { //
             return new ResponseEntity<>("서버내부 오류",HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-// 취소되면 승인여부 false
+    // 취소되면 승인여부 false
     // 키머니 잔액 update
+    @Transactional
      public ResponseEntity<?> deletePaymentHistory (String accessToken, Long payHistoryId) {
         try {
             User user = userService.getUser(accessToken);
@@ -193,7 +197,7 @@ public class PaymentService {
                     .unit(paymentHistory.getUnit())
                     .store(paymentHistory.getStore())
                     .category(paymentHistory.getCategory())
-                    .createdAt(paymentHistory.getCreatedAt())
+                    .createdAt(LocalDateTime.now())
                     .lat(paymentHistory.getLat())
                     .lng(paymentHistory.getLng())
                     .address(paymentHistory.getAddress())
@@ -201,21 +205,19 @@ public class PaymentService {
                     .userId(paymentHistory.getUserId())
                     .keyMoneyId(paymentHistory.getKeyMoneyId())
                     .isSuccess(false)
-                    .id(paymentHistory.getId())
                     .build();
             KeyMoney keymoney = keyMoneyRepository.findByUserIdAndUnit(getUserId, updatePaymentHistory.getUnit());
             if (keymoney == null) {
                 throw new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY);
             }
             keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
-            KeyMoney responseKeymoney = keyMoneyRepository.save(keymoney);
             PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
 
             KeymoneyDto keymoneyDto = KeymoneyDto.builder()
-                    .balance(responseKeymoney.getBalance())
-                    .id(responseKeymoney.getId())
-                    .user(responseKeymoney.getUser())
-                    .unit(responseKeymoney.getUnit())
+                    .balance(keymoney.getBalance())
+                    .id(keymoney.getId())
+                    .user(keymoney.getUser())
+                    .unit(keymoney.getUnit())
                     .build();
             PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
                     .price(responsePaymentHistory.getPrice())

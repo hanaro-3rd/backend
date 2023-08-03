@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory,Integer> {
 
-    List<PaymentHistory> findAllByKeyMoneyIdAndIsSuccess(int id,Boolean isSuccess);
+    List<PaymentHistory> findAllByKeyMoneyId(int id);
     PaymentHistory findByIdAndUserId(Long id, int getUserId);
 
 }
