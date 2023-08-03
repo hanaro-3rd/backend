@@ -28,9 +28,10 @@ public class KeyMoney {
     @Column
     private Long balance;
 
-    public void updateBalance(Long amount) {
+    public void updatePlusBalance(Long amount) {
         this.balance += amount;
     }
+    public void updateMinusBalance(Long amount) {this.balance -= amount;}
 
 }
 

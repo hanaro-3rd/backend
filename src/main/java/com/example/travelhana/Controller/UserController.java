@@ -45,7 +45,7 @@ public class UserController {
 
     //로그인 테스트용
     @PostMapping("/signin/password")
-    public void signin(@RequestBody LoginRequestDto dto){
+    public void signin(@RequestBody LoginRequestDto dto) {
         return;
     }
 
@@ -62,8 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String getUser(@RequestHeader("Authorization") String headerValue)
-    {
+    public String getUser(@RequestHeader("Authorization") String headerValue) {
         // Access Token만 꺼내옴
         String accessToken = headerValue.substring(TOKEN_HEADER_PREFIX.length());
 
@@ -102,12 +101,11 @@ public class UserController {
         if (tokens.get(RT_HEADER) != null) {
             response.setHeader(RT_HEADER, tokens.get(RT_HEADER));
         }
-        ApiResponse apiResponse= ApiResponse.builder()
+        ApiResponse apiResponse = ApiResponse.builder()
                 .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
                 .resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
                 .build();
         return ResponseEntity.ok(tokens);
     }
-
 
 }
