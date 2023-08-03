@@ -49,7 +49,7 @@ public class MarkerController {
 			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
 	public ResponseEntity<?> createDummyExternalAccounts(
-			@RequestHeader(value = "Authorization") String ignoredAccessToken, @RequestBody MarkerDummyDto markerDummyDto) {
+			@RequestBody MarkerDummyDto markerDummyDto) {
 		return markerService.createDummyMarker(markerDummyDto);
 	}
 

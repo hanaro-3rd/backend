@@ -35,7 +35,7 @@ public class AccountController {
 
 	@PostMapping("/dummy")
 	public ResponseEntity<?> createDummyExternalAccounts(
-			@RequestHeader(value = "Authorization") String ignoredAccessToken, @RequestBody AccountDummyDto accountDummyDto) throws Exception {
+			@RequestBody AccountDummyDto accountDummyDto) throws Exception {
 		return accountService.createDummyExternalAccounts(accountDummyDto);
 	}
 

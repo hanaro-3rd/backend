@@ -28,11 +28,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class ExchangeService {
+
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final KeyMoneyRepository keyMoneyRepository;
 	private final ExchangeHistoryRepository exchangeHistoryRepository;
 
+	private final UserService userService;
 
 	//1.유효한 계좌인지 확인 -> 전부 다 유효한 계좌임을 가정 O
 	//2.잔액부족한거 체크하기 O
@@ -46,8 +48,8 @@ public class ExchangeService {
 	//4-1.isNow가 True면 수수료를 높게 책정해서 환전해주고 나중에 스케줄링으로 환불
 	//4-2.isNow가 False면 다음 영업일 환전 예약
 	@Transactional
-	public ResponseEntity<?> exchange(ExchangeRequestDto request) throws URISyntaxException {
-		return exchangeInAccountBusinessDay(request);
+	public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
+		return exchangeInAccountBusinessDay(accessToken, request);
 	}
 
 	//외환계좌 만들기
@@ -64,9 +66,17 @@ public class ExchangeService {
 
 	//거래 성공하고 성송
 	@Transactional
-	public ResponseEntity<?> exchangeInAccountBusinessDay(ExchangeRequestDto dto) {
+	public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken, ExchangeRequestDto dto) {
+
+
 		Account account = accountRepository.findById(dto.getAccountId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
+
+		// 접속한 유저에 대한 계좌 소유 여부 확인
+		User user = userService.getUserByAccessToken(accessToken);
+		if (!user.equals(account.getUser())) {
+			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
+		}
 
 		//유효하지 않은 화폐단위 에러
 		Currency currency = Currency.getByCode(dto.getUnit());
