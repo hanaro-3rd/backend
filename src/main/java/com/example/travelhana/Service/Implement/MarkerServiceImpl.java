@@ -194,7 +194,7 @@ public class MarkerServiceImpl implements MarkerService {
 			keyMoneyRepository.save(newKeyMoney);
 		} else {
 			// 있으면 해당 외화 계좌에 포인트만큼 추가
-			keyMoney.get().updateBalance(amount);
+			keyMoney.get().updatePlusBalance(amount);
 			storedKeyMoney = keyMoney.get().getBalance();
 		}
 
