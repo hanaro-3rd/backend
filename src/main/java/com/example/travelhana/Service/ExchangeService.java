@@ -231,7 +231,7 @@ public class ExchangeService {
         }
         Double key=(double)won*(double)currency.getBaseCurrency()/rate;
         Long realkey=Math.round(key);
-        keyMoney.updateBalance(realkey);
+        keyMoney.updatePlusBalance(realkey);
 //        keyMoneyRepository.save(keyMoney);
         return realkey;
 

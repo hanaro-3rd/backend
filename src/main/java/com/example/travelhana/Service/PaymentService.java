@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -34,13 +36,15 @@ public class PaymentService {
             int getUserId = user.getId();
             KeyMoney keymoney = keyMoneyRepository.findByUserIdAndUnit(getUserId, paymentListDto.getUnit());
             if(keymoney==null){
-                throw new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT);
+                throw new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY);
             }
             Long nowBalance = keymoney.getBalance() - paymentListDto.getPrice();
             if(nowBalance < 0) { //잔액부족 에러처리
                 throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
             }
 
+            keymoney.updateMinusBalance(paymentListDto.getPrice());
+            keyMoneyRepository.save(keymoney);
             PaymentHistory paymentHistory =  PaymentHistory.builder()
                     .price(paymentListDto.getPrice())
                     .unit(paymentListDto.getUnit())
@@ -171,5 +175,82 @@ public class PaymentService {
         }catch (RuntimeException e) { //
             return new ResponseEntity<>("서버내부 오류",HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+// 취소되면 승인여부 false
+    // 키머니 잔액 update
+     public ResponseEntity<?> deletePaymentHistory (String accessToken, Long payHistoryId) {
+        try {
+            User user = userService.getUser(accessToken);
+            int getUserId = user.getId();
+            PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(payHistoryId,getUserId);
+            if(paymentHistory==null) {
+                throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
+            }
+            // isSuccess false로 리턴
+            PaymentHistory updatePaymentHistory= PaymentHistory
+                    .builder()
+                    .price(paymentHistory.getPrice())
+                    .balance(paymentHistory.getBalance())
+                    .unit(paymentHistory.getUnit())
+                    .store(paymentHistory.getStore())
+                    .category(paymentHistory.getCategory())
+                    .createdAt(paymentHistory.getCreatedAt())
+                    .lat(paymentHistory.getLat())
+                    .lng(paymentHistory.getLng())
+                    .address(paymentHistory.getAddress())
+                    .memo(paymentHistory.getMemo())
+                    .userId(paymentHistory.getUserId())
+                    .keyMoneyId(paymentHistory.getKeyMoneyId())
+                    .isSuccess(false)
+                    .id(paymentHistory.getId())
+                    .build();
+            KeyMoney keymoney = keyMoneyRepository.findByUserIdAndUnit(getUserId, updatePaymentHistory.getUnit());
+            if (keymoney == null) {
+                throw new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY);
+            }
+            System.out.println("여ㄱ");
+            keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
+            KeyMoney responseKeymoney = keyMoneyRepository.save(keymoney);
+            PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
+
+            KeymoneyDto keymoneyDto = KeymoneyDto.builder()
+                    .balance(responseKeymoney.getBalance())
+                    .id(responseKeymoney.getId())
+                    .user(responseKeymoney.getUser())
+                    .unit(responseKeymoney.getUnit())
+                    .build();
+            PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
+                    .price(responsePaymentHistory.getPrice())
+                    .balance(responsePaymentHistory.getBalance())
+                    .unit(responsePaymentHistory.getUnit())
+                    .store(responsePaymentHistory.getStore())
+                    .category(responsePaymentHistory.getCategory())
+                    .createdAt(responsePaymentHistory.getCreatedAt())
+                    .lat(responsePaymentHistory.getLat())
+                    .lng(responsePaymentHistory.getLng())
+                    .address(responsePaymentHistory.getAddress())
+                    .memo(responsePaymentHistory.getMemo())
+                    .userId(responsePaymentHistory.getUserId())
+                    .keyMoneyId(responsePaymentHistory.getKeyMoneyId())
+                    .isSuccess(responsePaymentHistory.getIsSuccess())
+                    .id(responsePaymentHistory.getId())
+                    .build();
+            Map<String,Object> responseData = new HashMap<>();
+            responseData.put("totalbalance",keymoneyDto.getBalance());
+            responseData.put("paymentHistory",paymentHistoryDto);
+            ApiResponse apiResponse = ApiResponse.builder()
+                    .result(responseData)
+                    .resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+                    .build();
+         return new ResponseEntity<>(apiResponse,HttpStatus.ACCEPTED);
+        } catch(BusinessExceptionHandler e) {
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorMessage(e.getMessage())
+                    .errorCode(e.getErrorCode().getStatusCode())
+                    .build();
+            return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }

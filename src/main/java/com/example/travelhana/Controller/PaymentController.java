@@ -28,4 +28,8 @@ public class PaymentController {
         return paymentService.updatePaymentHistory(accessToken, paymentMemoDto);
     }
 
+    @PatchMapping("/payhistory/{payhistoryId}")
+    public ResponseEntity<?>  deletePayhistory(@PathVariable Long payhistoryId, @RequestHeader(value = "Authorization") String accessToken) {
+       return  paymentService.deletePaymentHistory(accessToken,payhistoryId);
+    }
 }
