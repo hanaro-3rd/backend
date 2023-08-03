@@ -15,7 +15,7 @@ public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping(value ="/")
+	@GetMapping(value ="")
 	public ResponseEntity<?> getAccountList(
 			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
 		return accountService.getConnectedAccountList(accessToken);
