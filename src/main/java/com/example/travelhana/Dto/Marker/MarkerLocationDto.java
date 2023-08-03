@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto.Account;
+package com.example.travelhana.Dto.Marker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountConnectDto {
+public class MarkerLocationDto {
 
-	int userId;
-	int externalAccountId;
-	String accountPassword;
+	Double lat;
+	Double lng;
 
 }

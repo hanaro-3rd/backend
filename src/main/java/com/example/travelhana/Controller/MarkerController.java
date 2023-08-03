@@ -3,7 +3,7 @@ package com.example.travelhana.Controller;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Dto.Marker.MarkerDummyDto;
 import com.example.travelhana.Dto.Marker.MarkerListDto;
-import com.example.travelhana.Dto.Marker.MarkerPickUpDto;
+import com.example.travelhana.Dto.Marker.MarkerLocationDto;
 import com.example.travelhana.Dto.Marker.MarkerPickUpResultDto;
 import com.example.travelhana.Service.MarkerService;
 import io.swagger.annotations.ApiResponse;
@@ -19,16 +19,17 @@ public class MarkerController {
 
 	private final MarkerService markerService;
 
-	@PostMapping("/dummy")
+	@GetMapping("")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerListDto.class),
 			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
-	public ResponseEntity<MarkerListDto> createDummyExternalAccounts(@RequestBody MarkerDummyDto markerDummyDto) {
-		return markerService.createDummyMarker(markerDummyDto);
+	public ResponseEntity<MarkerListDto> getMarkerList(
+			@RequestHeader(value = "Authorization") String accessToken) {
+		return markerService.getMarkerList(accessToken);
 	}
 
-	@PostMapping("/pick-up")
+	@PostMapping("/{markerId}")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerPickUpResultDto.class),
 			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class),
@@ -36,16 +37,19 @@ public class MarkerController {
 			@ApiResponse(code = 409, message = "CONFLICT", response = ResponseDto.class),
 			@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR", response = ResponseDto.class)
 	})
-	public ResponseEntity<MarkerPickUpResultDto> pickUpMarker(@RequestBody MarkerPickUpDto markerPickUpDto) {
-		return markerService.pickUpMarker(markerPickUpDto);
+	public ResponseEntity<MarkerPickUpResultDto> pickUpMarker(
+			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int markerId, @RequestBody MarkerLocationDto markerLocationDto) {
+		return markerService.pickUpMarker(accessToken, markerId, markerLocationDto);
 	}
 
-	@GetMapping("/{userId}")
+	@PostMapping("/dummy")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MarkerListDto.class),
 			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
-	public ResponseEntity<MarkerListDto> getMarkerList(@PathVariable int userId) {
-		return markerService.getMarkerList(userId);
+	public ResponseEntity<MarkerListDto> createDummyExternalAccounts(
+			@RequestHeader(value = "Authorization") String ignoredAccessToken, @RequestBody MarkerDummyDto markerDummyDto) {
+		return markerService.createDummyMarker(markerDummyDto);
 	}
+
 }
