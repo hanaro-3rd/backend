@@ -159,7 +159,6 @@ public class PaymentService {
                     .isSuccess(paymentHistory.getIsSuccess())
                     .id(paymentHistory.getId())
                     .build();
-            System.out.println(updatePaymentHistory);
             PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
             UpdatePaymentHistoryDto updatePaymentHistoryDto = UpdatePaymentHistoryDto.builder()
                     .id(responsePaymentHistory.getId())
@@ -208,7 +207,6 @@ public class PaymentService {
             if (keymoney == null) {
                 throw new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY);
             }
-            System.out.println("여ㄱ");
             keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
             KeyMoney responseKeymoney = keyMoneyRepository.save(keymoney);
             PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
