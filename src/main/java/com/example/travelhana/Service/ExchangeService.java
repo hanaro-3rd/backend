@@ -160,7 +160,6 @@ public class ExchangeService {
         keyMoney.updateBalance(realkey); //키머니 잔액 추가
         account.updateBalance(won*(-1)); //원화 잔액 차감
 
-        System.out.println("won to key SUCCESS");
         return new ExchangeSuccess(won,realkey,keyMoney.getBalance(),true);
     }
 

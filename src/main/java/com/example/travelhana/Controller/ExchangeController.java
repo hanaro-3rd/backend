@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 @RestController
 @RequiredArgsConstructor
 public class ExchangeController {
+
     private final ExchangeService exchangeService;
 
     @PostMapping("/exchange")

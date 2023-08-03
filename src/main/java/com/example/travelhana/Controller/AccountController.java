@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -16,24 +15,28 @@ public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping(value ="/list/{userId}")
-	public ResponseEntity<ConnectedAccountListDto> getAccountList(@PathVariable int userId) throws Exception {
-		return accountService.getConnectedAccountList(userId);
+	@GetMapping(value ="/")
+	public ResponseEntity<?> getAccountList(
+			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
+		return accountService.getConnectedAccountList(accessToken);
+	}
+
+	@GetMapping(value = "/external")
+	public ResponseEntity<?> getExternalAccountList(
+			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
+		return accountService.findExternalAccountList(accessToken);
+	}
+
+	@PostMapping("/{externalAccountId}")
+	public ResponseEntity<?> connectExternalAccount(
+			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int externalAccountId, @RequestBody AccountPasswordDto accountPasswordDto) throws Exception {
+		return accountService.connectExternalAccount(accessToken, externalAccountId, accountPasswordDto);
 	}
 
 	@PostMapping("/dummy")
-	public ResponseEntity<AccountListDto> createDummyExternalAccounts(@RequestBody AccountDummyDto accountDummyDto) throws Exception {
+	public ResponseEntity<?> createDummyExternalAccounts(
+			@RequestHeader(value = "Authorization") String ignoredAccessToken, @RequestBody AccountDummyDto accountDummyDto) throws Exception {
 		return accountService.createDummyExternalAccounts(accountDummyDto);
-	}
-
-	@GetMapping(value = "/external/{userId}")
-	public ResponseEntity<AccountListDto> getExternalAccountList(@PathVariable int userId) throws Exception {
-		return accountService.findExternalAccountList(userId);
-	}
-
-	@PostMapping("/connect")
-	public ResponseEntity<AccountConnectResultDto> connectExternalAccount(@RequestBody AccountConnectDto connectAccountDto) throws Exception {
-		return accountService.connectExternalAccount(connectAccountDto);
 	}
 
 }
