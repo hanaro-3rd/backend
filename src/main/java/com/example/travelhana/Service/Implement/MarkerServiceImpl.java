@@ -6,7 +6,9 @@ import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserToMarker;
 import com.example.travelhana.Dto.Marker.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
+import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.*;
 import com.example.travelhana.Service.MarkerService;
 import com.example.travelhana.Service.UserService;
@@ -53,7 +55,7 @@ public class MarkerServiceImpl implements MarkerService {
 	}
 
 	@Override
-	public ResponseEntity<MarkerListDto> getMarkerList(String accessToken) {
+	public ResponseEntity<?> getMarkerList(String accessToken) {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 
@@ -61,74 +63,94 @@ public class MarkerServiceImpl implements MarkerService {
 		List<Marker> markers = markerRepository.findAll();
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
-		MarkerListDto returnMarkers = parseMarkerEntitiesToMarkerListDto(user.getId(), markers);
-		return new ResponseEntity<>(returnMarkers, HttpStatus.OK);
+		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(user.getId(), markers);
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.GET_MARKER_LIST_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.GET_MARKER_LIST_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
 	@Override
 	@Transactional
-	public ResponseEntity<MarkerListDto> createDummyMarker(MarkerDummyDto markerDummyDto) {
+	public ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto) {
 		// 더미 마커가 없으면 더미 마커 데이터를 생성
 		Boolean isExist = markerRepository.existsById(1);
 		if (!isExist) {
-			Marker tokyoStation = new Marker();
-			tokyoStation.setAmount(100L);
-			tokyoStation.setLat(35.6812);
-			tokyoStation.setLng(139.7670);
-			tokyoStation.setLimitAmount(20);
-			tokyoStation.setPlace("도쿄역");
-			tokyoStation.setUnit("JPY");
+			Marker tokyoStation = Marker
+					.builder()
+					.amount(100L)
+					.lat(35.6812)
+					.lng(139.7670)
+					.limitAmount(20)
+					.place("도쿄역")
+					.unit("JPY")
+					.build();
 			markerRepository.save(tokyoStation);
 
-			Marker tokyoTower = new Marker();
-			tokyoTower.setAmount(100L);
-			tokyoTower.setLat(35.6586);
-			tokyoTower.setLng(139.7454);
-			tokyoTower.setLimitAmount(20);
-			tokyoTower.setPlace("도쿄타워");
-			tokyoTower.setUnit("JPY");
+			Marker tokyoTower = Marker
+					.builder()
+					.amount(100L)
+					.lat(35.6586)
+					.lng(139.7454)
+					.limitAmount(20)
+					.place("도쿄타워")
+					.unit("JPY")
+					.build();
 			markerRepository.save(tokyoTower);
 
-			Marker sensouji = new Marker();
-			sensouji.setAmount(100L);
-			sensouji.setLat(35.7147);
-			sensouji.setLng(139.7966);
-			sensouji.setLimitAmount(20);
-			sensouji.setPlace("센소지");
-			sensouji.setUnit("JPY");
+			Marker sensouji = Marker
+					.builder()
+					.amount(100L)
+					.lat(35.7147)
+					.lng(139.7966)
+					.limitAmount(20)
+					.place("센소지")
+					.unit("JPY")
+					.build();
 			markerRepository.save(sensouji);
 
-			Marker sibuyaSky = new Marker();
-			sibuyaSky.setAmount(100L);
-			sibuyaSky.setLat(35.6584);
-			sibuyaSky.setLng(139.7022);
-			sibuyaSky.setLimitAmount(20);
-			sibuyaSky.setPlace("시부야 스카이");
-			sibuyaSky.setUnit("JPY");
+			Marker sibuyaSky = Marker
+					.builder()
+					.amount(100L)
+					.lat(35.6584)
+					.lng(139.7022)
+					.limitAmount(20)
+					.place("시부야 스카이")
+					.unit("JPY")
+					.build();
 			markerRepository.save(sibuyaSky);
 		}
 
 		// 입력받은 마커 데이터로 마커 테이블에 레코드 생성
-		Marker marker = new Marker();
-		marker.setUnit(markerDummyDto.getUnit());
-		marker.setAmount(markerDummyDto.getAmount());
-		marker.setLimitAmount(markerDummyDto.getLimitAmount());
-		marker.setLat(markerDummyDto.getLat());
-		marker.setLng(markerDummyDto.getLng());
-		marker.setPlace(markerDummyDto.getPlace());
+		Marker marker = Marker
+				.builder()
+				.unit(markerDummyDto.getUnit())
+				.amount(markerDummyDto.getAmount())
+				.limitAmount(markerDummyDto.getLimitAmount())
+				.lat(markerDummyDto.getLat())
+				.lng(markerDummyDto.getLng())
+				.place(markerDummyDto.getPlace())
+				.build();
 		markerRepository.save(marker);
 
 		// 모든 마커를 불러옴
 		List<Marker> markers = markerRepository.findAll();
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
-		MarkerListDto returnMarkers = parseMarkerEntitiesToMarkerListDto(0, markers);
-		return new ResponseEntity<>(returnMarkers, HttpStatus.OK);
+		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers);
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.CREATE_DUMMY_MARKERS_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.CREATE_DUMMY_MARKERS_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
 	@Override
 	@Transactional
-	public ResponseEntity<MarkerPickUpResultDto> pickUpMarker(String accessToken, int markerId, MarkerLocationDto markerLocationDto) {
+	public ResponseEntity<?> pickUpMarker(String accessToken, int markerId, MarkerLocationDto markerLocationDto) {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 		int userId = user.getId();
@@ -163,7 +185,12 @@ public class MarkerServiceImpl implements MarkerService {
 		if (!keyMoney.isPresent()) {
 			// 없으면 포인트만큼 추가한 외화 계좌 생성
 			storedKeyMoney = amount;
-			KeyMoney newKeyMoney = KeyMoney.builder().user(user).balance(storedKeyMoney).unit(unit).build();
+			KeyMoney newKeyMoney = KeyMoney
+					.builder()
+					.user(user)
+					.balance(storedKeyMoney)
+					.unit(unit)
+					.build();
 			keyMoneyRepository.save(newKeyMoney);
 		} else {
 			// 있으면 해당 외화 계좌에 포인트만큼 추가
@@ -175,12 +202,28 @@ public class MarkerServiceImpl implements MarkerService {
 		marker.decreaseLimitAmount();
 
 		// user-marker 중간 테이블 레코드 추가
-		UserToMarker userToMarker = UserToMarker.builder().user(user).marker(marker).pickDate(LocalDateTime.now()).build();
+		UserToMarker userToMarker = UserToMarker
+				.builder()
+				.user(user)
+				.marker(marker)
+				.pickDate(LocalDateTime.now())
+				.build();
 		userToMarkerRepository.save(userToMarker);
 
 		// MarkerPickUpResultDto에 파싱 후 리턴
-		MarkerPickUpResultDto result = new MarkerPickUpResultDto(userId, marker.getPlace(), storedKeyMoney, marker.getUnit());
-		return new ResponseEntity<>(result, HttpStatus.OK);
+		MarkerPickUpResultDto result = MarkerPickUpResultDto
+				.builder()
+				.userId(userId)
+				.place(marker.getPlace())
+				.balance(storedKeyMoney)
+				.unit(marker.getUnit())
+				.build();
+		ApiResponse apiResponse= ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.PICKUP_MARKER_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.PICKUP_MARKER_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
 }

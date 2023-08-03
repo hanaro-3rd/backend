@@ -3,7 +3,9 @@ package com.example.travelhana.Service.Implement;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Dto.Account.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
+import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
+import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
@@ -44,16 +46,23 @@ public class AccountServiceImpl implements AccountService {
 
     private final UserService userService;
 
-    private List<AccountConnectResultDto> decryptAccountNum(int userId, List<AccountInfoProjection> projections) throws Exception {
-        List<AccountConnectResultDto> result = new ArrayList<>();
+    private List<AccountInformation> decryptAccountNum(int userId, List<AccountInfoProjection> projections) throws Exception {
+        List<AccountInformation> result = new ArrayList<>();
         for (AccountInfoProjection projection : projections) {
-            result.add(new AccountConnectResultDto(userId, projection.getId(), cryptoUtil.decrypt(projection.getAccountNum()), projection.getBank(), projection.getBalance()));
+            AccountInformation account = AccountInformation.builder()
+                    .userId(userId)
+                    .accountId(projection.getId())
+                    .accountNum(cryptoUtil.decrypt(projection.getAccountNum()))
+                    .bank(projection.getBank())
+                    .balance(projection.getBalance())
+                    .build();
+            result.add(account);
         }
         return result;
     }
 
     @Override
-    public ResponseEntity<ConnectedAccountListDto> getConnectedAccountList(String accessToken) throws Exception {
+    public ResponseEntity<?> getConnectedAccountList(String accessToken) throws Exception {
         // access token으로 유저 가져오기
         User user = userService.getUserByAccessToken(accessToken);
 
@@ -70,13 +79,25 @@ public class AccountServiceImpl implements AccountService {
         ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
 
         // 연결된 계좌, 휴일 여부, 각 환율 정보 DTO에 파싱 후 리턴
-        ConnectedAccountListDto result = new ConnectedAccountListDto(decryptAccountNum(userId, connectedAccounts), isBusinessDay, usdExchangeRateDto, jpyExchangeRateDto, eurExchangeRateDto);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        ConnectedAccountListDto result = ConnectedAccountListDto
+                .builder()
+                .accounts(decryptAccountNum(userId, connectedAccounts))
+                .isBusinessDay(isBusinessDay)
+                .usd(usdExchangeRateDto)
+                .jpy(jpyExchangeRateDto)
+                .eur(eurExchangeRateDto)
+                .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(result)
+                .resultCode(SuccessCode.GET_CONNECTED_ACCOUNTS_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.GET_CONNECTED_ACCOUNTS_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<AccountListDto> createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
+    public ResponseEntity<?> createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
         Random random = new Random();
 
         // 입력한 정보와 랜덤값으로 유저 정보 생성
@@ -128,12 +149,20 @@ public class AccountServiceImpl implements AccountService {
         List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
         // 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
-        AccountListDto result = new AccountListDto(decryptAccountNum(0, projections));
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        AccountListDto result = AccountListDto
+                .builder()
+                .externalAccounts(decryptAccountNum(0, projections))
+                .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(result)
+                .resultCode(SuccessCode.CREATE_DUMMY_ACCOUNTS_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.CREATE_DUMMY_ACCOUNTS_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<AccountListDto> findExternalAccountList(String accessToken) throws Exception {
+    public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
         // access token으로 유저 가져오기
         User user = userService.getUserByAccessToken(accessToken);
 
@@ -141,13 +170,21 @@ public class AccountServiceImpl implements AccountService {
         List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(user.getRegistrationNum());
 
         // 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
-        AccountListDto result = new AccountListDto(decryptAccountNum(0, projections));
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        AccountListDto result = AccountListDto
+                .builder()
+                .externalAccounts(decryptAccountNum(0, projections))
+                .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(result)
+                .resultCode(SuccessCode.GET_EXTERNAL_ACCOUNTS_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.GET_EXTERNAL_ACCOUNTS_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<AccountConnectResultDto> connectExternalAccount(String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
+    public ResponseEntity<?> connectExternalAccount(String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
         // access token으로 유저 가져오기
         User user = userService.getUserByAccessToken(accessToken);
 
@@ -189,8 +226,20 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
 
         // 계좌번호를 복호화하여 AccountConnectResultDto 파싱 후 리턴
-        AccountConnectResultDto result = new AccountConnectResultDto(user.getId(), account.getId(), cryptoUtil.decrypt(accountNum), externalAccount.getBank(), externalAccount.getBalance());
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        AccountInformation result = AccountInformation
+                .builder()
+                .userId(user.getId())
+                .accountId(account.getId())
+                .accountNum(cryptoUtil.decrypt(accountNum))
+                .bank(externalAccount.getBank())
+                .balance(externalAccount.getBalance())
+                .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(result)
+                .resultCode(SuccessCode.CONNECT_ACCOUNT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.CONNECT_ACCOUNT_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
 }
