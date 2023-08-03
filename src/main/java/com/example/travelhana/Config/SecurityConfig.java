@@ -20,51 +20,51 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final AuthenticationProvider authenticationProvider;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final CustomAuthorizationFilter customAuthorizationFilter;
-    private final AccessDeniedHandler accessDeniedHandler;
+	private final AuthenticationProvider authenticationProvider;
+	private final AuthenticationFailureHandler authenticationFailureHandler;
+	private final AuthenticationSuccessHandler authenticationSuccessHandler;
+	private final CustomAuthorizationFilter customAuthorizationFilter;
+	private final AccessDeniedHandler accessDeniedHandler;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authenticationProvider);
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) {
+		auth.authenticationProvider(authenticationProvider);
 
-    }
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 
-        CustomAuthenticationFilter customAuthenticationFilter =
-                new CustomAuthenticationFilter(authenticationManagerBean());
-        customAuthenticationFilter.setFilterProcessesUrl("/signin/password");
-        customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+		CustomAuthenticationFilter customAuthenticationFilter =
+				new CustomAuthenticationFilter(authenticationManagerBean());
+		customAuthenticationFilter.setFilterProcessesUrl("/signin/password");
+		customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+		customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
 
-        http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션 사용 X
-        http.authorizeRequests().antMatchers("/api/v2/**",
-                "/swagger-ui/index.html",
-                "/swagger-ui.html",
-                "/swagger/**",
-                "/swagger-resources/**",
-                "/v2/api-docs",
-                "/webjars/**",
-                "/signup/**", "/signin/password/**", "/refresh/**","/userrole/**","/verification/auth","/verification").permitAll();
+		http.csrf().disable();
+		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션 사용 X
+		http.authorizeRequests().antMatchers("/api/v2/**",
+				"/swagger-ui/index.html",
+				"/swagger-ui.html",
+				"/swagger/**",
+				"/swagger-resources/**",
+				"/v2/api-docs",
+				"/webjars/**",
+				"/signup/**", "/signin/password/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
+                "/account/dummy", "marker/dummy").permitAll();
 
-        http.authorizeRequests().anyRequest().authenticated();
-        http.addFilter(customAuthenticationFilter);
-        http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+		http.authorizeRequests().anyRequest().authenticated();
+		http.addFilter(customAuthenticationFilter);
+		http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+		http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+	}
 
-    }
-
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
 
 }

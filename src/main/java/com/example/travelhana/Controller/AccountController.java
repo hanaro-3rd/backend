@@ -15,7 +15,7 @@ public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping(value ="/")
+	@GetMapping(value ="")
 	public ResponseEntity<?> getAccountList(
 			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
 		return accountService.getConnectedAccountList(accessToken);
@@ -35,7 +35,7 @@ public class AccountController {
 
 	@PostMapping("/dummy")
 	public ResponseEntity<?> createDummyExternalAccounts(
-			@RequestHeader(value = "Authorization") String ignoredAccessToken, @RequestBody AccountDummyDto accountDummyDto) throws Exception {
+			@RequestBody AccountDummyDto accountDummyDto) throws Exception {
 		return accountService.createDummyExternalAccounts(accountDummyDto);
 	}
 

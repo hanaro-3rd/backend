@@ -32,7 +32,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class AccountServiceImpl implements AccountService {
 
     private final SaltUtil saltUtil;
@@ -96,7 +96,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
     public ResponseEntity<?> createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
         Random random = new Random();
 
@@ -183,7 +182,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
     public ResponseEntity<?> connectExternalAccount(String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
         // access token으로 유저 가져오기
         User user = userService.getUserByAccessToken(accessToken);
