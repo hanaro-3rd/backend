@@ -89,8 +89,8 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         ApiResponse apiResponse = ApiResponse.builder()
                 .result(result)
-                .resultCode(SuccessCode.GET_CONNECTED_ACCOUNTS_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.GET_CONNECTED_ACCOUNTS_SUCCESS.getMessage())
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
@@ -155,8 +155,8 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         ApiResponse apiResponse = ApiResponse.builder()
                 .result(result)
-                .resultCode(SuccessCode.CREATE_DUMMY_ACCOUNTS_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.CREATE_DUMMY_ACCOUNTS_SUCCESS.getMessage())
+                .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
@@ -176,8 +176,8 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         ApiResponse apiResponse = ApiResponse.builder()
                 .result(result)
-                .resultCode(SuccessCode.GET_EXTERNAL_ACCOUNTS_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.GET_EXTERNAL_ACCOUNTS_SUCCESS.getMessage())
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
@@ -236,8 +236,8 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         ApiResponse apiResponse = ApiResponse.builder()
                 .result(result)
-                .resultCode(SuccessCode.CONNECT_ACCOUNT_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.CONNECT_ACCOUNT_SUCCESS.getMessage())
+                .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }

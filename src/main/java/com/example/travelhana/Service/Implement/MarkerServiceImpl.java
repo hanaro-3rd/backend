@@ -66,8 +66,8 @@ public class MarkerServiceImpl implements MarkerService {
 		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(user.getId(), markers);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
-				.resultCode(SuccessCode.GET_MARKER_LIST_SUCCESS.getStatusCode())
-				.resultMsg(SuccessCode.GET_MARKER_LIST_SUCCESS.getMessage())
+				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
 				.build();
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
@@ -142,8 +142,8 @@ public class MarkerServiceImpl implements MarkerService {
 		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
-				.resultCode(SuccessCode.CREATE_DUMMY_MARKERS_SUCCESS.getStatusCode())
-				.resultMsg(SuccessCode.CREATE_DUMMY_MARKERS_SUCCESS.getMessage())
+				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.build();
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
@@ -220,10 +220,10 @@ public class MarkerServiceImpl implements MarkerService {
 				.build();
 		ApiResponse apiResponse= ApiResponse.builder()
 				.result(result)
-				.resultCode(SuccessCode.PICKUP_MARKER_SUCCESS.getStatusCode())
-				.resultMsg(SuccessCode.PICKUP_MARKER_SUCCESS.getMessage())
+				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.build();
-		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
 }
