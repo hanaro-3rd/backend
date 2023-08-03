@@ -1,4 +1,4 @@
-package com.example.travelhana.Service;
+package com.example.travelhana.Service.Implement;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -18,11 +18,11 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Service.Implement.CustomUserDetailsImpl;
+import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.json.HTTPTokener;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +30,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -159,7 +158,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     //토큰에서 deviceId 추출해 User 객체 찾기
-    public User getUser(String header)
+    public User getUserByAccessToken(String header)
     {
         String accessToken = header.substring(TOKEN_HEADER_PREFIX.length());
 

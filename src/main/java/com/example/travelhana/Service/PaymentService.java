@@ -27,14 +27,14 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final KeyMoneyRepository keyMoneyRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
 
     @Transactional
     public ResponseEntity<?> payment(String accessToken, PaymentListDto paymentListDto) {
         try{
-            User user =  userService.getUser(accessToken);
+            User user =  userService.getUserByAccessToken(accessToken);
             int getUserId = user.getId();
             KeyMoney keymoney = keyMoneyRepository.findByUserIdAndUnit(getUserId, paymentListDto.getUnit());
             if(keymoney==null){
@@ -98,7 +98,7 @@ public class PaymentService {
     @Transactional
     public ResponseEntity<?> showPaymentHistory (String accessToken) {
         try{
-            User user =  userService.getUser(accessToken);
+            User user =  userService.getUserByAccessToken(accessToken);
             int getUserId = user.getId();
             KeyMoney keyMoney = keyMoneyRepository.findByUser_Id(getUserId);
             List<PaymentHistory> paymentHistories =  paymentHistoryRepository.findAllByKeyMoneyId(keyMoney.getId());
@@ -139,7 +139,7 @@ public class PaymentService {
     @Transactional
     public ResponseEntity<?> updatePaymentHistory(String accessToken, PaymentMemoDto paymentMemoDto) {
         try{
-            User user =  userService.getUser(accessToken);
+            User user =  userService.getUserByAccessToken(accessToken);
             int getUserId = user.getId();
             PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentMemoDto.getId(),getUserId);
             if(paymentHistory==null) {
@@ -183,7 +183,7 @@ public class PaymentService {
     @Transactional
      public ResponseEntity<?> deletePaymentHistory (String accessToken, Long payHistoryId) {
         try {
-            User user = userService.getUser(accessToken);
+            User user = userService.getUserByAccessToken(accessToken);
             int getUserId = user.getId();
             PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(payHistoryId,getUserId);
             if(paymentHistory==null) {

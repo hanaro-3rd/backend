@@ -9,12 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountConnectResultDto {
+public class AccountPasswordDto {
 
-	int userId;
-	int accountId;
-	String accountNum;
-	String bank;
-	Long balance;
+	String accountPassword;
 
 }
