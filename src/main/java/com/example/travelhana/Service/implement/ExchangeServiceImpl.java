@@ -8,6 +8,7 @@ import com.example.travelhana.Object.ExchangeSuccess;
 import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
@@ -112,7 +113,7 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
                 .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                 .build();
-        return ResponseEntity.ok(apiResponse);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     @Transactional
@@ -155,6 +156,7 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .builder()
                 .key(exchangeSuccess.getKey())
                 .won(exchangeSuccess.getWon())
+                .exchangeRage(rate)
                 .build();
 
         return responseDto;

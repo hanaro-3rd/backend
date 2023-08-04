@@ -1,5 +1,6 @@
 package com.example.travelhana.Dto;
 
+import java.util.List;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class SMSResponseDto {
 
+//    private List<MessageResponseDto> messages;
     private String requestId;
     private LocalDateTime requestTime;
     private String statusCode;

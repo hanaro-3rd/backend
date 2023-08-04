@@ -30,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	@Transactional
-	public ResponseEntity<?> payment(String accessToken, PaymentListDto paymentListDto) {
+	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentListDto) {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
@@ -49,7 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.store(paymentListDto.getStore())
 					.category(paymentListDto.getCategory())
 					.address(paymentListDto.getAddress())
-					.createdAt(paymentListDto.getCreatedAt())
+					.createdAt(LocalDateTime.now())
 					.memo(paymentListDto.getMemo())
 					.lat(paymentListDto.getLat())
 					.lng(paymentListDto.getLng())
@@ -76,6 +76,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.isSuccess(responsePaymentHistory.getIsSuccess())
 					.id(responsePaymentHistory.getId())
 					.build();
+
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(paymentHistoryDto)
 					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
@@ -99,27 +100,18 @@ public class PaymentServiceImpl implements PaymentService {
 			KeyMoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(keyMoney.getId());
-			List<PaymentListDto> paymentListDtos = new ArrayList<>();
+			List<PaymentHistoryDto> paymentListDtos = new ArrayList<>();
 			for (PaymentHistory paymentHistory : paymentHistories) {
-				PaymentListDto paymentListDto = PaymentListDto.builder()
-						.price(paymentHistory.getPrice())
-						.unit(paymentHistory.getUnit())
-						.store(paymentHistory.getStore())
-						.address(paymentHistory.getAddress())
-						.category(paymentHistory.getCategory())
-						.createdAt(paymentHistory.getCreatedAt())
-						.lat(paymentHistory.getLat())
-						.lng(paymentHistory.getLng())
-						.memo(paymentHistory.getMemo())
-						.isSuccess(paymentHistory.getIsSuccess())
-						.build();
+				PaymentHistoryDto paymentListDto = new PaymentHistoryDto(paymentHistory);
 				paymentListDtos.add(paymentListDto);
 			}
+
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(paymentListDtos)
 					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
 					.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
 					.build();
+
 			return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 		} catch (BusinessExceptionHandler e) {
 			ErrorResponse errorResponse = ErrorResponse.builder()

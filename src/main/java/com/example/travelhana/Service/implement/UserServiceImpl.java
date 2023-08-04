@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final SaltUtil saltUtil;
     private final JwtConstants jwtConstants;
 
-    
+
     //==============회원가입=================
     //최초 접속 시 기기 존재 여부 확인
     public ResponseEntity<?> isExistDevice(String deviceId) {
@@ -124,6 +124,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }catch (Exception e)
         {
             ErrorResponse errorResponse=ErrorResponse.builder()
+                    .errorCode(400)
                     .errorMessage(e.getMessage())
                     .build();
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -234,5 +235,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return accessTokenResponseMap;
 
     }
-    
+
 }

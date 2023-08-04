@@ -12,13 +12,17 @@ import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
@@ -81,9 +85,18 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
         return encodeBase64String;
     }
 
+
+
+
+
+
+
+
     public ResponseEntity<?> sendMessageWithResttemplate(String phoneNum)
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, JsonProcessingException, URISyntaxException {
+
         Long time = System.currentTimeMillis();
+
         String code = String.valueOf(generateRandomNumber());
 
         setCodeIntoSession(code);
@@ -110,14 +123,41 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceid + "/messages"), httpBody, SMSResponseDto.class);
-        ApiResponse apiResponse= ApiResponse.builder()
-                .result(response)
-                .resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
+        try{
+            SMSResponseDto response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceid + "/messages"), httpBody, SMSResponseDto.class);
+
+            ApiResponse apiResponse= ApiResponse.builder()
+                    .result(response)
+                    .resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
+                    .build();
+            return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
+        }catch (HttpClientErrorException | HttpServerErrorException e) {
+            // 에러 응답을 받았을 때의 처리
+            ObjectMapper errorMapper = new ObjectMapper();
+            Map<String, Object> response = objectMapper.readValue(e.getMessage(), Map.class);
+            List<String> errors = (List<String>) response.get("errors");
+            HttpStatus statusCode = e.getStatusCode();
+            String statusText = e.getStatusText();
+            // 에러 응답의 내용을 확인하거나 필요한 작업을 수행합니다.
+
+            // 예를 들면, 에러를 로깅하거나 특정 상태 코드를 설정하여 ApiResponse를 만들어 반환할 수 있습니다.
+            ApiResponse errorResponse = ApiResponse.builder()
+                    .result(null)
+                    .resultCode(Integer.parseInt(response.get("status").toString()))
+                    .resultMsg(errors.get(0).toString())
+                    .build();
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            // 그 외의 예외 처리
+            System.out.println("Unhandled Exception: " + e.getMessage());
+            // 예외를 로깅하거나 필요한 작업을 수행합니다.
+            return null;
+        }
+
     }
+
+
 
     private void setCodeIntoSession(String code)
     {
@@ -132,7 +172,6 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
         if(code!=null)
         {
             if (codeDto.getCode().equals(code)) {
-                session.removeAttribute("code");
                 Optional<User> user=userRepository.findByPhoneNum(codeDto.getPhonenum());
 
                 CodeResponseDto codeResponseDto;
@@ -154,8 +193,9 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
                         .resultCode(SuccessCode.AUTH_SUCCESS.getStatusCode())
                         .resultMsg(SuccessCode.AUTH_SUCCESS.getMessage())
                         .build();
-                return ResponseEntity.ok(apiResponse);
+                session.removeAttribute("code");
 
+                return ResponseEntity.ok(apiResponse);
             }
             else{
                 ErrorResponse errorResponse=ErrorResponse.builder()
