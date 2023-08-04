@@ -30,29 +30,29 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	@Transactional
-	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentListDto) {
+	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentRequestDto) {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
-			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, paymentListDto.getUnit())
+			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, paymentRequestDto.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 
-			Long nowBalance = keymoney.getBalance() - paymentListDto.getPrice();
+			Long nowBalance = keymoney.getBalance() - paymentRequestDto.getPrice();
 			if (nowBalance < 0) { //잔액부족 에러처리
 				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
 			}
 
-			keymoney.updateMinusBalance(paymentListDto.getPrice());
+			keymoney.updateMinusBalance(paymentRequestDto.getPrice());
 			PaymentHistory paymentHistory = PaymentHistory.builder()
-					.price(paymentListDto.getPrice())
-					.unit(paymentListDto.getUnit())
-					.store(paymentListDto.getStore())
-					.category(paymentListDto.getCategory())
-					.address(paymentListDto.getAddress())
+					.price(paymentRequestDto.getPrice())
+					.unit(paymentRequestDto.getUnit())
+					.store(paymentRequestDto.getStore())
+					.category(paymentRequestDto.getCategory())
+					.address(paymentRequestDto.getAddress())
 					.createdAt(LocalDateTime.now())
-					.memo(paymentListDto.getMemo())
-					.lat(paymentListDto.getLat())
-					.lng(paymentListDto.getLng())
+					.memo(paymentRequestDto.getMemo())
+					.lat(paymentRequestDto.getLat())
+					.lng(paymentRequestDto.getLng())
 					.balance(nowBalance)
 					.userId(getUserId)
 					.keyMoneyId(keymoney.getId())
@@ -60,22 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.build();
 
 			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(paymentHistory);
-			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
-					.price(responsePaymentHistory.getPrice())
-					.balance(responsePaymentHistory.getBalance())
-					.unit(responsePaymentHistory.getUnit())
-					.store(responsePaymentHistory.getStore())
-					.category(responsePaymentHistory.getCategory())
-					.createdAt(responsePaymentHistory.getCreatedAt())
-					.lat(responsePaymentHistory.getLat())
-					.lng(responsePaymentHistory.getLng())
-					.address(responsePaymentHistory.getAddress())
-					.memo(responsePaymentHistory.getMemo())
-					.userId(responsePaymentHistory.getUserId())
-					.keyMoneyId(responsePaymentHistory.getKeyMoneyId())
-					.isSuccess(responsePaymentHistory.getIsSuccess())
-					.id(responsePaymentHistory.getId())
-					.build();
+			PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(responsePaymentHistory);
 
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(paymentHistoryDto)
@@ -97,6 +82,7 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
+
 			KeyMoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(keyMoney.getId());
