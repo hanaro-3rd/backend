@@ -38,7 +38,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final JwtConstants jwtConstants;
 
     //필터를 거치지 않을 url
-    private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html","/verification/auth","/verification",
+    private List<String> excludeUrlPatterns = new ArrayList<String>(Arrays.asList("/swagger-ui.html",
+            "/registration",
+            "/verification/auth","/verification",
             "/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
             "/webjars/springfox-swagger-ui/swagger-ui-bundle.js", "/webjars/springfox-swagger-ui/swagger-ui.css",
             "/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -75,9 +77,17 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String authrizationHeader = request.getHeader(AUTHORIZATION);
 
         // 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-        if (servletPath.contains("dummy") || servletPath.equals("/swagger-ui/index.html") || request.getServletPath().equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
+        if (servletPath.contains("registration")||servletPath.contains("dummy") || servletPath.equals("/swagger-ui/index.html") || request.getServletPath().equals("/signin/password") || servletPath.equals("/refresh")||servletPath.equals("/signup")) {
             System.out.println("CustomAuthorizationFilter");
             filterChain.doFilter(request, response);
+        } else if(authrizationHeader==null) {
+            log.info("CustomAuthorizationFilter : No header.");
+            response.setStatus(SC_BAD_REQUEST);
+            response.setContentType(APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("utf-8");
+            ErrorResponse errorResponse = new ErrorResponse(400, "JWT Token이 존재하지 않습니다.");
+
+            new ObjectMapper().writeValue(response.getWriter(), errorResponse);
         } else if (!authrizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
             // 토큰값이 없거나 정상적이지 않다면 400 오류
             log.info("CustomAuthorizationFilter : JWT Token이 존재하지 않습니다.");

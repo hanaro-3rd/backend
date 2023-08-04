@@ -1,10 +1,11 @@
-package com.example.travelhana.Service.Implement;
+package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.ExchangeRateDto;
 import com.example.travelhana.Dto.ExchangeRequestDto;
 import com.example.travelhana.Dto.ExchangeResponseDto;
 import com.example.travelhana.Object.ExchangeSuccess;
+import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ExchangeServiceImpl {
+public class ExchangeServiceImpl implements ExchangeService {
 
     private final AccountRepository accountRepository;
     private final KeyMoneyRepository keyMoneyRepository;
@@ -48,7 +49,8 @@ public class ExchangeServiceImpl {
     //4-1.isNow가 True면 수수료를 높게 책정해서 환전해주고 나중에 스케줄링으로 환불
     //4-2.isNow가 False면 다음 영업일 환전 예약
     @Transactional
-    public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
+    public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
+            throws URISyntaxException {
         return exchangeInAccountBusinessDay(accessToken, request);
     }
 

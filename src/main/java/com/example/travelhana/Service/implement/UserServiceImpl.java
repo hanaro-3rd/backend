@@ -1,4 +1,4 @@
-package com.example.travelhana.Service.Implement;
+package com.example.travelhana.Service.implement;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -18,7 +18,6 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Service.Implement.CustomUserDetailsImpl;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
