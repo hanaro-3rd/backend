@@ -16,9 +16,7 @@ public class PaymentListDto {
     String category;
     String address;
     String memo;
-    LocalDateTime createdAt;
     Double lat;
     Double lng;
-    Boolean isSuccess;
 
 }
