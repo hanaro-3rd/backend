@@ -9,8 +9,10 @@ import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Service.PhoneAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
-public class PhoneAuthServiceImpl {
+public class PhoneAuthServiceImpl implements PhoneAuthService {
     @Value("${SMS_ACCESS_KEY}")
     private String accesskey;
     @Value("${SMS_SECRETE_KEY}")
@@ -79,7 +81,8 @@ public class PhoneAuthServiceImpl {
         return encodeBase64String;
     }
 
-    public ResponseEntity<?> sendMessageWithResttemplate(String phoneNum) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, URISyntaxException, UnsupportedEncodingException {
+    public ResponseEntity<?> sendMessageWithResttemplate(String phoneNum)
+            throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, JsonProcessingException, URISyntaxException {
         Long time = System.currentTimeMillis();
         String code = String.valueOf(generateRandomNumber());
 
@@ -130,8 +133,7 @@ public class PhoneAuthServiceImpl {
         {
             if (codeDto.getCode().equals(code)) {
                 session.removeAttribute("code");
-                User user=userRepository.findByPhoneNum(codeDto.getPhonenum()).orElseThrow(
-                        ()->new BusinessExceptionHandler(ErrorCode.NO_USER));
+                Optional<User> user=userRepository.findByPhoneNum(codeDto.getPhonenum());
 
                 CodeResponseDto codeResponseDto;
                 if(user==null)

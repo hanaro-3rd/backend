@@ -11,6 +11,7 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.KeyMoneyRepository;
 import com.example.travelhana.Repository.PaymentHistoryRepository;
+import com.example.travelhana.Service.PaymentService;
 import com.example.travelhana.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentServiceImpl {
+public class PaymentServiceImpl implements PaymentService {
 	private final UserService userService;
 	private final KeyMoneyRepository keyMoneyRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
