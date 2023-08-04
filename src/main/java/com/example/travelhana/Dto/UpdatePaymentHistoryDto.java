@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 public class UpdatePaymentHistoryDto {
-    Long id;
-    String memo;
-    String Category;
+
+	Long id;
+	String memo;
+	String Category;
 }

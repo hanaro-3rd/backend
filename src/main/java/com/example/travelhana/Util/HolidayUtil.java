@@ -32,12 +32,20 @@ public class HolidayUtil {
 	private JSONArray getHolidaysByAPI() throws URISyntaxException {
 		String year = String.valueOf(LocalDate.now().getYear());
 
-		StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo");
-		urlBuilder.append("?" + URLEncoder.encode("serviceKey",StandardCharsets.UTF_8) + "=" + apikey);
-		urlBuilder.append("&" + URLEncoder.encode("_type",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("json", StandardCharsets.UTF_8));
-		urlBuilder.append("&" + URLEncoder.encode("pageNo",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8));
-		urlBuilder.append("&" + URLEncoder.encode("numOfRows",StandardCharsets.UTF_8) + "=" + URLEncoder.encode("30", StandardCharsets.UTF_8));
-		urlBuilder.append("&" + URLEncoder.encode("solYear",StandardCharsets.UTF_8) + "=" + URLEncoder.encode(year, StandardCharsets.UTF_8));
+		StringBuilder urlBuilder = new StringBuilder(
+				"http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo");
+		urlBuilder.append(
+				"?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + apikey);
+		urlBuilder.append(
+				"&" + URLEncoder.encode("_type", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(
+						"json", StandardCharsets.UTF_8));
+		urlBuilder.append(
+				"&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(
+						"1", StandardCharsets.UTF_8));
+		urlBuilder.append("&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "="
+				+ URLEncoder.encode("30", StandardCharsets.UTF_8));
+		urlBuilder.append("&" + URLEncoder.encode("solYear", StandardCharsets.UTF_8) + "="
+				+ URLEncoder.encode(year, StandardCharsets.UTF_8));
 
 		HttpHeaders headers = new HttpHeaders();
 
@@ -47,11 +55,13 @@ public class HolidayUtil {
 
 		URI uri = new URI(urlBuilder.toString());
 
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request,
+				String.class);
 
 		JSONObject parser = new JSONObject(response.getBody());
 
-		JSONArray resp = parser.getJSONObject("response").getJSONObject("body").getJSONObject("items").getJSONArray("item");
+		JSONArray resp = parser.getJSONObject("response").getJSONObject("body")
+				.getJSONObject("items").getJSONArray("item");
 
 		return resp;
 	}
@@ -64,7 +74,7 @@ public class HolidayUtil {
 
 		for (Object o : resp) {
 			JSONObject holiday = (JSONObject) o;
-			String isHoliday = (String)holiday.get("isHoliday");
+			String isHoliday = (String) holiday.get("isHoliday");
 			if (isHoliday.equals("Y")) {
 				locdates.add(String.valueOf(holiday.getInt("locdate")));
 			}
@@ -83,7 +93,7 @@ public class HolidayUtil {
 			file.write("\t\t");
 			for (int i = 0; i < locdates.size(); i++) {
 				file.write("\"" + locdates.get(i) + "\"");
-				if(i != locdates.size() - 1) {
+				if (i != locdates.size() - 1) {
 					file.write(", ");
 				}
 			}
@@ -97,7 +107,7 @@ public class HolidayUtil {
 
 		DayOfWeek dayOfWeek = today.getDayOfWeek();
 
-		if (dayOfWeek.getValue() >= 6 ) {
+		if (dayOfWeek.getValue() >= 6) {
 			return true;
 		} else {
 			return false;
@@ -117,8 +127,7 @@ public class HolidayUtil {
 		}
 	}
 
-	public Boolean isBusinessDay(LocalDate today) throws URISyntaxException
-	{
+	public Boolean isBusinessDay(LocalDate today) throws URISyntaxException {
 
 		if (today.toString().endsWith("-01-01")) {
 			makeHolidaysFile();

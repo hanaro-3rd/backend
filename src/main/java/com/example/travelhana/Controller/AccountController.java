@@ -15,7 +15,7 @@ public class AccountController {
 
 	private final AccountService accountService;
 
-	@GetMapping(value ="")
+	@GetMapping(value = "")
 	public ResponseEntity<?> getAccountList(
 			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
 		return accountService.getConnectedAccountList(accessToken);
@@ -29,8 +29,11 @@ public class AccountController {
 
 	@PostMapping("/{externalAccountId}")
 	public ResponseEntity<?> connectExternalAccount(
-			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int externalAccountId, @RequestBody AccountPasswordDto accountPasswordDto) throws Exception {
-		return accountService.connectExternalAccount(accessToken, externalAccountId, accountPasswordDto);
+			@RequestHeader(value = "Authorization") String accessToken,
+			@PathVariable int externalAccountId, @RequestBody AccountPasswordDto accountPasswordDto)
+			throws Exception {
+		return accountService.connectExternalAccount(accessToken, externalAccountId,
+				accountPasswordDto);
 	}
 
 	@PostMapping("/dummy")

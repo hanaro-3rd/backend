@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CodeResponseDto {
 
-    private Boolean isExistUser;
-    private Boolean isCodeEqual;
+	private Boolean isExistUser;
+	private Boolean isCodeEqual;
 
 }

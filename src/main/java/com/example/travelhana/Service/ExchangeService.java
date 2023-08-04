@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 
 
 public interface ExchangeService {
+
 	ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
 			throws URISyntaxException;
 

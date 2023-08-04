@@ -85,13 +85,6 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
         return encodeBase64String;
     }
 
-
-
-
-
-
-
-
     public ResponseEntity<?> sendMessageWithResttemplate(String phoneNum)
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, JsonProcessingException, URISyntaxException {
 
@@ -132,29 +125,17 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
                     .resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
                     .build();
             return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
-        }catch (HttpClientErrorException | HttpServerErrorException e) {
-            // 에러 응답을 받았을 때의 처리
-            ObjectMapper errorMapper = new ObjectMapper();
-            Map<String, Object> response = objectMapper.readValue(e.getMessage(), Map.class);
-            List<String> errors = (List<String>) response.get("errors");
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             HttpStatus statusCode = e.getStatusCode();
             String statusText = e.getStatusText();
-            // 에러 응답의 내용을 확인하거나 필요한 작업을 수행합니다.
 
-            // 예를 들면, 에러를 로깅하거나 특정 상태 코드를 설정하여 ApiResponse를 만들어 반환할 수 있습니다.
             ApiResponse errorResponse = ApiResponse.builder()
                     .result(null)
-                    .resultCode(Integer.parseInt(response.get("status").toString()))
-                    .resultMsg(errors.get(0).toString())
+                    .resultCode(statusCode.value())
+                    .resultMsg(statusText)
                     .build();
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            // 그 외의 예외 처리
-            System.out.println("Unhandled Exception: " + e.getMessage());
-            // 예외를 로깅하거나 필요한 작업을 수행합니다.
-            return null;
         }
-
     }
 
 

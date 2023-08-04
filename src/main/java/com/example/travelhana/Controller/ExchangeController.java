@@ -16,12 +16,13 @@ import java.net.URISyntaxException;
 @RequiredArgsConstructor
 public class ExchangeController {
 
-    private final ExchangeService exchangeService;
+	private final ExchangeService exchangeService;
 
-    @PostMapping("/exchange")
-    public ResponseEntity<?> exchange(
-            @RequestHeader(value = "Authorization") String accessToken, @RequestBody ExchangeRequestDto exchangeRequestDto) throws URISyntaxException {
-        return exchangeService.exchange(accessToken, exchangeRequestDto);
-    }
+	@PostMapping("/exchange")
+	public ResponseEntity<?> exchange(
+			@RequestHeader(value = "Authorization") String accessToken,
+			@RequestBody ExchangeRequestDto exchangeRequestDto) throws URISyntaxException {
+		return exchangeService.exchange(accessToken, exchangeRequestDto);
+	}
 
 }

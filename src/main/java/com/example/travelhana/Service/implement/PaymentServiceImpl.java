@@ -25,6 +25,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+
 	private final UserService userService;
 	private final KeyMoneyRepository keyMoneyRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
@@ -34,7 +35,8 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
-			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, paymentRequestDto.getUnit())
+			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
+							paymentRequestDto.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 
 			Long nowBalance = keymoney.getBalance() - paymentRequestDto.getPrice();
@@ -85,7 +87,8 @@ public class PaymentServiceImpl implements PaymentService {
 
 			KeyMoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
-			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(keyMoney.getId());
+			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(
+					keyMoney.getId());
 			List<PaymentHistoryDto> paymentListDtos = new ArrayList<>();
 			for (PaymentHistory paymentHistory : paymentHistories) {
 				PaymentHistoryDto paymentListDto = new PaymentHistoryDto(paymentHistory);
@@ -111,11 +114,13 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Transactional
-	public ResponseEntity<?> updatePaymentHistory(String accessToken, PaymentMemoDto paymentMemoDto) {
+	public ResponseEntity<?> updatePaymentHistory(String accessToken,
+			PaymentMemoDto paymentMemoDto) {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
-			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentMemoDto.getId(), getUserId);
+			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(
+					paymentMemoDto.getId(), getUserId);
 			if (paymentHistory == null) {
 				throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
 			}
@@ -137,7 +142,8 @@ public class PaymentServiceImpl implements PaymentService {
 					.id(paymentHistory.getId())
 					.build();
 
-			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
+			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(
+					updatePaymentHistory);
 			UpdatePaymentHistoryDto updatePaymentHistoryDto = UpdatePaymentHistoryDto.builder()
 					.id(responsePaymentHistory.getId())
 					.Category(responsePaymentHistory.getCategory())
@@ -161,7 +167,8 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
-			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(payHistoryId, getUserId);
+			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(payHistoryId,
+					getUserId);
 			if (paymentHistory == null) {
 				throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
 			}
@@ -182,10 +189,12 @@ public class PaymentServiceImpl implements PaymentService {
 					.keyMoneyId(paymentHistory.getKeyMoneyId())
 					.isSuccess(false)
 					.build();
-			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, updatePaymentHistory.getUnit())
+			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
+							updatePaymentHistory.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 			keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
-			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
+			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(
+					updatePaymentHistory);
 
 			KeymoneyDto keymoneyDto = KeymoneyDto.builder()
 					.balance(keymoney.getBalance())

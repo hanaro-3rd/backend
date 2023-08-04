@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory,Integer> {
+public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Integer> {
 
-    List<PaymentHistory> findAllByKeyMoneyId(int id);
-    PaymentHistory findByIdAndUserId(Long id, int getUserId);
+	List<PaymentHistory> findAllByKeyMoneyId(int id);
+
+	PaymentHistory findByIdAndUserId(Long id, int getUserId);
 
 }

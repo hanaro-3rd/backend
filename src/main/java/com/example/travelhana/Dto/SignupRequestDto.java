@@ -10,13 +10,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class SignupRequestDto {
-    private String name;
-    private String password;
-    private String phonenum;
-    private String pattern;
-    private String deviceId;
-    private String registrationNum;
-    public void encodePassword(String encodedPassword) {
-        this.password = encodedPassword;
-    }
+
+	private String name;
+	private String password;
+	private String phonenum;
+	private String pattern;
+	private String deviceId;
+	private String registrationNum;
+
+	public void encodePassword(String encodedPassword) {
+		this.password = encodedPassword;
+	}
 }

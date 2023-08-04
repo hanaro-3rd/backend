@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class PaymentMemoDto {
-    Long id;
-    String category;
-    String memo;
+
+	Long id;
+	String category;
+	String memo;
 }

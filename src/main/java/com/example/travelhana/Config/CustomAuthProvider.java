@@ -17,29 +17,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomAuthProvider implements AuthenticationProvider {
 
-    private final UserDetailsService userDetailsService;
-    private final SaltUtil saltUtil;
+	private final UserDetailsService userDetailsService;
+	private final SaltUtil saltUtil;
 
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
-        String password = (String) authentication.getCredentials();
+	@Override
+	public Authentication authenticate(Authentication authentication)
+			throws AuthenticationException {
+		String username = authentication.getName();
+		String password = (String) authentication.getCredentials();
 
-        log.info("CustomAuthProvider");
-        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
-        String salt=userDetails.getSalt();
-        String userpassword=userDetails.getPassword();
-        String inputsaltpw=saltUtil.encodePassword(salt,password); //받아온거
-        // PW 검사
-        if (!userpassword.equals(inputsaltpw)) {
-            throw new BadCredentialsException("Provider - authenticate() : 비밀번호가 일치하지 않습니다.");
-        }
+		log.info("CustomAuthProvider");
+		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
+				username);
+		String salt = userDetails.getSalt();
+		String userpassword = userDetails.getPassword();
+		String inputsaltpw = saltUtil.encodePassword(salt, password); //받아온거
+		// PW 검사
+		if (!userpassword.equals(inputsaltpw)) {
+			throw new BadCredentialsException("Provider - authenticate() : 비밀번호가 일치하지 않습니다.");
+		}
 
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
+		return new UsernamePasswordAuthenticationToken(userDetails, null,
+				userDetails.getAuthorities());
+	}
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return true;
-    }
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return true;
+	}
 }

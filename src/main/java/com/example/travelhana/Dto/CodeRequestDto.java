@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CodeRequestDto {
 
-    private String phonenum;
-    private String code;
+	private String phonenum;
+	private String code;
 }

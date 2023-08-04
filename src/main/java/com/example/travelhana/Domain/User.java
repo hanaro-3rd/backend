@@ -18,10 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class User {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name="USER_ID")
-    private int id;
+
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@Column(name = "USER_ID")
+	private int id;
 
 	@Column(nullable = false)
 	private String name;
@@ -38,8 +39,8 @@ public class User {
 	@Column(nullable = false)
 	private String pattern;
 
-    @ColumnDefault("false")
-    private Boolean isWithdrawal; //디폴트 =false
+	@ColumnDefault("false")
+	private Boolean isWithdrawal; //디폴트 =false
 
 	@ManyToMany
 	private final List<Role> roles = new ArrayList<>();
@@ -51,6 +52,7 @@ public class User {
 	private String salt;
 
 	private String refreshToken;
+
 	public void updateRefreshToken(String newToken) {
 		this.refreshToken = newToken;
 	}

@@ -17,7 +17,7 @@ import java.util.Date;
 public class ExternalAccount {
 
 	@Id
-	@Column(name="EXTERNAL_ACCOUNT_ID")
+	@Column(name = "EXTERNAL_ACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 

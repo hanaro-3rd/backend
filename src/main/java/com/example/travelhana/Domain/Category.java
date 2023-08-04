@@ -14,12 +14,12 @@ import javax.persistence.*;
 @Entity
 public class Category {
 
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
-    @Column
-    private String name;
+	@Column
+	private String name;
 
 }

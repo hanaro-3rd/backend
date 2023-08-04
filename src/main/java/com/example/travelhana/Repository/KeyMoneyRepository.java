@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface KeyMoneyRepository extends JpaRepository<KeyMoney, Integer> {
 
-    Optional<KeyMoney> findByUser_IdAndUnit(int userId, String unit);
+	Optional<KeyMoney> findByUser_IdAndUnit(int userId, String unit);
 
 }

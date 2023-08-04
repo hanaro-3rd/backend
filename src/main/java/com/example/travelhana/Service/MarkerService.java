@@ -11,6 +11,7 @@ public interface MarkerService {
 
 	ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto);
 
-	ResponseEntity<?> pickUpMarker(String accessToken, int markerId, MarkerLocationDto markerLocationDto);
+	ResponseEntity<?> pickUpMarker(String accessToken, int markerId,
+			MarkerLocationDto markerLocationDto);
 
 }
