@@ -130,7 +130,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
             String statusText = e.getStatusText();
 
             ApiResponse errorResponse = ApiResponse.builder()
-                    .result(null)
+                    .result("Fail")
                     .resultCode(statusCode.value())
                     .resultMsg(statusText)
                     .build();
