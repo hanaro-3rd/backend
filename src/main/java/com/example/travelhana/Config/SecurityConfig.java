@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/v2/api-docs",
 				"/webjars/**",
 				"/signup/**", "/signin/password/**", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
-                "/account/dummy", "marker/dummy").permitAll();
+                "/account/dummy", "/marker/dummy").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(customAuthenticationFilter);
