@@ -20,11 +20,11 @@ public class CategoryPlan {
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="PLAN_ID")
+	@JoinColumn(name = "PLAN_ID")
 	private Plan plan;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="CATEGORY_ID")
+	@JoinColumn(name = "CATEGORY_ID")
 	private Category category;
 
 	@Column(nullable = false)

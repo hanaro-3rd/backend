@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class DeviceDto {
-    private Boolean isRegistrate;
-    private String name;
+
+	private Boolean isRegistrate;
+	private String name;
 
 }

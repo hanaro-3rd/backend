@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class SMSAndCodeDto {
+public class CodeResponseDto {
 
-    private SMSResponseDto response;
-    private String code;
+	private Boolean isExistUser;
+	private Boolean isCodeEqual;
+
 }

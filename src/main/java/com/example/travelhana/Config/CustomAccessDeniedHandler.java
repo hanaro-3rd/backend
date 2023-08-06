@@ -19,16 +19,17 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+	@Override
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        log.info("AccessDeniedHandler");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        ErrorResponse errorResponse = new ErrorResponse(403, "해당 자원에 대한 접근 권한이 없습니다.");
-        response.setContentType(APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("utf-8");
+		log.info("AccessDeniedHandler");
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+		ErrorResponse errorResponse = new ErrorResponse(403, "해당 자원에 대한 접근 권한이 없습니다.");
+		response.setContentType(APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding("utf-8");
 
-        new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+		new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 
-    }
+	}
 }

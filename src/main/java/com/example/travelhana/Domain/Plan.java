@@ -16,7 +16,7 @@ import java.util.Date;
 public class Plan {
 
 	@Id
-	@Column(name="PLAN_ID")
+	@Column(name = "PLAN_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 

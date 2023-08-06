@@ -12,13 +12,14 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @Entity
 public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String name;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    public Role(String name) {
-        this.name = name;
-    }
+	private String name;
+
+	public Role(String name) {
+		this.name = name;
+	}
 }

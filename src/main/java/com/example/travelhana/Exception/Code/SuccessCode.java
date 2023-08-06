@@ -16,7 +16,7 @@ public enum SuccessCode {
     // 삽입 성공 코드 (HTTP Response: 201 Created)
     INSERT_SUCCESS(201, "INSERT_SUCCESS", "삽입 성공"),
     // 수정 성공 코드 (HTTP Response: 201 Created)
-    UPDATE_SUCCESS(204, "UPDATE_SUCCESS", "수정 성공"),
+    UPDATE_SUCCESS(202, "UPDATE_SUCCESS", "수정 성공"),
     // 인증 성공 코드 (HTTP Response: 200 OK)
     AUTH_SUCCESS(200, "AUTH_SUCCESS", "인증 성공"),
     // OPEN API 호출 성공 코드 (HTTP Response: 202 OK)

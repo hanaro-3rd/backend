@@ -7,9 +7,10 @@ import lombok.Getter;
 @Builder
 @Getter
 public class KeymoneyDto {
-    private Integer id;
-    private User user;
-    private String unit;
-    private Long balance;
+
+	private Integer id;
+	private User user;
+	private String unit;
+	private Long balance;
 
 }

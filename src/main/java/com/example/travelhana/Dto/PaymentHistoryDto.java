@@ -1,38 +1,67 @@
 package com.example.travelhana.Dto;
 
+import com.example.travelhana.Domain.PaymentHistory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder @Getter
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PaymentHistoryDto {
-     private Long id;
 
-     private Long price;
+	private Long id;
 
-     private Long balance;
+	private Long price;
 
-     private String unit;
+	private Long balance;
 
-     private String store;
+	private String unit;
 
-     private String category;
+	private String store;
 
-     private LocalDateTime createdAt;
+	private String category;
 
-     private Double lat;
+	private LocalDateTime createdAt;
 
-     private Double lng;
+	private Double lat;
 
-     private String address;
+	private Double lng;
 
-     private String memo;
+	private String address;
 
-     private Integer userId;
+	private String memo;
 
-     private Integer keyMoneyId;
+	private int userId;
 
-     private Boolean isSuccess;
+	private int keyMoneyId;
+
+	private Boolean isSuccess;
+
+	public PaymentHistoryDto(PaymentHistory paymentHistory) {
+		this.address = paymentHistory.getAddress();
+		this.id = paymentHistory.getId();
+		this.balance = paymentHistory.getBalance();
+		this.lat = paymentHistory.getLat();
+		this.lng = paymentHistory.getLng();
+		this.category = paymentHistory.getCategory();
+		this.createdAt = paymentHistory.getCreatedAt();
+		this.keyMoneyId = paymentHistory.getKeyMoneyId();
+		this.isSuccess = paymentHistory.getIsSuccess();
+		this.memo = paymentHistory.getMemo();
+		this.price = paymentHistory.getPrice();
+		this.store = paymentHistory.getStore();
+		this.unit = paymentHistory.getUnit();
+		this.userId = paymentHistory.getUserId();
+	}
 }

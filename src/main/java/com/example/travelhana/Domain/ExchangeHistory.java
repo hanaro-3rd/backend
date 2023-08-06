@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class ExchangeHistory {
 
 	@Id
-	@Column(name="EXCHANGEHISTORY_ID")
+	@Column(name = "EXCHANGEHISTORY_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

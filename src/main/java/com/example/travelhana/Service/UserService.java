@@ -8,18 +8,18 @@ import java.util.Map;
 
 public interface UserService {
 
-    ResponseEntity<?> isExistDevice(String deviceId);
+	ResponseEntity<?> isExistDevice(String deviceId);
 
-    ResponseEntity<?> saveAccount(SignupRequestDto dto);
+	ResponseEntity<?> saveAccount(SignupRequestDto dto);
 
-    void saveRole(String roleName);
+	void saveRole(String roleName);
 
-    int addRoleToUser(RoleToUserRequestDto dto);
+	int addRoleToUser(RoleToUserRequestDto dto);
 
-    void updateRefreshToken(String username, String refreshToken);
+	void updateRefreshToken(String username, String refreshToken);
 
-    Map<String,String> refresh(String refreshToken);
+	Map<String, String> refresh(String refreshToken);
 
-    User getUserByAccessToken(String header);
+	User getUserByAccessToken(String header);
 
 }

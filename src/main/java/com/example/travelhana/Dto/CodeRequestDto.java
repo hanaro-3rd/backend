@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class CodeDto {
+public class CodeRequestDto {
 
-    private String code;
+	private String phonenum;
+	private String code;
 }

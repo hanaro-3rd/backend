@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class PhonenumDto {
-    private String phonenum;
+
+	private String phonenum;
 }
