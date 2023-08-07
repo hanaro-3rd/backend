@@ -1,6 +1,6 @@
 package com.example.travelhana.Service.implement;
 
-import com.example.travelhana.Domain.KeyMoney;
+import com.example.travelhana.Domain.Keymoney;
 import com.example.travelhana.Domain.PaymentHistory;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.*;
@@ -9,7 +9,7 @@ import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
-import com.example.travelhana.Repository.KeyMoneyRepository;
+import com.example.travelhana.Repository.KeymoneyRepository;
 import com.example.travelhana.Repository.PaymentHistoryRepository;
 import com.example.travelhana.Service.PaymentService;
 import com.example.travelhana.Service.UserService;
@@ -27,7 +27,7 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService {
 
 	private final UserService userService;
-	private final KeyMoneyRepository keyMoneyRepository;
+	private final KeymoneyRepository keyMoneyRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	@Transactional
@@ -35,7 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
-			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
+			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
 							paymentRequestDto.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 
@@ -85,7 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
 			User user = userService.getUserByAccessToken(accessToken);
 			int getUserId = user.getId();
 
-			KeyMoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
+			Keymoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(
 					keyMoney.getId());
@@ -189,19 +189,13 @@ public class PaymentServiceImpl implements PaymentService {
 					.keyMoneyId(paymentHistory.getKeyMoneyId())
 					.isSuccess(false)
 					.build();
-			KeyMoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
+			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
 							updatePaymentHistory.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 			keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
 			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(
 					updatePaymentHistory);
 
-			KeymoneyDto keymoneyDto = KeymoneyDto.builder()
-					.balance(keymoney.getBalance())
-					.id(keymoney.getId())
-					.user(keymoney.getUser())
-					.unit(keymoney.getUnit())
-					.build();
 			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
 					.price(responsePaymentHistory.getPrice())
 					.balance(responsePaymentHistory.getBalance())
@@ -219,7 +213,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.id(responsePaymentHistory.getId())
 					.build();
 			Map<String, Object> responseData = new HashMap<>();
-			responseData.put("totalbalance", keymoneyDto.getBalance());
+			responseData.put("totalbalance", keymoney.getBalance());
 			responseData.put("paymentHistory", paymentHistoryDto);
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(responseData)

@@ -8,8 +8,6 @@ import lombok.Getter;
 @Getter
 public class KeymoneyDto {
 
-	private Integer id;
-	private User user;
 	private String unit;
 	private Long balance;
 

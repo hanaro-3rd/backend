@@ -17,7 +17,7 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
-import com.example.travelhana.Repository.KeyMoneyRepository;
+import com.example.travelhana.Repository.KeymoneyRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ import java.util.Optional;
 public class ExchangeServiceImpl implements ExchangeService {
 
 	private final AccountRepository accountRepository;
-	private final KeyMoneyRepository keyMoneyRepository;
+	private final KeymoneyRepository keyMoneyRepository;
 	private final ExchangeHistoryRepository exchangeHistoryRepository;
 	private final UserService userService;
 	private final ExchangeRateUtil exchangeRateUtil;
@@ -57,14 +57,14 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외환계좌 만들기
 	@Transactional
-	public KeyMoney makeKeyMoney(User user, String unit) {
-		KeyMoney newKeyMoney = KeyMoney.builder()
+	public Keymoney makeKeyMoney(User user, String unit) {
+		Keymoney newKeymoney = Keymoney.builder()
 				.user(user)
 				.unit(unit)
 				.balance(0L)
 				.build();
-		keyMoneyRepository.save(newKeyMoney);
-		return newKeyMoney;
+		keyMoneyRepository.save(newKeymoney);
+		return newKeymoney;
 	}
 
 	//거래 성공하고 성송
@@ -92,7 +92,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.NO_ZERO_OR_MINUS);
 		}
 
-		Optional<KeyMoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(
+		Optional<Keymoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(
 				account.getUser().getId(), dto.getUnit());
 		//키머니가 존재하지 않는다면 만들어주기
 		if (!keyMoney.isPresent()) {
@@ -123,8 +123,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 	}
 
 	@Transactional
-	public ExchangeResponseDto saveExchangeThings(KeyMoney keymoney, Account account,
-			ExchangeRequestDto dto)
+	public ExchangeResponseDto saveExchangeThings(Keymoney keymoney, Account account,
+	                                              ExchangeRequestDto dto)
 			throws URISyntaxException {
 
 		Long money = dto.getMoney(); //요청 원화
@@ -142,7 +142,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//환전내역 저장
 	@Transactional
-	public ExchangeResponseDto saveExchangeHistory(Account account, KeyMoney keyMoney,
+	public ExchangeResponseDto saveExchangeHistory(Account account, Keymoney keyMoney,
 			ExchangeSuccess exchangeSuccess, ExchangeRateDto exchangeRateDto) {
 		ExchangeHistory exchangeHistory = ExchangeHistory
 				.builder()
@@ -174,8 +174,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//원화->외화
 	@Transactional
-	public ExchangeSuccess wonToKey(Long won, KeyMoney keyMoney, Account account,
-			ExchangeRateDto exchangeRateDto) {
+	public ExchangeSuccess wonToKey(Long won, Keymoney keyMoney, Account account,
+	                                ExchangeRateDto exchangeRateDto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
@@ -197,8 +197,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외화->원화
 	@Transactional
-	public ExchangeSuccess keyToWon(Long key, KeyMoney keyMoney, Account account,
-			ExchangeRateDto exchangeRateDto) {
+	public ExchangeSuccess keyToWon(Long key, Keymoney keyMoney, Account account,
+	                                ExchangeRateDto exchangeRateDto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
