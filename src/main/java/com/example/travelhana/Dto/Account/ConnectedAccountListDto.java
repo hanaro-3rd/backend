@@ -1,6 +1,6 @@
 package com.example.travelhana.Dto.Account;
 
-import com.example.travelhana.Dto.ExchangeRateDto;
+import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

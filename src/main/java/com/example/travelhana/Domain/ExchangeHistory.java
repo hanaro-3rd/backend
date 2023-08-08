@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -31,10 +30,10 @@ public class ExchangeHistory {
 	private int accountId;
 
 	@Column
-	private Long money;
+	private Long exchangeWon;
 
 	@Column
-	private Long foreignCurrency;
+	private Long exchangeKey;
 
 	@Column
 	private Boolean isBought;

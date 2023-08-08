@@ -38,7 +38,8 @@ public enum ErrorCode {
 	ALREADY_EXIST_ACCOUNT(409, "Already Connected Account", "이미 연결된 계좌입니다."),
 
 
-	INTERNAL_SEVER_ERROR(500, "Internal Server Error", "서버 에러가 발생했습니다.");
+	INTERNAL_SEVER_ERROR(500, "Internal Server Error", "서버 에러가 발생했습니다."),
+	ONLY_PUCHASE_IN_HOLIDAY(500,"ONLY_PUCHASE_IN_HOLIDAY","공휴일에는 외화 매수만 가능합니다.");
 
 	private int statusCode; //404
 	private String status; //NOT_FOUNT

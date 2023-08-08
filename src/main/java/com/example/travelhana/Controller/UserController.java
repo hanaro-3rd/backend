@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
-import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.PhoneAuthService;
@@ -56,7 +56,8 @@ public class UserController {
 
 	//휴대폰 인증코드 일치여부 확인
 	@PostMapping("/verification/auth")
-	public ResponseEntity<?> isSusccessAuth(@RequestBody CodeRequestDto codedto) {
+	public ResponseEntity<?> isSusccessAuth(@RequestHeader("Cookie") String headerValue,@RequestBody CodeRequestDto codedto) {
+
 		return phoneAuthService.checkCode(codedto);
 	}
 
@@ -107,5 +108,7 @@ public class UserController {
 				.build();
 		return ResponseEntity.ok(tokens);
 	}
+
+
 
 }

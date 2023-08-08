@@ -1,7 +1,7 @@
 package com.example.travelhana.Util;
 
 import com.example.travelhana.Domain.ExchangeRate;
-import com.example.travelhana.Dto.ExchangeRateDto;
+import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
 import com.example.travelhana.Repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
