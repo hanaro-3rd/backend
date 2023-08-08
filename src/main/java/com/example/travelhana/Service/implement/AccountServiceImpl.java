@@ -74,19 +74,11 @@ public class AccountServiceImpl implements AccountService {
 		// 휴일 여부 가져오기
 		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
 
-		// OpenAPI로 각 환율 정보 가져오기
-		ExchangeRateDto usdExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("USD");
-		ExchangeRateDto jpyExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("JPY");
-		ExchangeRateDto eurExchangeRateDto = exchangeRateUtil.getExchangeRateByAPI("EUR");
-
 		// 연결된 계좌, 휴일 여부, 각 환율 정보 DTO에 파싱 후 리턴
 		ConnectedAccountListDto result = ConnectedAccountListDto
 				.builder()
 				.accounts(decryptAccountNum(userId, connectedAccounts))
 				.isBusinessDay(isBusinessDay)
-				.usd(usdExchangeRateDto)
-				.jpy(jpyExchangeRateDto)
-				.eur(eurExchangeRateDto)
 				.build();
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)

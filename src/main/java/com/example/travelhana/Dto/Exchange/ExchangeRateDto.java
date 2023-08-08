@@ -1,19 +1,18 @@
-package com.example.travelhana.Dto.Account;
+package com.example.travelhana.Dto.Exchange;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class ConnectedAccountListDto {
+public class ExchangeRateDto {
 
-	List<AccountInformation> accounts;
-	Boolean isBusinessDay;
+	ExchangeRateInfo jpy;
+	ExchangeRateInfo usd;
+	ExchangeRateInfo eur;
 
 }

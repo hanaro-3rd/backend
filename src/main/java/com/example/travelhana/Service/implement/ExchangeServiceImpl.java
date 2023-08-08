@@ -1,9 +1,10 @@
 package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
-import com.example.travelhana.Dto.ExchangeRateDto;
-import com.example.travelhana.Dto.ExchangeRequestDto;
-import com.example.travelhana.Dto.ExchangeResponseDto;
+import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
+import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
+import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
+import com.example.travelhana.Dto.Exchange.ExchangeResponseDto;
 import com.example.travelhana.Object.ExchangeSuccess;
 import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
@@ -49,6 +50,32 @@ public class ExchangeServiceImpl implements ExchangeService {
 	//4.공휴일이면 isNow 확인해서 처리
 	//4-1.isNow가 True면 수수료를 높게 책정해서 환전해주고 나중에 스케줄링으로 환불
 	//4-2.isNow가 False면 다음 영업일 환전 예약
+
+	@Transactional
+	public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
+		// OpenAPI로 각 환율 정보 가져오기
+		ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
+		ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
+		ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
+		// 각 환율 정보를 dto에 파싱
+		ExchangeRateDto result = ExchangeRateDto
+				.builder()
+				.usd(usdExchangeRate)
+				.jpy(jpyExchangeRate)
+				.eur(eurExchangeRate)
+				.build();
+
+		// ResponseEntity에 묶어서 리턴
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+	}
+
+
 	@Transactional
 	public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
 			throws URISyntaxException {
@@ -70,7 +97,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	//거래 성공하고 성송
 	@Transactional
 	public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken,
-			ExchangeRequestDto dto)
+	                                                      ExchangeRequestDto dto)
 			throws URISyntaxException {
 
 		Account account = accountRepository.findById(dto.getAccountId())
@@ -111,8 +138,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 		}
 
 		//환전 시작
-		ExchangeResponseDto exchangeHistory = saveExchangeThings(keyMoney.get(), account,
-				dto); //키머니, 원화계좌, 처리할요청
+		ExchangeResponseDto exchangeHistory = saveExchangeThings(keyMoney.get(), account, dto); //키머니, 원화계좌, 처리할요청
 
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(exchangeHistory)
@@ -124,31 +150,30 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	@Transactional
 	public ExchangeResponseDto saveExchangeThings(KeyMoney keymoney, Account account,
-			ExchangeRequestDto dto)
+	                                              ExchangeRequestDto dto)
 			throws URISyntaxException {
 
 		Long money = dto.getMoney(); //요청 원화
 		ExchangeSuccess exchangeResult;
-		ExchangeRateDto exchangeRateDto = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
+		ExchangeRateInfo exchangeRateInfo = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
 
 		if (dto.getIsBought()) { //원화 -> 외화
-			exchangeResult = wonToKey(money, keymoney, account, exchangeRateDto); //money=원화
+			exchangeResult = wonToKey(money, keymoney, account, exchangeRateInfo); //money=원화
 		} else { //외화 -> 원화
-			exchangeResult = keyToWon(money, keymoney, account, exchangeRateDto); //money=외화
+			exchangeResult = keyToWon(money, keymoney, account, exchangeRateInfo); //money=외화
 		}
 
-		return saveExchangeHistory(account, keymoney, exchangeResult, exchangeRateDto);
+		return saveExchangeHistory(account, keymoney, exchangeResult, exchangeRateInfo);
 	}
 
 	//환전내역 저장
 	@Transactional
-	public ExchangeResponseDto saveExchangeHistory(Account account, KeyMoney keyMoney,
-			ExchangeSuccess exchangeSuccess, ExchangeRateDto exchangeRateDto) {
+	public ExchangeResponseDto saveExchangeHistory(Account account, KeyMoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRateInfo exchangeRateInfo) {
 		ExchangeHistory exchangeHistory = ExchangeHistory
 				.builder()
 				.accountId(account.getId())
 				.exchangeDate(LocalDateTime.now())
-				.exchangeRate(exchangeRateDto.getExchangeRate())
+				.exchangeRate(exchangeRateInfo.getExchangeRate())
 				.keyId(keyMoney.getId())
 				.foreignCurrency(exchangeSuccess.getKey()) //환전한 외화
 				.isBought(exchangeSuccess.getIsBought())
@@ -164,8 +189,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.builder()
 				.key(exchangeSuccess.getKey())
 				.won(exchangeSuccess.getWon())
-				.exchangeRate(exchangeRateDto.getExchangeRate())
-				.changePrice(exchangeRateDto.getChangePrice())
+				.exchangeRate(exchangeRateInfo.getExchangeRate())
+				.changePrice(exchangeRateInfo.getChangePrice())
 				.unit(keyMoney.getUnit())
 				.build();
 
@@ -174,15 +199,13 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//원화->외화
 	@Transactional
-	public ExchangeSuccess wonToKey(Long won, KeyMoney keyMoney, Account account,
-			ExchangeRateDto exchangeRateDto) {
+	public ExchangeSuccess wonToKey(Long won, KeyMoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
 		}
 
-		Double key = (double) won * (double) currency.getBaseCurrency()
-				/ exchangeRateDto.getExchangeRate();
+		Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
 		Long realkey = Math.round(key);
 		keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
 		account.updateBalance(won * (-1)); //원화 잔액 차감
@@ -197,14 +220,13 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외화->원화
 	@Transactional
-	public ExchangeSuccess keyToWon(Long key, KeyMoney keyMoney, Account account,
-			ExchangeRateDto exchangeRateDto) {
+	public ExchangeSuccess keyToWon(Long key, KeyMoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
 		}
 
-		Double won = (double) key * exchangeRateDto.getExchangeRate()
+		Double won = (double) key * exchangeRateInfo.getExchangeRate()
 				/ (double) currency.getBaseCurrency();
 		Long realwon = Math.round(won); //외화에서 환전하고 결과 원화
 		keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
