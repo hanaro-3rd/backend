@@ -27,9 +27,6 @@ public class PaymentHistory {
 	private Long balance;
 
 	@Column
-	private String unit;
-
-	@Column
 	private String store;
 
 	@Column
@@ -54,9 +51,14 @@ public class PaymentHistory {
 	private int userId;
 
 	@Column
-	private int keyMoneyId;
+	private int keymoneyId;
 
 	@Column
-	private Boolean isSuccess;
+	private Boolean isPayment;
+
+	public void updateCategoryAndMemo(String category, String memo) {
+		this.category = category;
+		this.memo = memo;
+	}
 
 }

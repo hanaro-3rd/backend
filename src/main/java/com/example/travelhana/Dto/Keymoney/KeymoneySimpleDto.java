@@ -1,12 +1,11 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Keymoney;
 
-import com.example.travelhana.Domain.User;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class KeymoneyDto {
+public class KeymoneySimpleDto {
 
 	private String unit;
 	private Long balance;

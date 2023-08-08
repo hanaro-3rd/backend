@@ -15,7 +15,9 @@ public enum ErrorCode {
 	SESSION_INVALID(500, "SESSION_INVALID", "코드가 만료되었습니다. 다시 코드를 발급받으세요."),
 	BUSINESS_EXCEPTION_ERROR(500, "TOKEN isn't userId", "TOKEN isn't userId"),
 	INSUFFICIENT_BALANCE(500, "Insufficient balance in this account", "계좌 잔액이 부족합니다."),
-	INVALID_EXCHANGEUNIT(500, "Invalid exchange unit.", "유효하지 않은 화폐단위입니다."),
+	INVALID_EXCHANGE_UNIT(500, "Invalid exchange unit.", "유효하지 않은 화폐단위입니다."),
+	INVALID_HISTORY_FILTER(500, "Invalid History Filter.", "유효하지 입출금내역 필터입니다."),
+	INVALID_HISTORY_TYPE(500, "Invalid History Filter.", "유효하지 입출금내역 타입입니다."),
 	NO_ZERO_OR_MINUS(500, "NO_ZERO_OR_MINUS", "환전 금액은 양수로 입력해주세요."),
 	NO_ACCOUNT(500, "There is no account like this id", "계좌가 존재하지 않습니다."),
 	NO_USER(500, "NO_USER", "유저가 존재하지 않습니다."),
@@ -31,6 +33,8 @@ public enum ErrorCode {
 	MARKER_NOT_FOUND(404, "Marker Not Found", "해당하는 마커를 찾을 수 없습니다."),
 	ACCOUNT_NOT_FOUND(404, "Account Not Found", "해당하는 계좌를 찾을 수 없습니다."),
 	EXTERNAL_ACCOUNT_NOT_FOUND(404, "External Account Not Found", "해당하는 외부 계좌를 찾을 수 없습니다."),
+	PAYMENT_HISTORY_NOT_FOUND(404, "Payment History Not Found", "해당하는 결제 내역을 찾을 수 없습니다."),
+	EXCHANGE_HISTORY_NOT_FOUND(404, "Exchange History Not Found", "해당하는 환전 내역을 찾을 수 없습니다."),
 
 	LOCATION_NOT_SAME(406, "Location Not Same", "마커의 위치와 현재 위치가 다릅니다."),
 

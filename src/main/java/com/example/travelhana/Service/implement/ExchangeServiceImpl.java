@@ -82,10 +82,10 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
 		}
 
-		//유효하지 않은 화폐단위 에러
+		// 유효하지 않은 화폐단위 에러
 		Currency currency = Currency.getByCode(dto.getUnit());
 		if (currency == null) {
-			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
 
 		if (dto.getMoney() <= 0) {
@@ -149,21 +149,21 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.accountId(account.getId())
 				.exchangeDate(LocalDateTime.now())
 				.exchangeRate(exchangeRateDto.getExchangeRate())
-				.keyId(keyMoney.getId())
-				.foreignCurrency(exchangeSuccess.getKey()) //환전한 외화
+				.keymoneyId(keyMoney.getId())
+				.exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
 				.isBought(exchangeSuccess.getIsBought())
 				.isBusinessday(true)
 				.userId(account.getUser().getId())
-				.keymoneyBalance(exchangeSuccess.getKeymoneyBalance())
-				.money(exchangeSuccess.getWon()) //환전한 원화
+				.balance(exchangeSuccess.getKeymoneyBalance())
+				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
 				.build();
 
 		exchangeHistoryRepository.save(exchangeHistory);
 
 		ExchangeResponseDto responseDto = ExchangeResponseDto
 				.builder()
-				.key(exchangeSuccess.getKey())
-				.won(exchangeSuccess.getWon())
+				.exchangeKey(exchangeSuccess.getExchangeKey())
+				.exchangeWon(exchangeSuccess.getExchangeWon())
 				.exchangeRate(exchangeRateDto.getExchangeRate())
 				.changePrice(exchangeRateDto.getChangePrice())
 				.unit(keyMoney.getUnit())
@@ -178,7 +178,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	                                ExchangeRateDto exchangeRateDto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
-			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
 
 		Double key = (double) won * (double) currency.getBaseCurrency()
@@ -187,8 +187,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 		keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
 		account.updateBalance(won * (-1)); //원화 잔액 차감
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-				.won(won)
-				.key(realkey)
+				.exchangeWon(won)
+				.exchangeKey(realkey)
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(true)
 				.build();
@@ -201,7 +201,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	                                ExchangeRateDto exchangeRateDto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
-			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGEUNIT);
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
 
 		Double won = (double) key * exchangeRateDto.getExchangeRate()
@@ -210,8 +210,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 		keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
 		account.updateBalance(realwon); //원화 잔액 추가
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-				.won(realwon)
-				.key(key)
+				.exchangeWon(realwon)
+				.exchangeKey(key)
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(false)
 				.build();

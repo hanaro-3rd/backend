@@ -18,4 +18,19 @@ public class KeymoneyController {
 		return keymoneyService.getKeymoney(accessToken);
 	}
 
+	@GetMapping(value = "/{unit}")
+	public ResponseEntity<?> getKeymoneyHistory(
+			@RequestHeader(value = "Authorization") String accessToken,
+			@PathVariable String unit,
+			@RequestParam(defaultValue = "all", required = false) String filter) throws Exception {
+		return keymoneyService.getKeymoneyHistory(accessToken, unit, filter);
+	}
+
+	@GetMapping(value = "/detail")
+	public ResponseEntity<?> getDetailKeymoneyHistory(
+			@RequestHeader(value = "Authorization") String accessToken,
+			@RequestParam Long historyId,
+			@RequestParam String type) throws Exception {
+		return keymoneyService.getDetailKeymoneyHistory(accessToken, historyId, type);
+	}
 }

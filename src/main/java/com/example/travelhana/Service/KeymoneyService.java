@@ -6,4 +6,8 @@ public interface KeymoneyService {
 
 	ResponseEntity<?> getKeymoney(String accessToken);
 
+	ResponseEntity<?> getKeymoneyHistory(String accessToken, String unit, String filter);
+
+	ResponseEntity<?> getDetailKeymoneyHistory(String accessToken, Long historyId, String type);
+
 }

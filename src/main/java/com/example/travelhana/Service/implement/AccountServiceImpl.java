@@ -47,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
 	private final UserService userService;
 
 	private List<AccountInformation> decryptAccountNum(int userId,
-			List<AccountInfoProjection> projections) throws Exception {
+	                                                   List<AccountInfoProjection> projections) throws Exception {
 		List<AccountInformation> result = new ArrayList<>();
 		for (AccountInfoProjection projection : projections) {
 			AccountInformation account = AccountInformation.builder()
@@ -102,26 +102,13 @@ public class AccountServiceImpl implements AccountService {
 		Random random = new Random();
 
 		// 입력한 정보와 랜덤값으로 유저 정보 생성
-		String userName = accountDummyDto.getUserName();
-		String registrationNum = accountDummyDto.getRegistrationNum();
-		String accountPassword = accountDummyDto.getAccountPassword();
+		User user = userRepository.findById(accountDummyDto.getUserId())
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
 
-		String userSalt = saltUtil.generateSalt();
-
-		User user = User
-				.builder()
-				.deviceId("1234")
-				.isWithdrawal(false) //탈퇴했는지
-				.name(userName)
-				.password(saltUtil.encodePassword(userSalt, "1234"))
-				.pattern(saltUtil.encodePassword(userSalt, "1234"))
-				.registrationNum(registrationNum)
-				.phoneNum("010-1234-1234")
-				.salt(userSalt)
-				.build();
-		userRepository.save(user);
+		String registrationNum = user.getRegistrationNum();
 
 		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
+		String accountPassword = accountDummyDto.getAccountPassword();
 		List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
 
 		for (int i = 0; i < 10; i++) {
@@ -141,14 +128,13 @@ public class AccountServiceImpl implements AccountService {
 					.salt(accountSalt)
 					.password(saltUtil.encodePassword(accountSalt, accountPassword))
 					.registrationNum(registrationNum)
-					.balance(0L)
+					.balance(1000000L)
 					.build();
 			externalAccountRepository.save(externalAccount);
 		}
 
 		// 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
-		List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(
-				registrationNum);
+		List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
 
 		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
 		AccountListDto result = AccountListDto
@@ -187,14 +173,13 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public ResponseEntity<?> connectExternalAccount(String accessToken, int externalAccountId,
-			AccountPasswordDto accountPasswordDto) throws Exception {
+	                                                AccountPasswordDto accountPasswordDto) throws Exception {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 
 		// externalAccountId에 대한 외부 계좌 존재 여부 확인
 		ExternalAccount externalAccount = externalAccountRepository.findById(externalAccountId)
-				.orElseThrow(
-						() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
 		// 해당 유저의 계좌 소유 여부 확인
 		if (!user.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {

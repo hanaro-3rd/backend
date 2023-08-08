@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 public class UserToMarker {
 
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)

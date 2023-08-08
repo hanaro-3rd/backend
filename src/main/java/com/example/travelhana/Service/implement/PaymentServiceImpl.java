@@ -33,21 +33,24 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional
 	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentRequestDto) {
 		try {
+			// access token으로 유저 가져오기
 			User user = userService.getUserByAccessToken(accessToken);
-			int getUserId = user.getId();
-			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
-							paymentRequestDto.getUnit())
+			int userId = user.getId();
+
+			// userId로 유저가 가진 unit에 해당하는 키머니 불러오기
+			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(userId, paymentRequestDto.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 
+			// 잔액보다 결재 금액이 높을 시 에러, 아닐 시 잔액 업데이트
 			Long nowBalance = keymoney.getBalance() - paymentRequestDto.getPrice();
-			if (nowBalance < 0) { //잔액부족 에러처리
+			if (nowBalance < 0) {
 				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
 			}
-
 			keymoney.updateMinusBalance(paymentRequestDto.getPrice());
+
+			// 결제 내역 추가
 			PaymentHistory paymentHistory = PaymentHistory.builder()
 					.price(paymentRequestDto.getPrice())
-					.unit(paymentRequestDto.getUnit())
 					.store(paymentRequestDto.getStore())
 					.category(paymentRequestDto.getCategory())
 					.address(paymentRequestDto.getAddress())
@@ -56,14 +59,29 @@ public class PaymentServiceImpl implements PaymentService {
 					.lat(paymentRequestDto.getLat())
 					.lng(paymentRequestDto.getLng())
 					.balance(nowBalance)
-					.userId(getUserId)
-					.keyMoneyId(keymoney.getId())
-					.isSuccess(true)
+					.userId(userId)
+					.keymoneyId(keymoney.getId())
+					.isPayment(true)
+					.build();
+			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(paymentHistory);
+
+			// 엔티티를 dto에 파싱
+			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
+					.price(responsePaymentHistory.getPrice())
+					.store(responsePaymentHistory.getStore())
+					.category(responsePaymentHistory.getCategory())
+					.address(responsePaymentHistory.getAddress())
+					.createdAt(responsePaymentHistory.getCreatedAt())
+					.memo(responsePaymentHistory.getMemo())
+					.lat(responsePaymentHistory.getLat())
+					.lng(responsePaymentHistory.getLng())
+					.balance(responsePaymentHistory.getBalance())
+					.userId(responsePaymentHistory.getUserId())
+					.keymoneyId(responsePaymentHistory.getKeymoneyId())
+					.isPayment(responsePaymentHistory.getIsPayment())
 					.build();
 
-			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(paymentHistory);
-			PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(responsePaymentHistory);
-
+			// ResponseEntity 객체에 묶어서 리턴
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(paymentHistoryDto)
 					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
@@ -80,28 +98,42 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Transactional
-	public ResponseEntity<?> showPaymentHistory(String accessToken, String unit) {
+	public ResponseEntity<?> updatePaymentHistory(String accessToken, Long paymentId, PaymentMemoDto paymentMemoDto) {
 		try {
+			// access token으로 유저 가져오기
 			User user = userService.getUserByAccessToken(accessToken);
-			int getUserId = user.getId();
+			int userId = user.getId();
 
-			Keymoney keyMoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId, unit)
-					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
-			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeyMoneyId(
-					keyMoney.getId());
-			List<PaymentHistoryDto> paymentListDtos = new ArrayList<>();
-			for (PaymentHistory paymentHistory : paymentHistories) {
-				PaymentHistoryDto paymentListDto = new PaymentHistoryDto(paymentHistory);
-				paymentListDtos.add(paymentListDto);
-			}
+			// 결제 id와 유저 id에 대한 내역이 있는지 확인
+			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentId, userId)
+					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE));
 
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result(paymentListDtos)
-					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
-					.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+			// 메모와 카테고리를 수정
+			paymentHistory.updateCategoryAndMemo(paymentMemoDto.getMemo(), paymentMemoDto.getCategory());
+
+			// 엔티티를 dto에 파싱
+			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
+					.price(paymentHistory.getPrice())
+					.store(paymentHistory.getStore())
+					.category(paymentHistory.getCategory())
+					.address(paymentHistory.getAddress())
+					.createdAt(paymentHistory.getCreatedAt())
+					.memo(paymentHistory.getMemo())
+					.lat(paymentHistory.getLat())
+					.lng(paymentHistory.getLng())
+					.balance(paymentHistory.getBalance())
+					.userId(paymentHistory.getUserId())
+					.keymoneyId(paymentHistory.getKeymoneyId())
+					.isPayment(paymentHistory.getIsPayment())
 					.build();
 
-			return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+			// ResponseEntity 객체에 묶어서 리턴
+			ApiResponse apiResponse = ApiResponse.builder()
+					.result(paymentHistoryDto)
+					.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
+					.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+					.build();
+			return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
 		} catch (BusinessExceptionHandler e) {
 			ErrorResponse errorResponse = ErrorResponse.builder()
 					.errorMessage(e.getMessage())
@@ -109,75 +141,32 @@ public class PaymentServiceImpl implements PaymentService {
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
-
-	}
-
-	@Transactional
-	public ResponseEntity<?> updatePaymentHistory(String accessToken,
-			PaymentMemoDto paymentMemoDto) {
-		try {
-			User user = userService.getUserByAccessToken(accessToken);
-			int getUserId = user.getId();
-			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(
-					paymentMemoDto.getId(), getUserId);
-			if (paymentHistory == null) {
-				throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
-			}
-			PaymentHistory updatePaymentHistory = PaymentHistory
-					.builder()
-					.price(paymentHistory.getPrice())
-					.balance(paymentHistory.getBalance())
-					.unit(paymentHistory.getUnit())
-					.store(paymentHistory.getStore())
-					.category(paymentMemoDto.getCategory())
-					.createdAt(paymentHistory.getCreatedAt())
-					.lat(paymentHistory.getLat())
-					.lng(paymentHistory.getLng())
-					.address(paymentHistory.getAddress())
-					.memo(paymentMemoDto.getMemo())
-					.userId(paymentHistory.getUserId())
-					.keyMoneyId(paymentHistory.getKeyMoneyId())
-					.isSuccess(paymentHistory.getIsSuccess())
-					.id(paymentHistory.getId())
-					.build();
-
-			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(
-					updatePaymentHistory);
-			UpdatePaymentHistoryDto updatePaymentHistoryDto = UpdatePaymentHistoryDto.builder()
-					.id(responsePaymentHistory.getId())
-					.Category(responsePaymentHistory.getCategory())
-					.memo(responsePaymentHistory.getMemo())
-					.build();
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result(updatePaymentHistoryDto)
-					.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
-					.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
-					.build();
-			return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
-		} catch (BusinessExceptionHandler e) { //
-			return new ResponseEntity<>("서버내부 오류", HttpStatus.INTERNAL_SERVER_ERROR);
-		}
 	}
 
 	// 취소되면 승인여부 false
 	// 키머니 잔액 update
 	@Transactional
-	public ResponseEntity<?> deletePaymentHistory(String accessToken, Long payHistoryId) {
+	public ResponseEntity<?> deletePaymentHistory(String accessToken, Long paymentId) {
 		try {
+			// access token으로 유저 가져오기
 			User user = userService.getUserByAccessToken(accessToken);
-			int getUserId = user.getId();
-			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(payHistoryId,
-					getUserId);
-			if (paymentHistory == null) {
-				throw new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE);
-			}
-			// isSuccess false로 리턴
-			PaymentHistory updatePaymentHistory = PaymentHistory
-					.builder()
+			int userId = user.getId();
+
+			// 결제 id와 유저 id에 대한 내역이 있는지 확인
+			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentId, userId)
+					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE));
+
+			// 결제 내역의 키머니 id에 대한 키머니가 있는지 확인
+			Keymoney keymoney = keyMoneyRepository.findById(paymentHistory.getKeymoneyId())
+					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
+
+			// 잔액을 가격만큼 추가
+			keymoney.updatePlusBalance(paymentHistory.getPrice());
+
+			// isPayment를 false (결제 취소)로 해서 결제 내역의 레코드 추가
+			PaymentHistory updatePaymentHistory = PaymentHistory.builder()
 					.price(paymentHistory.getPrice())
 					.balance(paymentHistory.getBalance())
-					.unit(paymentHistory.getUnit())
 					.store(paymentHistory.getStore())
 					.category(paymentHistory.getCategory())
 					.createdAt(LocalDateTime.now())
@@ -186,20 +175,15 @@ public class PaymentServiceImpl implements PaymentService {
 					.address(paymentHistory.getAddress())
 					.memo(paymentHistory.getMemo())
 					.userId(paymentHistory.getUserId())
-					.keyMoneyId(paymentHistory.getKeyMoneyId())
-					.isSuccess(false)
+					.keymoneyId(paymentHistory.getKeymoneyId())
+					.isPayment(false)
 					.build();
-			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(getUserId,
-							updatePaymentHistory.getUnit())
-					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
-			keymoney.updatePlusBalance(updatePaymentHistory.getPrice());
-			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(
-					updatePaymentHistory);
+			PaymentHistory responsePaymentHistory = paymentHistoryRepository.save(updatePaymentHistory);
 
+			// 엔티티를 dto로 파싱
 			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
 					.price(responsePaymentHistory.getPrice())
 					.balance(responsePaymentHistory.getBalance())
-					.unit(responsePaymentHistory.getUnit())
 					.store(responsePaymentHistory.getStore())
 					.category(responsePaymentHistory.getCategory())
 					.createdAt(responsePaymentHistory.getCreatedAt())
@@ -208,10 +192,12 @@ public class PaymentServiceImpl implements PaymentService {
 					.address(responsePaymentHistory.getAddress())
 					.memo(responsePaymentHistory.getMemo())
 					.userId(responsePaymentHistory.getUserId())
-					.keyMoneyId(responsePaymentHistory.getKeyMoneyId())
-					.isSuccess(responsePaymentHistory.getIsSuccess())
+					.keymoneyId(responsePaymentHistory.getKeymoneyId())
+					.isPayment(responsePaymentHistory.getIsPayment())
 					.id(responsePaymentHistory.getId())
 					.build();
+
+			// ResponseEntity 객체에 묶어서 리턴
 			Map<String, Object> responseData = new HashMap<>();
 			responseData.put("totalbalance", keymoney.getBalance());
 			responseData.put("paymentHistory", paymentHistoryDto);
@@ -228,6 +214,6 @@ public class PaymentServiceImpl implements PaymentService {
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
+
 }

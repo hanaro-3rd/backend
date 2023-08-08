@@ -14,10 +14,11 @@ import javax.persistence.*;
 @Entity
 public class Keymoney {
 
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column(name = "KEYMONEY_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "USER_ID")
 	private User user;
