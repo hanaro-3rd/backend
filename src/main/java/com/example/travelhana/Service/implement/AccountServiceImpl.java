@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 		// 휴일 여부 가져오기
 		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
 
-		// 연결된 계좌, 휴일 여부, 각 환율 정보 DTO에 파싱 후 리턴
+		// 연결된 계좌, 휴일 여부를 DTO에 파싱 후 리턴
 		ConnectedAccountListDto result = ConnectedAccountListDto
 				.builder()
 				.accounts(decryptAccountNum(userId, connectedAccounts))

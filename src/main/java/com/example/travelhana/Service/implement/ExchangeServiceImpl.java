@@ -77,8 +77,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 
 	@Transactional
-	public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
-			throws URISyntaxException {
+	public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
 		return exchangeInAccountBusinessDay(accessToken, request);
 	}
 
@@ -96,9 +95,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//거래 성공하고 성송
 	@Transactional
-	public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken,
-	                                                      ExchangeRequestDto dto)
-			throws URISyntaxException {
+	public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken, ExchangeRequestDto dto) throws URISyntaxException {
 
 		Account account = accountRepository.findById(dto.getAccountId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
@@ -149,9 +146,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	}
 
 	@Transactional
-	public ExchangeResponseDto saveExchangeThings(KeyMoney keymoney, Account account,
-	                                              ExchangeRequestDto dto)
-			throws URISyntaxException {
+	public ExchangeResponseDto saveExchangeThings(KeyMoney keymoney, Account account, ExchangeRequestDto dto) throws URISyntaxException {
 
 		Long money = dto.getMoney(); //요청 원화
 		ExchangeSuccess exchangeResult;
