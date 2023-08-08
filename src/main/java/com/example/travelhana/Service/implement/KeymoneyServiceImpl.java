@@ -86,6 +86,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
 
+		// 유효하지 않은 필터 에러
 		if (!filter.equals("all") && !filter.equals("payment") && !filter.equals("exchange")) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_HISTORY_FILTER);
 		}
@@ -95,11 +96,11 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 		int keymoneyId = keymoney.getId();
 
-		List<KeymoneyDto> keymoneyDtos = new ArrayList<>();
-
 		// 해당 키머니에 대한 결제 내역 가져오기
+		List<KeymoneyDto> keymoneyDtos = new ArrayList<>();
 		if (filter.equals("all") || filter.equals("payment")) {
 			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeymoneyId(keymoneyId);
+			// 엔티티에서 dto 파싱
 			for (PaymentHistory paymentHistory : paymentHistories) {
 				KeymoneyDto keymoneyDto = KeymoneyDto
 						.builder()
@@ -120,8 +121,8 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 		// 해당 키머니에 대한 환전 내역 가져오기
 		if (filter.equals("all") || filter.equals("exchange")) {
 			List<ExchangeHistory> exchangeHistories = exchangeHistoryRepository.findAllByKeymoneyId(keymoneyId);
+			// 엔티티에서 dto 파싱
 			for (ExchangeHistory exchangeHistory : exchangeHistories) {
-
 				KeymoneyDto keymoneyDto = KeymoneyDto
 						.builder()
 						.historyId(exchangeHistory.getId())
