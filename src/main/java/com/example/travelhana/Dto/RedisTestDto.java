@@ -1,14 +1,15 @@
 package com.example.travelhana.Dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class RoleToUserRequestDto {
-
-	private String deviceId;
-	private Long roleId;
+@AllArgsConstructor
+@Getter
+@Builder
+public class RedisTestDto {
+    private String key;
+    private String value;
 }

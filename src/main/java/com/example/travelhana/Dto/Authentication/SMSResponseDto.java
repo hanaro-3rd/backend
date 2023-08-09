@@ -1,6 +1,5 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Authentication;
 
-import java.util.List;
 import lombok.*;
 
 import java.time.LocalDateTime;

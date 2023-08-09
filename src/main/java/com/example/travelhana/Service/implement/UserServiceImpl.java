@@ -8,9 +8,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
-import com.example.travelhana.Dto.DeviceDto;
-import com.example.travelhana.Dto.RoleToUserRequestDto;
-import com.example.travelhana.Dto.SignupRequestDto;
+import com.example.travelhana.Dto.Authentication.DeviceDto;
+import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
+import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return ResponseEntity.ok(errorResponse);
+			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}

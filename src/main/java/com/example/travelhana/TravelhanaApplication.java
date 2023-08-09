@@ -11,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableScheduling
 public class TravelhanaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TravelhanaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TravelhanaApplication.class, args);
+    }
 
 }
