@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AccountDummyDto {
 
-	String userName;
-	String registrationNum;
+	int userId;
 	String accountPassword;
 
 }

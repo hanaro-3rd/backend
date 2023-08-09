@@ -19,9 +19,9 @@ import java.util.List;
 @Builder
 public class User {
 
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column(name = "USER_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	@Column(nullable = false)

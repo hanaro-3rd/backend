@@ -25,16 +25,16 @@ public class ExchangeHistory {
 	private int userId;
 
 	@Column
-	private int keyId;
+	private int keymoneyId;
 
 	@Column
 	private int accountId;
 
 	@Column
-	private Long money;
+	private Long exchangeWon;
 
 	@Column
-	private Long foreignCurrency;
+	private Long exchangeKey;
 
 	@Column
 	private Boolean isBought;
@@ -49,6 +49,6 @@ public class ExchangeHistory {
 	private Boolean isBusinessday;
 
 	@Column
-	private Long keymoneyBalance;
+	private Long balance;
 
 }
