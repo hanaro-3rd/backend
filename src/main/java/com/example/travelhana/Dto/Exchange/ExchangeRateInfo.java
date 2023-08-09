@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class ExchangeRateDto {
+public class ExchangeRateInfo {
 
-	ExchangeRateInfo jpy;
-	ExchangeRateInfo usd;
-	ExchangeRateInfo eur;
+	Double exchangeRate;
+	Double changePrice;
+	public void updateExchangeRate(Double charge) {
+		this.exchangeRate += charge;
+	}
 
 }

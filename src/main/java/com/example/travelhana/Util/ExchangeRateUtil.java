@@ -1,7 +1,8 @@
 package com.example.travelhana.Util;
 
 import com.example.travelhana.Domain.ExchangeRate;
-import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
+
+import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -26,7 +27,7 @@ public class ExchangeRateUtil {
 
 	private final ExchangeRateRepository exchangeRateRepository;
 
-	public ExchangeRateDto getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
+	public ExchangeRateInfo getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
 
 		System.setProperty("https.protocols", "TLSv1.2");
 
@@ -60,6 +61,6 @@ public class ExchangeRateUtil {
 
 		exchangeRateRepository.save(exchangeRate);
 
-		return new ExchangeRateDto(basePrice, changePrice);
+		return new ExchangeRateInfo(basePrice, changePrice);
 	}
 }
