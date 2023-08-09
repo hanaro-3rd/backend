@@ -11,7 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ExchangeRateDto {
 
-	Double exchangeRate;
-	Double changePrice;
+    Double exchangeRate;
+    Double changePrice;
+
+    public void updateExchangeRate(Double charge) {
+        this.exchangeRate += charge;
+    }
 
 }

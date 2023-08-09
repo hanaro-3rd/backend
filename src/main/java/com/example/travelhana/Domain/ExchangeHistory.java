@@ -24,7 +24,7 @@ public class ExchangeHistory {
 	private int userId;
 
 	@Column
-	private int keyId;
+	private int keymoneyId;
 
 	@Column
 	private int accountId;
@@ -48,6 +48,6 @@ public class ExchangeHistory {
 	private Boolean isBusinessday;
 
 	@Column
-	private Long keymoneyBalance;
+	private Long balance;
 
 }

@@ -26,8 +26,6 @@ public class PaymentHistoryDto {
 
 	private Long balance;
 
-	private String unit;
-
 	private String store;
 
 	private String category;
@@ -44,24 +42,8 @@ public class PaymentHistoryDto {
 
 	private int userId;
 
-	private int keyMoneyId;
+	private int keymoneyId;
 
-	private Boolean isSuccess;
+	private Boolean isPayment;
 
-	public PaymentHistoryDto(PaymentHistory paymentHistory) {
-		this.address = paymentHistory.getAddress();
-		this.id = paymentHistory.getId();
-		this.balance = paymentHistory.getBalance();
-		this.lat = paymentHistory.getLat();
-		this.lng = paymentHistory.getLng();
-		this.category = paymentHistory.getCategory();
-		this.createdAt = paymentHistory.getCreatedAt();
-		this.keyMoneyId = paymentHistory.getKeyMoneyId();
-		this.isSuccess = paymentHistory.getIsSuccess();
-		this.memo = paymentHistory.getMemo();
-		this.price = paymentHistory.getPrice();
-		this.store = paymentHistory.getStore();
-		this.unit = paymentHistory.getUnit();
-		this.userId = paymentHistory.getUserId();
-	}
 }

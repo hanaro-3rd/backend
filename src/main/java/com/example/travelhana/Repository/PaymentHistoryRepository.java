@@ -2,14 +2,14 @@ package com.example.travelhana.Repository;
 
 import com.example.travelhana.Domain.PaymentHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Integer> {
+public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
 
-	List<PaymentHistory> findAllByKeyMoneyId(int id);
+	List<PaymentHistory> findAllByKeymoneyId(int id);
 
-	PaymentHistory findByIdAndUserId(Long id, int getUserId);
+	Optional<PaymentHistory> findByIdAndUserId(Long id, int getUserId);
 
 }

@@ -8,10 +8,8 @@ public interface PaymentService {
 
 	ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentListDto);
 
-	ResponseEntity<?> showPaymentHistory(String accessToken, String unit);
+	ResponseEntity<?> updatePaymentHistory(String accessToken, Long paymentId, PaymentMemoDto paymentMemoDto);
 
-	ResponseEntity<?> updatePaymentHistory(String accessToken, PaymentMemoDto paymentMemoDto);
-
-	ResponseEntity<?> deletePaymentHistory(String accessToken, Long payHistoryId);
+	ResponseEntity<?> deletePaymentHistory(String accessToken, Long paymentId);
 
 }
