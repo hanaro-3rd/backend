@@ -67,6 +67,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			// 엔티티를 dto에 파싱
 			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
+					.id(paymentHistory.getId())
 					.price(responsePaymentHistory.getPrice())
 					.store(responsePaymentHistory.getStore())
 					.category(responsePaymentHistory.getCategory())
@@ -113,6 +114,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			// 엔티티를 dto에 파싱
 			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()
+					.id(paymentHistory.getId())
 					.price(paymentHistory.getPrice())
 					.store(paymentHistory.getStore())
 					.category(paymentHistory.getCategory())

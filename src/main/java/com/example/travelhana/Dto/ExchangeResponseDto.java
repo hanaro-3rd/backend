@@ -9,10 +9,11 @@ import lombok.*;
 @Builder
 public class ExchangeResponseDto {
 
-	private Long exchangeWon;
-	private Long exchangeKey;
-	private Double exchangeRate;
-	private String unit;
-	private Double changePrice;
+    private Long exchangeToMoney;
+    private Long exchangeFromMoney;
+    private String exchangeToUnit;
+    private String exchangeFromUnit;
+    private Double exchangeRate;
+    private Double changePrice;
 
 }
