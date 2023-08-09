@@ -31,6 +31,6 @@ public class CategoryPlan {
 	private Long categoryBudget; //디폴트 0
 
 	@Column(nullable = false)
-	private Long categoryBalance;//디폴트 0
+	private Long categoryBalance; //디폴트 0
 
 }

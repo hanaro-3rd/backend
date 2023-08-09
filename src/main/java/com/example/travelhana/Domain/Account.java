@@ -42,7 +42,6 @@ public class Account {
 	@Column(nullable = false)
 	private Long balance;
 
-
 	public void updateBalance(Long pay) {
 		this.balance += pay;
 	}
