@@ -2,7 +2,7 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
-
+import com.example.travelhana.Object.RedisCacheKey.*;
 import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
 import com.example.travelhana.Dto.Exchange.ExchangeResponseDto;
@@ -11,6 +11,9 @@ import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
 import com.example.travelhana.Util.HolidayUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.travelhana.Exception.Code.ErrorCode;
@@ -25,11 +28,16 @@ import com.example.travelhana.Repository.KeymoneyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.cache.annotation.Cacheable;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.travelhana.Object.RedisCacheKey.EXCHANGE_RATE;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +50,8 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final UserService userService;
     private final ExchangeRateUtil exchangeRateUtil;
     private final HolidayUtil holidayUtil;
-
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
     @Transactional
     public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
         // OpenAPI로 각 환율 정보 가져오기
@@ -66,18 +75,34 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    //1.유효한 계좌인지 확인 -> 전부 다 유효한 계좌임을 가정 O
-    //2.잔액부족한거 체크하기 O
-    //환율 호출해서 디비에 업데이트하기
-    //3.공휴일이 아니면 그냥 바로 환전
-    //3-1.화폐단위 확인
-    //3-2.사용자 id로 조회하고 거기서 화폐단위가 request의 unit과 같은 외화계좌 가져오기
-    //3-2-1.만약 없으면 해당 외환계좌(key_money) 새로 개설
-    //3-3.값 업데이트하기
-    //4.공휴일이면 isNow 확인해서 처리
-    //4-1.isNow가 True면 수수료를 높게 책정해서 환전해주고 나중에 스케줄링으로 환불
-    //4-2.isNow가 False면 다음 영업일 환전 예약
 
+    @Cacheable(key = "#rateinfo", value = EXCHANGE_RATE, cacheManager = "redisCacheManager")
+    @Transactional
+    public ExchangeRateDto insertRedis(String rateinfo) throws URISyntaxException {
+//        // OpenAPI로 각 환율 정보 가져오기
+        System.out.println("서비스진입");
+        ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
+        ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
+        ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
+        // 각 환율 정보를 dto에 파싱
+        ExchangeRateDto result = ExchangeRateDto
+                .builder()
+                .usd(usdExchangeRate)
+                .jpy(jpyExchangeRate)
+                .eur(eurExchangeRate)
+                .build();
+        return result;
+
+    }
+
+    public ExchangeRateDto getDtoFromRedis() throws JsonProcessingException {
+        return (ExchangeRateDto) redisTemplate.opsForValue().get("exchangeRate::"+LocalDate.now());
+//        if (json != null) {
+//            return objectMapper.readValue(json, ExchangeRateDto.class);
+//        }
+//        return null; // 또는 원하는 에러 처리
+    }
 
     @Transactional
     public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
@@ -109,6 +134,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
         Optional<Keymoney> keymoney = keymoneyRepository.findByUser_IdAndUnit(
                 account.getUser().getId(), dto.getUnit());
+
         //키머니가 존재하지 않는다면 만들어주기
         if (!keymoney.isPresent()) {
             keymoney = Optional.ofNullable(makeKeyMoney(account.getUser(), dto.getUnit()));
@@ -211,7 +237,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 
     //원화->외화
     @Transactional
-
     public ExchangeSuccess wonToKey(Long won, Keymoney keyMoney, Account account,
                                     ExchangeRateInfo exchangeRateInfo) {
         Currency currency = Currency.getByCode(keyMoney.getUnit());
@@ -223,6 +248,7 @@ public class ExchangeServiceImpl implements ExchangeService {
                 / exchangeRateInfo.getExchangeRate();
         Long realkey = Math.round(key);
 
+        //키머니 잔액 200만원 초과 금지
         if (realkey + keyMoney.getBalance() >= 2000000) {
             throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
         }

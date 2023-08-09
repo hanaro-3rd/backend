@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class ExchangeRateDto {
+public class ExchangeRateDto  implements Serializable {
 
 	ExchangeRateInfo jpy;
 	ExchangeRateInfo usd;
