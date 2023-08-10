@@ -59,7 +59,7 @@ public class ExchangeRateUtil {
 				.updatedAt(LocalDateTime.now())
 				.build();
 
-		exchangeRateRepository.save(exchangeRate);
+//		exchangeRateRepository.save(exchangeRate);
 
 		return new ExchangeRateInfo(basePrice, changePrice);
 	}

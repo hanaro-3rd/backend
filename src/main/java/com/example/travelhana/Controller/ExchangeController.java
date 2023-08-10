@@ -3,7 +3,6 @@ package com.example.travelhana.Controller;
 //import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
 
 import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
-import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
 import com.example.travelhana.Service.ExchangeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,15 +28,9 @@ public class ExchangeController {
         return exchangeService.exchange(accessToken, exchangeRequestDto);
     }
 
-    @GetMapping("/cache")
-    public ExchangeRateDto getExchangeRateFromRedis(
-            @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
-        String key = LocalDate.now().toString();
-        return exchangeService.insertRedis(key);
-    }
 
     @GetMapping("/getfromredis")
-    public ExchangeRateDto getfromredis() throws JsonProcessingException {
+    public ResponseEntity<?> getfromredis() throws JsonProcessingException {
         return exchangeService.getDtoFromRedis();
     }
 
@@ -46,6 +38,12 @@ public class ExchangeController {
     public ResponseEntity<?> getExchangeRate(
             @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
         return exchangeService.getExchangeRate();
+    }
+
+    @GetMapping("/insertdb")
+    public ResponseEntity<?> insertdb(
+            @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException, JsonProcessingException {
+        return exchangeService.insertIntoDb();
     }
 
 }

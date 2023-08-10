@@ -11,8 +11,10 @@ import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
 import com.example.travelhana.Util.HolidayUtil;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,15 +28,19 @@ import com.example.travelhana.Repository.ExchangeHistoryRepository;
 import com.example.travelhana.Repository.KeymoneyRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import org.springframework.cache.annotation.Cacheable;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,8 +57,14 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final UserService userService;
     private final ExchangeRateUtil exchangeRateUtil;
     private final HolidayUtil holidayUtil;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private ListOperations<String, String> stringStringListOperations;
+
+    @PostConstruct
+    public void init() {
+        stringStringListOperations = redisTemplate.opsForList();
+    }
 
     @Transactional
     public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
@@ -78,15 +90,18 @@ public class ExchangeServiceImpl implements ExchangeService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @Cacheable(key = "#rateinfo", value = EXCHANGE_RATE, cacheManager = "redisCacheManager")
+    @Scheduled(cron = "0 * * * * *") // 매 분 0초에 실행
     @Transactional
-    public ExchangeRateDto insertRedis(String rateinfo) throws URISyntaxException {
-//        // OpenAPI로 각 환율 정보 가져오기
-        System.out.println("서비스진입");
+    public void insertRedis() throws URISyntaxException, JsonProcessingException {
         ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
         ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
         ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+        LocalDateTime now = LocalDateTime.now();
 
+        LocalDateTime truncatedDateTime = now.withSecond(0).withNano(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String formattedDateTime = truncatedDateTime.format(formatter);
         // 각 환율 정보를 dto에 파싱
         ExchangeRateDto result = ExchangeRateDto
                 .builder()
@@ -94,12 +109,37 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .jpy(jpyExchangeRate)
                 .eur(eurExchangeRate)
                 .build();
-        return result;
-
+        String dtoAsString = objectMapper.writeValueAsString(result);
+        stringStringListOperations.leftPush("mystack", dtoAsString);
     }
 
-    public ExchangeRateDto getDtoFromRedis() throws JsonProcessingException {
-        return (ExchangeRateDto) redisTemplate.opsForValue().get("exchangeRate::" + LocalDate.now());
+    public ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException {
+        String getone = stringStringListOperations.rightPop("mystack");
+        ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(result)
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> insertIntoDb() throws JsonProcessingException {
+        List<ExchangeRateDto> response = new ArrayList<>();
+        List<String> arr = stringStringListOperations.range("mystack", 0, -1);
+        System.out.println(arr.size());
+        for (Object i : arr) {
+            String getone = (String) i;
+            ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+            System.out.println(result);
+            response.add(result);
+        }
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(response)
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @Transactional
@@ -107,8 +147,6 @@ public class ExchangeServiceImpl implements ExchangeService {
         return exchangeInAccountBusinessDay(accessToken, request);
     }
 
-
-    //거래 성공하고 성송
     @Transactional
     public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken, ExchangeRequestDto dto) throws URISyntaxException {
         Account account = accountRepository.findById(dto.getAccountId())
