@@ -244,9 +244,12 @@ public class ExchangeServiceImpl implements ExchangeService {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
         }
 
-        Double key = (double) won * (double) currency.getBaseCurrency()
-                / exchangeRateInfo.getExchangeRate();
+        Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
         Long realkey = Math.round(key);
+
+        if(realkey<currency.getMinCurrency()){
+            throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
+        }
 
         //키머니 잔액 200만원 초과 금지
         if (realkey + keyMoney.getBalance() >= 2000000) {
@@ -272,6 +275,9 @@ public class ExchangeServiceImpl implements ExchangeService {
         Currency currency = Currency.getByCode(keyMoney.getUnit());
         if (currency == null) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+        }
+        if(key<currency.getMinCurrency()){
+            throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
         }
 
         Double won = (double) key * exchangeRateInfo.getExchangeRate()

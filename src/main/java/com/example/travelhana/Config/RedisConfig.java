@@ -62,7 +62,6 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigurationMap = new HashMap<>();
 
-        // entryTtl 설정
         cacheConfigurationMap.put(RedisCacheKey.EXCHANGE_RATE,
                 redisCacheConfiguration.entryTtl(Duration.ofDays(2L)));
 

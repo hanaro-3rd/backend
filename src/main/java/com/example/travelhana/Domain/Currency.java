@@ -1,5 +1,8 @@
 package com.example.travelhana.Domain;
 
+import lombok.Getter;
+
+@Getter
 public enum Currency {
     JPY("JPY", 100, 1000), // 일본 엔 환율
     EUR("EUR", 1, 10), // 유럽 유로 환율
@@ -16,13 +19,6 @@ public enum Currency {
         this.minCurrency = minCurrency;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public int getBaseCurrency() {
-        return baseCurrency;
-    }
 
     public static Currency getByCode(String code) {
         for (Currency currency : values()) {

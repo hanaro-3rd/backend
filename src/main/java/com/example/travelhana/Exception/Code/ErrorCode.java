@@ -44,7 +44,8 @@ public enum ErrorCode {
 
 	INTERNAL_SEVER_ERROR(500, "Internal Server Error", "서버 에러가 발생했습니다."),
 	ONLY_PUCHASE_IN_HOLIDAY(500,"ONLY_PUCHASE_IN_HOLIDAY","공휴일에는 외화 매수만 가능합니다."),
-	TOO_MUCH_KEYMONEY_BALANCE(500,"TOO_MUCH_KEYMONEY_BALANCE","키머니 잔액은 200만원을 초과할 수 없습니다");
+	TOO_MUCH_KEYMONEY_BALANCE(500,"TOO_MUCH_KEYMONEY_BALANCE","키머니 잔액은 200만원을 초과할 수 없습니다"),
+	MIN_CURRENCY(500,"MIN_CURRENCY","환전 최소금액 이상으로 입력해주세요.");
 
 	private int statusCode; //404
 	private String status; //NOT_FOUNT
