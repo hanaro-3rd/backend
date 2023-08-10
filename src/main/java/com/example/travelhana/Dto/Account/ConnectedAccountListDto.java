@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class ConnectedAccountListDto {
 
-	List<AccountConnectResultDto> accounts;
+	List<AccountInformation> accounts;
 	Boolean isBusinessDay;
 	ExchangeRateDto usd;
 	ExchangeRateDto jpy;

@@ -7,8 +7,10 @@ import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URISyntaxException;
@@ -16,12 +18,13 @@ import java.net.URISyntaxException;
 @RestController
 @RequiredArgsConstructor
 public class ExchangeController {
+
     private final ExchangeService exchangeService;
 
     @PostMapping("/exchange")
-    public ResponseEntity<ApiResponse> exchange(@RequestBody ExchangeRequestDto dto) throws URISyntaxException {
-        ApiResponse apiresponse= exchangeService.accountErrorExample(dto);
-        return new ResponseEntity<>(apiresponse, HttpStatus.OK);
+    public ResponseEntity<?> exchange(
+            @RequestHeader(value = "Authorization") String accessToken, @RequestBody ExchangeRequestDto exchangeRequestDto) throws URISyntaxException {
+        return exchangeService.exchange(accessToken, exchangeRequestDto);
     }
 
 }

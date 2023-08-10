@@ -20,6 +20,6 @@ public class PlanDto {
     Date endDate;
 
     List<UpdateCategoryBudgetDto> category;
-    Long userId;
+    Integer userId;
 }
 

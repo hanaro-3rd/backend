@@ -2,14 +2,15 @@ package com.example.travelhana.Service;
 
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
 public interface UserService {
 
-    DeviceDto isExistDevice(String deviceId);
+    ResponseEntity<?> isExistDevice(String deviceId);
 
-    void saveAccount(SignupRequestDto dto);
+    ResponseEntity<?> saveAccount(SignupRequestDto dto);
 
     void saveRole(String roleName);
 
@@ -17,6 +18,8 @@ public interface UserService {
 
     void updateRefreshToken(String username, String refreshToken);
 
-    Map<String, String> refresh(String refreshToken);
-    User getUser(String header);
+    Map<String,String> refresh(String refreshToken);
+
+    User getUserByAccessToken(String header);
+
 }

@@ -39,12 +39,12 @@ public class PlanService {
         Plan returnPlan = planRepository.save(plan);  //save return이 클래스
         //category 테이블에 id,name이 다 존재한다는 조건에 분기처리
         if (!categoryRepository.existsById(1L)){
-            Category nullCategory1 = new Category(1L,"식비");
-            Category nullCategory2 = new Category(2L,"교통");
-            Category nullCategory3 = new Category(3L,"숙박");
-            Category nullCategory4 = new Category(4L,"쇼핑");
-            Category nullCategory5 = new Category(5L,"문화");
-            Category nullCategory6 = new Category(6L,"기타");
+            Category nullCategory1 = new Category(1,"식비");
+            Category nullCategory2 = new Category(2,"교통");
+            Category nullCategory3 = new Category(3,"숙박");
+            Category nullCategory4 = new Category(4,"쇼핑");
+            Category nullCategory5 = new Category(5,"문화");
+            Category nullCategory6 = new Category(6,"기타");
             List<Category> categoryList = new ArrayList<>();
             categoryList.add(nullCategory1);
             categoryList.add(nullCategory2);
