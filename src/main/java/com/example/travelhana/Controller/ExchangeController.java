@@ -29,7 +29,7 @@ public class ExchangeController {
         return exchangeService.exchange(accessToken, exchangeRequestDto);
     }
 	@GetMapping("/inserttoredis")
-	public ExchangeRateDto getExchangeRate(
+	public ExchangeRateDto getExchangeRateFromRedis(
 			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
         System.out.println("컽트롤러 진입");
 
@@ -41,7 +41,11 @@ public class ExchangeController {
     public ExchangeRateDto getfromredis() throws JsonProcessingException {
         return exchangeService.getDtoFromRedis();
     }
-
+    @GetMapping("/getfromapi")
+    public ResponseEntity<?> getExchangeRate(
+            @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
+        return exchangeService.getExchangeRate();
+    }
 
 //    @PostMapping("/redistest")
 //    public void insertRedis(@RequestBody RedisTestDto dto) {

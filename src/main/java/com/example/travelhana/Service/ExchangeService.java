@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 public interface ExchangeService {
 
-//    ResponseEntity<?> getExchangeRate() throws URISyntaxException;
+    ResponseEntity<?> getExchangeRate() throws URISyntaxException;
 
     ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
             throws URISyntaxException;
