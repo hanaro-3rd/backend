@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.springframework.cache.annotation.Cacheable;
+
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -52,6 +53,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final HolidayUtil holidayUtil;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+
     @Transactional
     public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
         // OpenAPI로 각 환율 정보 가져오기
@@ -97,11 +99,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     public ExchangeRateDto getDtoFromRedis() throws JsonProcessingException {
-        return (ExchangeRateDto) redisTemplate.opsForValue().get("exchangeRate::"+LocalDate.now());
-//        if (json != null) {
-//            return objectMapper.readValue(json, ExchangeRateDto.class);
-//        }
-//        return null; // 또는 원하는 에러 처리
+        return (ExchangeRateDto) redisTemplate.opsForValue().get("exchangeRate::" + LocalDate.now());
     }
 
     @Transactional
@@ -247,7 +245,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
         Long realkey = Math.round(key);
 
-        if(realkey<currency.getMinCurrency()){
+        if (realkey < currency.getMinCurrency()) {
             throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
         }
 
@@ -276,7 +274,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         if (currency == null) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
         }
-        if(key<currency.getMinCurrency()){
+        if (key < currency.getMinCurrency()) {
             throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
         }
 
