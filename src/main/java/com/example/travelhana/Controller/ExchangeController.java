@@ -15,25 +15,25 @@ import java.net.URISyntaxException;
 @RequestMapping("/exchange")
 public class ExchangeController {
 
-    private final ExchangeService exchangeService;
+	private final ExchangeService exchangeService;
 
-    @PostMapping("")
-    public ResponseEntity<?> exchange(
-            @RequestHeader(value = "Authorization") String accessToken,
-            @RequestBody ExchangeRequestDto exchangeRequestDto) throws URISyntaxException {
-        return exchangeService.exchange(accessToken, exchangeRequestDto);
-    }
+	@PostMapping("")
+	public ResponseEntity<?> exchange(
+			@RequestHeader(value = "Authorization") String accessToken,
+			@RequestBody ExchangeRequestDto exchangeRequestDto) throws URISyntaxException {
+		return exchangeService.exchange(accessToken, exchangeRequestDto);
+	}
 
 
-    @GetMapping("/getfromredis")
-    public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
-        return exchangeService.getDtoFromRedis();
-    }
+	@GetMapping("/getfromredis")
+	public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
+		return exchangeService.getDtoFromRedis();
+	}
 
-    @GetMapping("/getRromApi")
-    public ResponseEntity<?> getExchangeRate(
-            @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
-        return exchangeService.getExchangeRate();
-    }
+	@GetMapping("/getRromApi")
+	public ResponseEntity<?> getExchangeRate(
+			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
+		return exchangeService.getExchangeRate();
+	}
 
 }

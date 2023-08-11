@@ -9,14 +9,13 @@ import java.net.URISyntaxException;
 
 public interface ExchangeService {
 
-    ResponseEntity<?> getExchangeRate() throws URISyntaxException;
+	ResponseEntity<?> getExchangeRate() throws URISyntaxException;
 
-    ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
-            throws URISyntaxException;
+	ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
+			throws URISyntaxException;
 
-    ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException;
+	ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException;
 
-    void insertIntoDb() throws JsonProcessingException;
 }
 
 

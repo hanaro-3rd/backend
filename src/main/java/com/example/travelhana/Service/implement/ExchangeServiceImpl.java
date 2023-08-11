@@ -44,324 +44,324 @@ import java.util.stream.Collectors;
 @Transactional
 public class ExchangeServiceImpl implements ExchangeService {
 
-    private final AccountRepository accountRepository;
-    private final KeymoneyRepository keymoneyRepository;
-    private final ExchangeHistoryRepository exchangeHistoryRepository;
-    private final ExchangeRateRepository exchangeRateRepository;
-    private final UserService userService;
-    private final ExchangeRateUtil exchangeRateUtil;
-    private final HolidayUtil holidayUtil;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper;
-    private ListOperations<String, String> stringStringListOperations;
+	private final AccountRepository accountRepository;
+	private final KeymoneyRepository keymoneyRepository;
+	private final ExchangeHistoryRepository exchangeHistoryRepository;
+	private final ExchangeRateRepository exchangeRateRepository;
+	private final UserService userService;
+	private final ExchangeRateUtil exchangeRateUtil;
+	private final HolidayUtil holidayUtil;
+	private final RedisTemplate<String, String> redisTemplate;
+	private final ObjectMapper objectMapper;
+	private ListOperations<String, String> stringStringListOperations;
 
-    @PostConstruct
-    public void init() {
-        stringStringListOperations = redisTemplate.opsForList();
-    }
+	@PostConstruct
+	public void init() {
+		stringStringListOperations = redisTemplate.opsForList();
+	}
 
-    //배포 서버에 redis 설치 안됐을 시 사용할 테스트 메소드
-    @Transactional
-    public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
-        // OpenAPI로 각 환율 정보 가져오기
-        ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
-        ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
-        ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+	//배포 서버에 redis 설치 안됐을 시 사용할 테스트 메소드
+	@Transactional
+	public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
+		// OpenAPI로 각 환율 정보 가져오기
+		ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
+		ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
+		ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
 
-        // 각 환율 정보를 dto에 파싱
-        ExchangeRateDto result = ExchangeRateDto
-                .builder()
-                .usd(usdExchangeRate)
-                .jpy(jpyExchangeRate)
-                .eur(eurExchangeRate)
-                .build();
+		// 각 환율 정보를 dto에 파싱
+		ExchangeRateDto result = ExchangeRateDto
+				.builder()
+				.usd(usdExchangeRate)
+				.jpy(jpyExchangeRate)
+				.eur(eurExchangeRate)
+				.build();
 
-        // ResponseEntity에 묶어서 리턴
-        ApiResponse apiResponse = ApiResponse.builder()
-                .result(result)
-                .resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
+		// ResponseEntity에 묶어서 리턴
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.OPEN_API_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+	}
 
-    //1분마다 환율 캐싱
-    @Scheduled(cron = "0 * * * * *") // 매 분 0초에 실행
-    @Transactional
-    public void insertRedis() throws URISyntaxException, JsonProcessingException {
-        ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
-        ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
-        ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
-        // 각 환율 정보를 dto에 파싱
-        ExchangeRateDto result = ExchangeRateDto
-                .builder()
-                .usd(usdExchangeRate)
-                .jpy(jpyExchangeRate)
-                .eur(eurExchangeRate)
-                .updatedAt(LocalDateTime.now())
-                .build();
-        String dtoAsString = objectMapper.writeValueAsString(result);
-        stringStringListOperations.leftPush("mystack", dtoAsString);
-    }
+	//1분마다 환율 캐싱
+	@Scheduled(cron = "0 * * * * *") // 매 분 0초에 실행
+	@Transactional
+	public void insertRedis() throws URISyntaxException, JsonProcessingException {
+		ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
+		ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
+		ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+		// 각 환율 정보를 dto에 파싱
+		ExchangeRateDto result = ExchangeRateDto
+				.builder()
+				.usd(usdExchangeRate)
+				.jpy(jpyExchangeRate)
+				.eur(eurExchangeRate)
+				.updatedAt(LocalDateTime.now())
+				.build();
+		String dtoAsString = objectMapper.writeValueAsString(result);
+		stringStringListOperations.leftPush("mystack", dtoAsString);
+	}
 
-    //redis에서 환율 읽기
-    public ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException {
-        String getone = stringStringListOperations.rightPop("mystack");
-        ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
-        ApiResponse apiResponse = ApiResponse.builder()
-                .result(result)
-                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
+	//redis에서 환율 읽기
+	public ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException {
+		String getone = stringStringListOperations.rightPop("mystack");
+		ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(result)
+				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+	}
 
-    //월-금까지 9시부터 20시까지 2시간 간격으로 실행
-    //환율정보 2시간마다 DB에 저장
-    @Scheduled(cron = "0 9-20/2 * * 1-5")
-    public void insertIntoDb() throws JsonProcessingException {
-        List<String> arr = stringStringListOperations.range("mystack", 0, -1);
+	//월-금까지 9시부터 20시까지 2시간 간격으로 실행
+	//환율정보 2시간마다 DB에 저장
+	@Scheduled(cron = "0 9-20/2 * * 1-5")
+	public void insertIntoDb() throws JsonProcessingException {
+		List<String> arr = stringStringListOperations.range("mystack", 0, -1);
 
-        List<ExchangeRate> savearr = arr.stream()
-                .map(getone -> {
-                    try {
-                        ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
-                        LocalDateTime updatedAt = result.getUpdatedAt();
-                        List<ExchangeRate> exchangeRates = new ArrayList<>();
-                        exchangeRates.add(ExchangeRate.builder()
-                                .unit("EUR")
-                                .exchangeRate(result.getEur().getExchangeRate())
-                                .changePrice(result.getEur().getChangePrice())
-                                .updatedAt(updatedAt)
-                                .build());
-                        exchangeRates.add(ExchangeRate.builder()
-                                .unit("JPY")
-                                .exchangeRate(result.getJpy().getExchangeRate())
-                                .changePrice(result.getJpy().getChangePrice())
-                                .updatedAt(updatedAt)
-                                .build());
-                        exchangeRates.add(ExchangeRate.builder()
-                                .unit("USD")
-                                .exchangeRate(result.getUsd().getExchangeRate())
-                                .changePrice(result.getUsd().getChangePrice())
-                                .updatedAt(updatedAt)
-                                .build());
-                        return exchangeRates;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return new ArrayList<ExchangeRate>();
-                    }
-                })
-                .flatMap(List::stream) // 하나의 스트림에 여러 개의 ExchangeRate 객체가 포함
-                .collect(Collectors.toList());
-        exchangeRateRepository.saveAll(savearr);
-    }
+		List<ExchangeRate> savearr = arr.stream()
+				.map(getone -> {
+					try {
+						ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+						LocalDateTime updatedAt = result.getUpdatedAt();
+						List<ExchangeRate> exchangeRates = new ArrayList<>();
+						exchangeRates.add(ExchangeRate.builder()
+								.unit("EUR")
+								.exchangeRate(result.getEur().getExchangeRate())
+								.changePrice(result.getEur().getChangePrice())
+								.updatedAt(updatedAt)
+								.build());
+						exchangeRates.add(ExchangeRate.builder()
+								.unit("JPY")
+								.exchangeRate(result.getJpy().getExchangeRate())
+								.changePrice(result.getJpy().getChangePrice())
+								.updatedAt(updatedAt)
+								.build());
+						exchangeRates.add(ExchangeRate.builder()
+								.unit("USD")
+								.exchangeRate(result.getUsd().getExchangeRate())
+								.changePrice(result.getUsd().getChangePrice())
+								.updatedAt(updatedAt)
+								.build());
+						return exchangeRates;
+					} catch (IOException e) {
+						e.printStackTrace();
+						return new ArrayList<ExchangeRate>();
+					}
+				})
+				.flatMap(List::stream) // 하나의 스트림에 여러 개의 ExchangeRate 객체가 포함
+				.collect(Collectors.toList());
+		exchangeRateRepository.saveAll(savearr);
+	}
 
-    @Transactional
-    public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
-        return exchangeInAccountBusinessDay(accessToken, request);
-    }
+	@Transactional
+	public ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request) throws URISyntaxException {
+		return exchangeInAccountBusinessDay(accessToken, request);
+	}
 
-    @Transactional
-    public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken, ExchangeRequestDto dto) throws URISyntaxException {
-        Account account = accountRepository.findById(dto.getAccountId())
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
+	@Transactional
+	public ResponseEntity<?> exchangeInAccountBusinessDay(String accessToken, ExchangeRequestDto dto) throws URISyntaxException {
+		Account account = accountRepository.findById(dto.getAccountId())
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
 
-        // 접속한 유저에 대한 계좌 소유 여부 확인
-        User user = userService.getUserByAccessToken(accessToken);
-        if (!user.equals(account.getUser())) {
-            throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
-        }
+		// 접속한 유저에 대한 계좌 소유 여부 확인
+		User user = userService.getUserByAccessToken(accessToken);
+		if (!user.equals(account.getUser())) {
+			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
+		}
 
-        // 유효하지 않은 화폐단위 에러
-        Currency currency = Currency.getByCode(dto.getUnit());
-        if (currency == null) {
-            throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
-        }
+		// 유효하지 않은 화폐단위 에러
+		Currency currency = Currency.getByCode(dto.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
 
-        if (dto.getMoney() <= 0) { //0이나 음수는 환전불가
-            throw new BusinessExceptionHandler(ErrorCode.NO_ZERO_OR_MINUS);
-        }
+		if (dto.getMoney() <= 0) { //0이나 음수는 환전불가
+			throw new BusinessExceptionHandler(ErrorCode.NO_ZERO_OR_MINUS);
+		}
 
-        Optional<Keymoney> keymoney = keymoneyRepository.findByUser_IdAndUnit(
-                account.getUser().getId(), dto.getUnit());
+		Optional<Keymoney> keymoney = keymoneyRepository.findByUser_IdAndUnit(
+				account.getUser().getId(), dto.getUnit());
 
-        //키머니가 존재하지 않는다면 만들어주기
-        if (!keymoney.isPresent()) {
-            keymoney = Optional.ofNullable(makeKeyMoney(account.getUser(), dto.getUnit()));
-        }
+		//키머니가 존재하지 않는다면 만들어주기
+		if (!keymoney.isPresent()) {
+			keymoney = Optional.ofNullable(makeKeyMoney(account.getUser(), dto.getUnit()));
+		}
 
-        //잔액부족 시 에러
-        if (dto.getIsBought()) { //원화->외화 요청 : 원화계좌 확인
-            if (dto.getMoney() > account.getBalance()) {
-                throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
-            }
-        } else { //외화->원화 요청 : 외화계좌 확인
-            if (dto.getMoney() > keymoney.get().getBalance()) {
-                throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
-            }
-        }
+		//잔액부족 시 에러
+		if (dto.getIsBought()) { //원화->외화 요청 : 원화계좌 확인
+			if (dto.getMoney() > account.getBalance()) {
+				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
+			}
+		} else { //외화->원화 요청 : 외화계좌 확인
+			if (dto.getMoney() > keymoney.get().getBalance()) {
+				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
+			}
+		}
 
-        //환전 시작
-        ExchangeResponseDto exchangeHistory = saveExchangeThings(keymoney.get(), account, dto); //키머니, 원화계좌, 처리할요청
+		//환전 시작
+		ExchangeResponseDto exchangeHistory = saveExchangeThings(keymoney.get(), account, dto); //키머니, 원화계좌, 처리할요청
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .result(exchangeHistory)
-                .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
-    }
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(exchangeHistory)
+				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+	}
 
-    @Transactional
-    public ExchangeResponseDto saveExchangeThings(Keymoney keymoney, Account account,
-                                                  ExchangeRequestDto dto)
-            throws URISyntaxException {
+	@Transactional
+	public ExchangeResponseDto saveExchangeThings(Keymoney keymoney, Account account,
+	                                              ExchangeRequestDto dto)
+			throws URISyntaxException {
 
-        Long money = dto.getMoney(); //요청 원화
-        ExchangeSuccess exchangeResult;
-        ExchangeRateInfo exchangeRateDto = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
-        Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
-        if (!isBusinessDay) {
-            //공휴일이면
-            if (!dto.getIsBought()) {
-                //외화매도는 안됨
-                throw new BusinessExceptionHandler(ErrorCode.ONLY_PUCHASE_IN_HOLIDAY);
-            }
-            exchangeRateDto.updateExchangeRate(20.0); //수수료 20원 추가해서 환전
-        }
-        ExchangeRateInfo exchangeRateInfo = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
+		Long money = dto.getMoney(); //요청 원화
+		ExchangeSuccess exchangeResult;
+		ExchangeRateInfo exchangeRateDto = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
+		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
+		if (!isBusinessDay) {
+			//공휴일이면
+			if (!dto.getIsBought()) {
+				//외화매도는 안됨
+				throw new BusinessExceptionHandler(ErrorCode.ONLY_PUCHASE_IN_HOLIDAY);
+			}
+			exchangeRateDto.updateExchangeRate(20.0); //수수료 20원 추가해서 환전
+		}
+		ExchangeRateInfo exchangeRateInfo = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
 
-        if (dto.getIsBought()) { //원화 -> 외화
-            exchangeResult = wonToKey(money, keymoney, account, exchangeRateInfo); //money=원화
-        } else { //외화 -> 원화
-            exchangeResult = keyToWon(money, keymoney, account, exchangeRateInfo); //money=외화
-        }
+		if (dto.getIsBought()) { //원화 -> 외화
+			exchangeResult = wonToKey(money, keymoney, account, exchangeRateInfo); //money=원화
+		} else { //외화 -> 원화
+			exchangeResult = keyToWon(money, keymoney, account, exchangeRateInfo); //money=외화
+		}
 
-        return saveExchangeHistory(account, keymoney, exchangeResult, exchangeRateInfo);
-    }
+		return saveExchangeHistory(account, keymoney, exchangeResult, exchangeRateInfo);
+	}
 
-    //환전내역 저장
-    @Transactional
-    public ExchangeResponseDto saveExchangeHistory(
-            Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRateInfo exchangeRateInfo) {
-        ExchangeHistory exchangeHistory = ExchangeHistory
-                .builder()
-                .accountId(account.getId())
-                .exchangeDate(LocalDateTime.now())
-                .exchangeRate(exchangeRateInfo.getExchangeRate())
-                .keymoneyId(keyMoney.getId())
-                .exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
-                .isBought(exchangeSuccess.getIsBought())
-                .isBusinessday(true)
-                .userId(account.getUser().getId())
-                .balance(exchangeSuccess.getKeymoneyBalance())
-                .exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
-                .build();
+	//환전내역 저장
+	@Transactional
+	public ExchangeResponseDto saveExchangeHistory(
+			Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRateInfo exchangeRateInfo) {
+		ExchangeHistory exchangeHistory = ExchangeHistory
+				.builder()
+				.accountId(account.getId())
+				.exchangeDate(LocalDateTime.now())
+				.exchangeRate(exchangeRateInfo.getExchangeRate())
+				.keymoneyId(keyMoney.getId())
+				.exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
+				.isBought(exchangeSuccess.getIsBought())
+				.isBusinessday(true)
+				.userId(account.getUser().getId())
+				.balance(exchangeSuccess.getKeymoneyBalance())
+				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
+				.build();
 
-        exchangeHistoryRepository.save(exchangeHistory);
-        ExchangeResponseDto responseDto;
-        if (exchangeSuccess.getIsBought()) { //원화->외화
-            responseDto = ExchangeResponseDto
-                    .builder()
-                    .exchangeFromMoney(exchangeSuccess.getExchangeWon())
-                    .exchangeFromUnit("KRW")
-                    .exchangeToMoney(exchangeHistory.getExchangeKey())
-                    .exchangeToUnit(keyMoney.getUnit())
-                    .exchangeRate(exchangeRateInfo.getExchangeRate())
-                    .changePrice(exchangeRateInfo.getChangePrice())
-                    .build();
-        } else { //외화->원화
-            responseDto = ExchangeResponseDto
-                    .builder()
-                    .exchangeFromMoney(exchangeHistory.getExchangeKey())
-                    .exchangeFromUnit(keyMoney.getUnit())
-                    .exchangeToMoney(exchangeHistory.getExchangeWon())
-                    .exchangeToUnit("KRW")
-                    .exchangeRate(exchangeRateInfo.getExchangeRate())
-                    .changePrice(exchangeRateInfo.getChangePrice())
-                    .build();
-        }
+		exchangeHistoryRepository.save(exchangeHistory);
+		ExchangeResponseDto responseDto;
+		if (exchangeSuccess.getIsBought()) { //원화->외화
+			responseDto = ExchangeResponseDto
+					.builder()
+					.exchangeFromMoney(exchangeSuccess.getExchangeWon())
+					.exchangeFromUnit("KRW")
+					.exchangeToMoney(exchangeHistory.getExchangeKey())
+					.exchangeToUnit(keyMoney.getUnit())
+					.exchangeRate(exchangeRateInfo.getExchangeRate())
+					.changePrice(exchangeRateInfo.getChangePrice())
+					.build();
+		} else { //외화->원화
+			responseDto = ExchangeResponseDto
+					.builder()
+					.exchangeFromMoney(exchangeHistory.getExchangeKey())
+					.exchangeFromUnit(keyMoney.getUnit())
+					.exchangeToMoney(exchangeHistory.getExchangeWon())
+					.exchangeToUnit("KRW")
+					.exchangeRate(exchangeRateInfo.getExchangeRate())
+					.changePrice(exchangeRateInfo.getChangePrice())
+					.build();
+		}
 
-        return responseDto;
-    }
+		return responseDto;
+	}
 
-    //원화->외화
-    @Transactional
-    public ExchangeSuccess wonToKey(Long won, Keymoney keyMoney, Account account,
-                                    ExchangeRateInfo exchangeRateInfo) {
-        Currency currency = Currency.getByCode(keyMoney.getUnit());
-        if (currency == null) {
-            throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
-        }
+	//원화->외화
+	@Transactional
+	public ExchangeSuccess wonToKey(Long won, Keymoney keyMoney, Account account,
+	                                ExchangeRateInfo exchangeRateInfo) {
+		Currency currency = Currency.getByCode(keyMoney.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
 
-        if (won > 1000000) {
-            throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
-        }
+		if (won > 1000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
+		}
 
-        Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
-        Long realkey = Math.round(key);
+		Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
+		Long realkey = Math.round(key);
 
-        if (realkey < currency.getMinCurrency()) {
-            throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
-        }
+		if (realkey < currency.getMinCurrency()) {
+			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
+		}
 
-        //키머니 잔액 200만원 초과 금지
-        if (realkey + keyMoney.getBalance() >= 2000000) {
-            throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
-        }
+		//키머니 잔액 200만원 초과 금지
+		if (realkey + keyMoney.getBalance() >= 2000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
+		}
 
-        keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
-        account.updateBalance(won * (-1)); //원화 잔액 차감
+		keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
+		account.updateBalance(won * (-1)); //원화 잔액 차감
 
-        ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-                .exchangeWon(won)
-                .exchangeKey(realkey)
-                .keymoneyBalance(keyMoney.getBalance())
-                .isBought(true)
-                .build();
-        return exchangeSuccess;
-    }
+		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+				.exchangeWon(won)
+				.exchangeKey(realkey)
+				.keymoneyBalance(keyMoney.getBalance())
+				.isBought(true)
+				.build();
+		return exchangeSuccess;
+	}
 
-    //외화->원화
-    @Transactional
-    public ExchangeSuccess keyToWon(Long key, Keymoney keyMoney, Account account,
-                                    ExchangeRateInfo exchangeRateInfo) {
-        Currency currency = Currency.getByCode(keyMoney.getUnit());
-        if (currency == null) {
-            throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
-        }
-        if (key < currency.getMinCurrency()) {
-            throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
-        }
+	//외화->원화
+	@Transactional
+	public ExchangeSuccess keyToWon(Long key, Keymoney keyMoney, Account account,
+	                                ExchangeRateInfo exchangeRateInfo) {
+		Currency currency = Currency.getByCode(keyMoney.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
+		if (key < currency.getMinCurrency()) {
+			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
+		}
 
-        Double won = (double) key * exchangeRateInfo.getExchangeRate()
-                / (double) currency.getBaseCurrency();
-        Long realwon = Math.round(won); //외화에서 환전하고 결과 원화
+		Double won = (double) key * exchangeRateInfo.getExchangeRate()
+				/ (double) currency.getBaseCurrency();
+		Long realwon = Math.round(won); //외화에서 환전하고 결과 원화
 
-        keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
-        account.updateBalance(realwon); //원화 잔액 추가
+		keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
+		account.updateBalance(realwon); //원화 잔액 추가
 
-        ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-                .exchangeWon(realwon)
-                .exchangeKey(key)
-                .keymoneyBalance(keyMoney.getBalance())
-                .isBought(false)
-                .build();
-        return exchangeSuccess;
-    }
+		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+				.exchangeWon(realwon)
+				.exchangeKey(key)
+				.keymoneyBalance(keyMoney.getBalance())
+				.isBought(false)
+				.build();
+		return exchangeSuccess;
+	}
 
-    //외환계좌 만들기
-    @Transactional
-    public Keymoney makeKeyMoney(User user, String unit) {
-        Keymoney newKeymoney = Keymoney.builder()
-                .user(user)
-                .unit(unit)
-                .balance(0L)
-                .build();
-        keymoneyRepository.save(newKeymoney);
-        return newKeymoney;
-    }
+	//외환계좌 만들기
+	@Transactional
+	public Keymoney makeKeyMoney(User user, String unit) {
+		Keymoney newKeymoney = Keymoney.builder()
+				.user(user)
+				.unit(unit)
+				.balance(0L)
+				.build();
+		keymoneyRepository.save(newKeymoney);
+		return newKeymoney;
+	}
 }
 
 
