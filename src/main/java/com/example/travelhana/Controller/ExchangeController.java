@@ -30,7 +30,7 @@ public class ExchangeController {
 		return exchangeService.getDtoFromRedis();
 	}
 
-	@GetMapping("/getRromApi")
+	@GetMapping("/getFromApi")
 	public ResponseEntity<?> getExchangeRate(
 			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
 		return exchangeService.getExchangeRate();

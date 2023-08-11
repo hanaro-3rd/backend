@@ -119,7 +119,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	//월-금까지 9시부터 20시까지 2시간 간격으로 실행
 	//환율정보 2시간마다 DB에 저장
 	@Scheduled(cron = "0 9-20/2 * * 1-5")
-	public void insertIntoDb() throws JsonProcessingException {
+	private void insertIntoDb() throws JsonProcessingException {
 		List<String> arr = stringStringListOperations.range("mystack", 0, -1);
 
 		List<ExchangeRate> savearr = arr.stream()
