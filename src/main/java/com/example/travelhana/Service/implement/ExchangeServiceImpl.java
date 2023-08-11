@@ -60,6 +60,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         stringStringListOperations = redisTemplate.opsForList();
     }
 
+    //배포 서버에 redis 설치 안됐을 시 사용할 테스트 메소드
     @Transactional
     public ResponseEntity<?> getExchangeRate() throws URISyntaxException {
         // OpenAPI로 각 환율 정보 가져오기
@@ -84,6 +85,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    //1분마다 환율 캐싱
     @Scheduled(cron = "0 * * * * *") // 매 분 0초에 실행
     @Transactional
     public void insertRedis() throws URISyntaxException, JsonProcessingException {
@@ -102,6 +104,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         stringStringListOperations.leftPush("mystack", dtoAsString);
     }
 
+    //redis에서 환율 읽기
     public ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException {
         String getone = stringStringListOperations.rightPop("mystack");
         ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
@@ -114,6 +117,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     //월-금까지 9시부터 20시까지 2시간 간격으로 실행
+    //환율정보 2시간마다 DB에 저장
     @Scheduled(cron = "0 9-20/2 * * 1-5")
     public void insertIntoDb() throws JsonProcessingException {
         List<String> arr = stringStringListOperations.range("mystack", 0, -1);
