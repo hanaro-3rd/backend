@@ -1,8 +1,5 @@
 package com.example.travelhana.Dto.Exchange;
 
-import com.example.travelhana.Domain.ExchangeRate;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package com.example.travelhana.Service;
 
-import com.example.travelhana.Dto.PaymentRequestDto;
-import com.example.travelhana.Dto.PaymentMemoDto;
+import com.example.travelhana.Dto.Payment.PaymentRequestDto;
+import com.example.travelhana.Dto.Payment.PaymentMemoDto;
 import org.springframework.http.ResponseEntity;
 
 public interface PaymentService {

@@ -2,37 +2,31 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
-import com.example.travelhana.Object.RedisCacheKey.*;
 import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
 import com.example.travelhana.Dto.Exchange.ExchangeResponseDto;
-import com.example.travelhana.Object.ExchangeSuccess;
-import com.example.travelhana.Repository.ExchangeRateRepository;
-import com.example.travelhana.Service.ExchangeService;
-import com.example.travelhana.Service.UserService;
-import com.example.travelhana.Util.ExchangeRateUtil;
-import com.example.travelhana.Util.HolidayUtil;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
-
+import com.example.travelhana.Object.ExchangeSuccess;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
+import com.example.travelhana.Repository.ExchangeRateRepository;
 import com.example.travelhana.Repository.KeymoneyRepository;
-
+import com.example.travelhana.Service.ExchangeService;
+import com.example.travelhana.Service.UserService;
+import com.example.travelhana.Util.ExchangeRateUtil;
+import com.example.travelhana.Util.HolidayUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -40,14 +34,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.example.travelhana.Object.RedisCacheKey.EXCHANGE_RATE;
 
 @Service
 @RequiredArgsConstructor
@@ -124,7 +114,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     }
 
     //월-금까지 9시부터 20시까지 2시간 간격으로 실행
-    @Scheduled(cron="0 9-20/2 * * 1-5")
+    @Scheduled(cron = "0 9-20/2 * * 1-5")
     public void insertIntoDb() throws JsonProcessingException {
         List<String> arr = stringStringListOperations.range("mystack", 0, -1);
 
@@ -161,7 +151,6 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .flatMap(List::stream) // 하나의 스트림에 여러 개의 ExchangeRate 객체가 포함
                 .collect(Collectors.toList());
         exchangeRateRepository.saveAll(savearr);
-
     }
 
     @Transactional
@@ -302,7 +291,7 @@ public class ExchangeServiceImpl implements ExchangeService {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
         }
 
-        if(won>1000000){
+        if (won > 1000000) {
             throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
         }
 

@@ -1,18 +1,14 @@
 package com.example.travelhana.Controller;
 
-//import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
 
-import com.example.travelhana.Dto.Exchange.ExchangeRateDto;
 import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
 import com.example.travelhana.Service.ExchangeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,20 +26,14 @@ public class ExchangeController {
 
 
     @GetMapping("/getfromredis")
-    public ResponseEntity<?> getfromredis() throws JsonProcessingException {
+    public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
         return exchangeService.getDtoFromRedis();
     }
 
-    @GetMapping("/getfromapi")
+    @GetMapping("/getRromApi")
     public ResponseEntity<?> getExchangeRate(
             @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
         return exchangeService.getExchangeRate();
-    }
-
-    @GetMapping("/insertdb")
-    public void insertdb(
-            @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException, JsonProcessingException {
-        exchangeService.insertIntoDb();
     }
 
 }
