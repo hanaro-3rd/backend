@@ -19,7 +19,7 @@ public interface ExchangeService {
 
     ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException;
 
-    ResponseEntity<?> insertIntoDb() throws JsonProcessingException;
+    void insertIntoDb() throws JsonProcessingException;
 }
 
 

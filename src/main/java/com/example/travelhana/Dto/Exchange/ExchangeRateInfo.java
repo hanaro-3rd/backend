@@ -1,5 +1,6 @@
 package com.example.travelhana.Dto.Exchange;
 
+import com.example.travelhana.Domain.ExchangeRate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +16,10 @@ public class ExchangeRateInfo implements Serializable {
 
 	Double exchangeRate;
 	Double changePrice;
+
 	public void updateExchangeRate(Double charge) {
 		this.exchangeRate += charge;
 	}
+
 
 }

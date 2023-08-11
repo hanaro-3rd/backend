@@ -7,6 +7,7 @@ import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Dto.Exchange.ExchangeRequestDto;
 import com.example.travelhana.Dto.Exchange.ExchangeResponseDto;
 import com.example.travelhana.Object.ExchangeSuccess;
+import com.example.travelhana.Repository.ExchangeRateRepository;
 import com.example.travelhana.Service.ExchangeService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.ExchangeRateUtil;
@@ -42,7 +43,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.travelhana.Object.RedisCacheKey.EXCHANGE_RATE;
 
@@ -54,6 +57,7 @@ public class ExchangeServiceImpl implements ExchangeService {
     private final AccountRepository accountRepository;
     private final KeymoneyRepository keymoneyRepository;
     private final ExchangeHistoryRepository exchangeHistoryRepository;
+    private final ExchangeRateRepository exchangeRateRepository;
     private final UserService userService;
     private final ExchangeRateUtil exchangeRateUtil;
     private final HolidayUtil holidayUtil;
@@ -96,18 +100,13 @@ public class ExchangeServiceImpl implements ExchangeService {
         ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
         ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
         ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
-        LocalDateTime now = LocalDateTime.now();
-
-        LocalDateTime truncatedDateTime = now.withSecond(0).withNano(0);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String formattedDateTime = truncatedDateTime.format(formatter);
         // 각 환율 정보를 dto에 파싱
         ExchangeRateDto result = ExchangeRateDto
                 .builder()
                 .usd(usdExchangeRate)
                 .jpy(jpyExchangeRate)
                 .eur(eurExchangeRate)
+                .updatedAt(LocalDateTime.now())
                 .build();
         String dtoAsString = objectMapper.writeValueAsString(result);
         stringStringListOperations.leftPush("mystack", dtoAsString);
@@ -124,22 +123,45 @@ public class ExchangeServiceImpl implements ExchangeService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> insertIntoDb() throws JsonProcessingException {
-        List<ExchangeRateDto> response = new ArrayList<>();
+    //월-금까지 9시부터 20시까지 2시간 간격으로 실행
+    @Scheduled(cron="0 9-20/2 * * 1-5")
+    public void insertIntoDb() throws JsonProcessingException {
         List<String> arr = stringStringListOperations.range("mystack", 0, -1);
-        System.out.println(arr.size());
-        for (Object i : arr) {
-            String getone = (String) i;
-            ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
-            System.out.println(result);
-            response.add(result);
-        }
-        ApiResponse apiResponse = ApiResponse.builder()
-                .result(response)
-                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
-                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+
+        List<ExchangeRate> savearr = arr.stream()
+                .map(getone -> {
+                    try {
+                        ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+                        LocalDateTime updatedAt = result.getUpdatedAt();
+                        List<ExchangeRate> exchangeRates = new ArrayList<>();
+                        exchangeRates.add(ExchangeRate.builder()
+                                .unit("EUR")
+                                .exchangeRate(result.getEur().getExchangeRate())
+                                .changePrice(result.getEur().getChangePrice())
+                                .updatedAt(updatedAt)
+                                .build());
+                        exchangeRates.add(ExchangeRate.builder()
+                                .unit("JPY")
+                                .exchangeRate(result.getJpy().getExchangeRate())
+                                .changePrice(result.getJpy().getChangePrice())
+                                .updatedAt(updatedAt)
+                                .build());
+                        exchangeRates.add(ExchangeRate.builder()
+                                .unit("USD")
+                                .exchangeRate(result.getUsd().getExchangeRate())
+                                .changePrice(result.getUsd().getChangePrice())
+                                .updatedAt(updatedAt)
+                                .build());
+                        return exchangeRates;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return new ArrayList<ExchangeRate>();
+                    }
+                })
+                .flatMap(List::stream) // 하나의 스트림에 여러 개의 ExchangeRate 객체가 포함
+                .collect(Collectors.toList());
+        exchangeRateRepository.saveAll(savearr);
+
     }
 
     @Transactional
@@ -278,6 +300,10 @@ public class ExchangeServiceImpl implements ExchangeService {
         Currency currency = Currency.getByCode(keyMoney.getUnit());
         if (currency == null) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+        }
+
+        if(won>1000000){
+            throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
         }
 
         Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();

@@ -41,9 +41,9 @@ public class ExchangeController {
     }
 
     @GetMapping("/insertdb")
-    public ResponseEntity<?> insertdb(
+    public void insertdb(
             @RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException, JsonProcessingException {
-        return exchangeService.insertIntoDb();
+        exchangeService.insertIntoDb();
     }
 
 }
