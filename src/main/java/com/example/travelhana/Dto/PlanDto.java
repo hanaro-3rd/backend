@@ -19,7 +19,6 @@ public class PlanDto {
     Date startDate;
     Date endDate;
 
-    List<UpdateCategoryBudgetDto> category;
-    Integer userId;
+    List<CategoryBudgetDto> category;
 }
 

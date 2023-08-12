@@ -14,10 +14,10 @@ import java.util.List;
 @Builder
 public class SMSRequestDto {
 
-    private String type;
-    private String from;
-    private String subject;
-    private String content;
-    private List<MessageDto> messages;
+	private String type;
+	private String from;
+	private String subject;
+	private String content;
+	private List<MessageDto> messages;
 
 }

@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Exchange;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class SMSAndCodeDto {
+public class ExchangeRateInfo {
 
-    private SMSResponseDto response;
-    private String code;
+	Double exchangeRate;
+	Double changePrice;
+
 }

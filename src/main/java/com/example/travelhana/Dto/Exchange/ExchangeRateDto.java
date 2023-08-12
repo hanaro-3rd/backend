@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Exchange;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ExchangeRateDto {
 
-	Double exchangeRate;
-	Double changePrice;
+	ExchangeRateInfo jpy;
+	ExchangeRateInfo usd;
+	ExchangeRateInfo eur;
 
 }

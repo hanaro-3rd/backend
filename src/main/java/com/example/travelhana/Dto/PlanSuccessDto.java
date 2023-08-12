@@ -1,12 +1,14 @@
 package com.example.travelhana.Dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
+@Builder
 public class PlanSuccessDto {
 
-    Long planId;
-    Long userId;
+    Integer planId;
+    Integer userId;
 
 }

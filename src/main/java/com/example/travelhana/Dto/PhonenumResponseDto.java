@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class PhonenumResponseDto {
-    private String statusCode;
-    private String statusMessage;
+
+	private String statusCode;
+	private String statusMessage;
 }

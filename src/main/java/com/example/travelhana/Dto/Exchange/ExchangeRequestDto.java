@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Exchange;
 
 import lombok.*;
 
@@ -11,7 +11,6 @@ public class ExchangeRequestDto {
 
 	private int accountId;
 	private Long money;
-	private Double exchangeRate;
 	private Boolean isBusinessday;
 	private Boolean isBought;
 	private Boolean isNow;

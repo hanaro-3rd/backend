@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class CodeDto {
+public class CodeResponseDto {
 
-    private String code;
+	private Boolean isExistUser;
+	private Boolean isCodeEqual;
+
 }

@@ -1,5 +1,6 @@
 package com.example.travelhana.Dto;
 
+import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +13,5 @@ public class UpdateTravelBudgetDto {
     String title;
     Date startDate;
     Date endDate;
-    Long planId;
+    Integer planId;
 }

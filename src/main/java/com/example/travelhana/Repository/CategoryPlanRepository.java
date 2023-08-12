@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryPlanRepository extends JpaRepository<CategoryPlan,Long> {
+public interface CategoryPlanRepository extends JpaRepository<CategoryPlan,Integer> {
 
-    List<CategoryPlan> findAllByPlan_Id(Long id);
+    List<CategoryPlan> findAllByPlan_Id(Integer id);
 
-    void deleteAllByPlan_Id(Long id);
 
-    Optional<CategoryPlan> findByIdAndPlan_Id(Long Id, Long categoryPlanId);
+
+    Optional<CategoryPlan> findByIdAndPlan_Id(Integer Id, Integer categoryPlanId);
+
 }

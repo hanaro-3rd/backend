@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleToUserRequestDto {
-    private String deviceId;
-    private Long roleId;
+
+	private String deviceId;
+	private Long roleId;
 }

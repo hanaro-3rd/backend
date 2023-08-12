@@ -21,18 +21,18 @@ public class CategoryPlan {
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="PLAN_ID")
+	@JoinColumn(name = "PLAN_ID")
 	private Plan plan;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="CATEGORY_ID")
+	@JoinColumn(name = "CATEGORY_ID")
 	private Category category;
 
 	@Column(nullable = false)
 	private Long categoryBudget; //디폴트 0
 
 	@Column(nullable = false)
-	private Long categoryBalance;//디폴트 0
+	private Long categoryBalance; //디폴트 0
 
 	public void updateCategoryBudget(UpdateCategoryBudgetDto updateCategoryBudgetDto) {
 		this.categoryBudget = updateCategoryBudgetDto.getCategoryBudget();

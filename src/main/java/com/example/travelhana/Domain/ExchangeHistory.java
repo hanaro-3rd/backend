@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class ExchangeHistory {
 
 	@Id
-	@Column(name="EXCHANGEHISTORY_ID")
+	@Column(name = "EXCHANGEHISTORY_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
@@ -25,16 +25,16 @@ public class ExchangeHistory {
 	private int userId;
 
 	@Column
-	private int keyId;
+	private int keymoneyId;
 
 	@Column
 	private int accountId;
 
 	@Column
-	private Long money;
+	private Long exchangeWon;
 
 	@Column
-	private Long foreignCurrency;
+	private Long exchangeKey;
 
 	@Column
 	private Boolean isBought;
@@ -49,6 +49,6 @@ public class ExchangeHistory {
 	private Boolean isBusinessday;
 
 	@Column
-	private Long keymoneyBalance;
+	private Long balance;
 
 }

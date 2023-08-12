@@ -1,11 +1,13 @@
 package com.example.travelhana.Dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 
 @Getter @Setter
+@Builder
 public class TravelElementDto {
     String country;
     String city;
@@ -13,7 +15,7 @@ public class TravelElementDto {
 
     Date startDate;
     Date endDate;
-    Long planId;
+    Integer planId;
     Long totalBalance;
     Long totalBudget;
 

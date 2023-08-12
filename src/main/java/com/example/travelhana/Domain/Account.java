@@ -16,7 +16,7 @@ import java.util.Date;
 public class Account {
 
 	@Id
-	@Column(name="ACCOUNT_ID")
+	@Column(name = "ACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
@@ -42,10 +42,8 @@ public class Account {
 	@Column(nullable = false)
 	private Long balance;
 
-
-	public void updateBalance(Long pay)
-	{
-		this.balance+=pay;
+	public void updateBalance(Long pay) {
+		this.balance += pay;
 	}
 
 }

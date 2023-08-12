@@ -8,11 +8,9 @@ import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
-import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Service.PhoneAuthService;
+import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sun.net.httpserver.Authenticator;
-import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,80 +31,81 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-    private final PhoneAuthService phoneAuthService;
-    private final JwtConstants jwtConstants;
+	private final UserService userService;
+	private final PhoneAuthService phoneAuthService;
+	private final JwtConstants jwtConstants;
 
-    //기기 존재 여부 확인
-    @GetMapping("/registration/{deviceId}")
-    public ResponseEntity<?> isExistDevice(@PathVariable("deviceId") String deviceId) {
-        return userService.isExistDevice(deviceId);
-    }
+	//기기 존재 여부 확인
+	@GetMapping("/registration/{deviceId}")
+	public ResponseEntity<?> isExistDevice(@PathVariable("deviceId") String deviceId) {
+		return userService.isExistDevice(deviceId);
+	}
 
-    //로그인 테스트용
-    @PostMapping("/signin/password")
-    public void signin(@RequestBody LoginRequestDto dto){
-        return;
-    }
+	//로그인 테스트용
+	@PostMapping("/signin/password")
+	public void signin(@RequestBody LoginRequestDto dto) {
+		return;
+	}
 
-    //휴대폰 인증코드 전송
-    @PostMapping("/verification")
-    public ResponseEntity<?> sendMessagewithRest(@RequestBody PhonenumDto dto) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, UnsupportedEncodingException, URISyntaxException {
-        return phoneAuthService.sendMessageWithResttemplate(dto.getPhonenum());
-    }
+	//휴대폰 인증코드 전송
+	@PostMapping("/verification")
+	public ResponseEntity<?> sendMessagewithRest(@RequestBody PhonenumDto dto)
+			throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, UnsupportedEncodingException, URISyntaxException {
+		return phoneAuthService.sendMessageWithResttemplate(dto.getPhonenum());
+	}
 
-    //휴대폰 인증코드 일치여부 확인
-    @PostMapping("/verification/auth")
-    public ResponseEntity<?> isSusccessAuth(@RequestBody CodeDto codedto) {
-        return phoneAuthService.checkCode(codedto.getCode());
-    }
+	//휴대폰 인증코드 일치여부 확인
+	@PostMapping("/verification/auth")
+	public ResponseEntity<?> isSusccessAuth(@RequestBody CodeRequestDto codedto) {
+		return phoneAuthService.checkCode(codedto);
+	}
 
-    @GetMapping("/user")
-    public String getUser(@RequestHeader("Authorization") String headerValue)
-    {
-        // Access Token만 꺼내옴
-        String accessToken = headerValue.substring(TOKEN_HEADER_PREFIX.length());
+	@GetMapping("/user")
+	public String getUser(@RequestHeader("Authorization") String headerValue) {
+		// Access Token만 꺼내옴
+		String accessToken = headerValue.substring(TOKEN_HEADER_PREFIX.length());
 
-        //Access Token 검증
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
-        DecodedJWT decodedJWT = verifier.verify(accessToken);
+		//Access Token 검증
+		JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
+		DecodedJWT decodedJWT = verifier.verify(accessToken);
 
-        //Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
-        List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
-        String username = decodedJWT.getSubject();
-        return username;
-    }
+		//Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
+		List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
+		String username = decodedJWT.getSubject();
+		return username;
+	}
 
-    //회원가입
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
-        return userService.saveAccount(dto);
-    }
+	//회원가입
+	@PostMapping("/signup")
+	public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
+		return userService.saveAccount(dto);
+	}
 
-    @PostMapping("/userrole")
-    public ResponseEntity<Integer> addRoleToUser(@RequestBody RoleToUserRequestDto dto) {
-        return ResponseEntity.ok(userService.addRoleToUser(dto));
-    }
+	@PostMapping("/userrole")
+	public ResponseEntity<Integer> addRoleToUser(@RequestBody RoleToUserRequestDto dto) {
+		return ResponseEntity.ok(userService.addRoleToUser(dto));
+	}
 
-    //refresh token 요청
-    @GetMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
+	//refresh token 요청
+	@GetMapping("/refresh")
+	public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request,
+			HttpServletResponse response) {
+		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
-            throw new RuntimeException("JWT Token이 존재하지 않습니다.");
-        }
-        String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
-        Map<String, String> tokens = userService.refresh(refreshToken);
-        response.setHeader(AT_HEADER, tokens.get(AT_HEADER));
-        if (tokens.get(RT_HEADER) != null) {
-            response.setHeader(RT_HEADER, tokens.get(RT_HEADER));
-        }
-        ApiResponse apiResponse= ApiResponse.builder()
-                .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
-                .resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
-                .build();
-        return ResponseEntity.ok(tokens);
-    }
+		if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
+			throw new RuntimeException("JWT Token이 존재하지 않습니다.");
+		}
+		String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
+		Map<String, String> tokens = userService.refresh(refreshToken);
+		response.setHeader(AT_HEADER, tokens.get(AT_HEADER));
+		if (tokens.get(RT_HEADER) != null) {
+			response.setHeader(RT_HEADER, tokens.get(RT_HEADER));
+		}
+		ApiResponse apiResponse = ApiResponse.builder()
+				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
+				.build();
+		return ResponseEntity.ok(tokens);
+	}
 
 }

@@ -50,8 +50,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/swagger-resources/**",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
-                "/account/dummy", "marker/dummy").permitAll();
+				"/signup/**", "/signin/password/**", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
+                "/account/dummy", "/marker/dummy").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(customAuthenticationFilter);

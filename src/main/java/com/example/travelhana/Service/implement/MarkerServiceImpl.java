@@ -1,6 +1,6 @@
-package com.example.travelhana.Service.Implement;
+package com.example.travelhana.Service.implement;
 
-import com.example.travelhana.Domain.KeyMoney;
+import com.example.travelhana.Domain.Keymoney;
 import com.example.travelhana.Domain.Marker;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Domain.UserToMarker;
@@ -30,7 +30,7 @@ public class MarkerServiceImpl implements MarkerService {
 
 	private final MarkerRepository markerRepository;
 	private final UserToMarkerRepository userToMarkerRepository;
-	private final KeyMoneyRepository keyMoneyRepository;
+	private final KeymoneyRepository keyMoneyRepository;
 
 	private final UserService userService;
 
@@ -47,7 +47,8 @@ public class MarkerServiceImpl implements MarkerService {
 					.unit(marker.getUnit())
 					.amount(marker.getAmount())
 					.limitAmount(marker.getLimitAmount())
-					.isPickUp(userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, marker.getId()))
+					.isPickUp(userToMarkerRepository.existsByUser_IdAndMarker_Id(userId,
+							marker.getId()))
 					.build();
 			returnMarkers.add(returnMarker);
 		}
@@ -150,7 +151,8 @@ public class MarkerServiceImpl implements MarkerService {
 
 	@Override
 	@Transactional
-	public ResponseEntity<?> pickUpMarker(String accessToken, int markerId, MarkerLocationDto markerLocationDto) {
+	public ResponseEntity<?> pickUpMarker(String accessToken, int markerId,
+			MarkerLocationDto markerLocationDto) {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 		int userId = user.getId();
@@ -172,7 +174,8 @@ public class MarkerServiceImpl implements MarkerService {
 		}
 
 		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인
-		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUser_IdAndMarker_Id(userId, markerId);
+		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUser_IdAndMarker_Id(userId,
+				markerId);
 		if (isAlreadyPickUp) {
 			throw new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER);
 		}
@@ -181,17 +184,17 @@ public class MarkerServiceImpl implements MarkerService {
 		String unit = marker.getUnit();
 		Long amount = marker.getAmount();
 		Long storedKeyMoney;
-		Optional<KeyMoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
+		Optional<Keymoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
 		if (!keyMoney.isPresent()) {
 			// 없으면 포인트만큼 추가한 외화 계좌 생성
 			storedKeyMoney = amount;
-			KeyMoney newKeyMoney = KeyMoney
+			Keymoney newKeymoney = Keymoney
 					.builder()
 					.user(user)
 					.balance(storedKeyMoney)
 					.unit(unit)
 					.build();
-			keyMoneyRepository.save(newKeyMoney);
+			keyMoneyRepository.save(newKeymoney);
 		} else {
 			// 있으면 해당 외화 계좌에 포인트만큼 추가
 			keyMoney.get().updatePlusBalance(amount);
@@ -218,7 +221,7 @@ public class MarkerServiceImpl implements MarkerService {
 				.balance(storedKeyMoney)
 				.unit(marker.getUnit())
 				.build();
-		ApiResponse apiResponse= ApiResponse.builder()
+		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())

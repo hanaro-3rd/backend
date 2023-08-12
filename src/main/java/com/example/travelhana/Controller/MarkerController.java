@@ -39,7 +39,8 @@ public class MarkerController {
 			@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR", response = ResponseDto.class)
 	})
 	public ResponseEntity<?> pickUpMarker(
-			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int markerId, @RequestBody MarkerLocationDto markerLocationDto) {
+			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int markerId,
+			@RequestBody MarkerLocationDto markerLocationDto) {
 		return markerService.pickUpMarker(accessToken, markerId, markerLocationDto);
 	}
 

@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Marker {
 
 	@Id
-	@Column(name="MARKER_ID")
+	@Column(name = "MARKER_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 

@@ -14,17 +14,18 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 public class UserToMarker {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
-    private int id;
+
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="USER_ID")
+	@JoinColumn(name = "USER_ID")
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="MARKER_ID")
+	@JoinColumn(name = "MARKER_ID")
 	private Marker marker;
 
 	@Column

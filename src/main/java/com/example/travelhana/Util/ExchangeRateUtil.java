@@ -1,7 +1,7 @@
 package com.example.travelhana.Util;
 
 import com.example.travelhana.Domain.ExchangeRate;
-import com.example.travelhana.Dto.ExchangeRateDto;
+import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -26,11 +26,12 @@ public class ExchangeRateUtil {
 
 	private final ExchangeRateRepository exchangeRateRepository;
 
-	public ExchangeRateDto getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
+	public ExchangeRateInfo getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
 
-		System.setProperty( "https.protocols", "TLSv1.2" );
+		System.setProperty("https.protocols", "TLSv1.2");
 
-		StringBuilder urlBuilder = new StringBuilder("https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRW"); /*URL*/
+		StringBuilder urlBuilder = new StringBuilder(
+				"https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRW"); /*URL*/
 		urlBuilder.append(URLEncoder.encode(currencyCode, StandardCharsets.UTF_8)); /*Service Key*/
 
 		HttpHeaders headers = new HttpHeaders();
@@ -41,7 +42,8 @@ public class ExchangeRateUtil {
 
 		URI uri = new URI(urlBuilder.toString());
 
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request,
+				String.class);
 
 		JSONArray parser = new JSONArray(response.getBody());
 		JSONObject object = parser.getJSONObject(0);
@@ -49,14 +51,15 @@ public class ExchangeRateUtil {
 		Double basePrice = object.getDouble("basePrice");
 		Double changePrice = object.getDouble("signedChangePrice");
 
-		ExchangeRate exchangeRate = new ExchangeRate();
-		exchangeRate.setExchangeRate(basePrice);
-		exchangeRate.setChangePrice(changePrice);
-		exchangeRate.setUnit(currencyCode);
-		exchangeRate.setUpdatedAt(LocalDateTime.now());
+		ExchangeRate exchangeRate = ExchangeRate.builder()
+				.exchangeRate(basePrice)
+				.changePrice(changePrice)
+				.unit(currencyCode)
+				.updatedAt(LocalDateTime.now())
+				.build();
 
 		exchangeRateRepository.save(exchangeRate);
 
-		return new ExchangeRateDto(basePrice, changePrice);
+		return new ExchangeRateInfo(basePrice, changePrice);
 	}
 }
