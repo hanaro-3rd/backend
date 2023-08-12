@@ -1,5 +1,6 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Plan;
 
+import com.example.travelhana.Dto.Plan.UpdateCategoryBudgetDto;
 import lombok.Getter;
 import lombok.Setter;
 

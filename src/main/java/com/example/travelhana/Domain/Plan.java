@@ -1,13 +1,13 @@
 package com.example.travelhana.Domain;
 
-import com.example.travelhana.Dto.UpdateTravelBudgetDto;
+import com.example.travelhana.Dto.Plan.UpdateTravelBudgetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -38,10 +38,10 @@ public class Plan {
 	private String city;
 
 	@Column(nullable = false)
-	private Date startDate;
+	private LocalDateTime startDate;
 
 	@Column(nullable = false)
-	private Date endDate;
+	private LocalDateTime endDate;
 
 	@Column
 	private Long totalBalance; //디폴트 0

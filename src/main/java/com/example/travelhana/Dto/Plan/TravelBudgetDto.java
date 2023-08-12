@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Plan;
 
 
 
@@ -18,7 +18,7 @@ public class TravelBudgetDto {
     String city;
     String title;
 
-    Date startDate;
-    Date endDate;
+    LocalDateTime startDate;
+    LocalDateTime endDate;
 
 }

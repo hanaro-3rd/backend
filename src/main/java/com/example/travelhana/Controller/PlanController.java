@@ -1,12 +1,14 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Plan.PlanDto;
+import com.example.travelhana.Dto.Plan.UpdateCategoryArrayDto;
+import com.example.travelhana.Dto.Plan.UpdateTravelBudgetDto;
 import com.example.travelhana.Service.PlanService;
+import com.example.travelhana.Service.implement.PlanServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController //api
@@ -29,7 +31,7 @@ public class PlanController {
 
     // 여행 상세 경비 조회
     @GetMapping(value = "/travelbudget/{plan_id}")
-    public ResponseEntity<Map<String, Object>> getTravelBudget(@RequestHeader(value = "Authorization") String accessToken,
+    public ResponseEntity<?> getTravelBudget(@RequestHeader(value = "Authorization") String accessToken,
                                                                @PathVariable Integer plan_id) {
         return planService.getPlan(accessToken,plan_id);
     }

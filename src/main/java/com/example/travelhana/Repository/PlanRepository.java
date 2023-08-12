@@ -12,7 +12,5 @@ import java.util.Optional;
 public interface PlanRepository extends JpaRepository<Plan, Integer> {
     List<Plan> findAllByUser_Id(int id);
 
-
-
     Optional<Plan> findByIdAndUser_Id(Integer id, Integer userId);
 }

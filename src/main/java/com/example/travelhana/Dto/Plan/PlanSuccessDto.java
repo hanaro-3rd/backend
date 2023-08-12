@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Plan;
 
 import lombok.Builder;
 import lombok.Getter;

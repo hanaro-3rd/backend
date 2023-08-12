@@ -1,6 +1,6 @@
 package com.example.travelhana.Domain;
 
-import com.example.travelhana.Dto.UpdateCategoryBudgetDto;
+import com.example.travelhana.Dto.Plan.UpdateCategoryBudgetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
