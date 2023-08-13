@@ -101,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
 
 		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
 		String accountPassword = accountDummyDto.getAccountPassword();
-		List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
+		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
 
 		for (int i = 0; i < 10; i++) {
 			String accountSalt = saltUtil.generateSalt();
