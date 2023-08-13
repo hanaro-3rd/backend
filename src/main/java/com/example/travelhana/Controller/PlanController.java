@@ -36,6 +36,11 @@ public class PlanController {
         return planService.getPlan(accessToken,plan_id);
     }
 
+    @GetMapping(value = "/travelbudget/{plan_id}/category")
+    public ResponseEntity<?> getTravelBudgetByCategory (@RequestHeader(value = "Authorization") String accessToken, @PathVariable Integer plan_id) {
+        return planService.getPlanByCategory(accessToken,plan_id);
+    }
+
     // 여행 삭제
     @DeleteMapping("/travelBudget/{plan_id}")
     public ResponseEntity<?> deleteTravelBudget( @RequestHeader(value = "Authorization") String accessToken,@PathVariable Integer plan_id){

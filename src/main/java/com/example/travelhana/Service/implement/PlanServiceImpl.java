@@ -165,7 +165,7 @@ public class PlanServiceImpl implements PlanService {
         List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findByUserIdAndPaymentDateBetween(userAccount.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
         Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
         for (PaymentHistory paymentHistory : paymentHistoryList) {
-            String paymentDateStr = paymentHistory.getCreatedAt().toString();
+            String paymentDate = paymentHistory.getCreatedAt().toString();
             PlanPaymentHistoryDto paymentHistoryDto = PlanPaymentHistoryDto.builder()
                     .price(paymentHistory.getPrice())
                     .store(paymentHistory.getStore())
@@ -180,12 +180,61 @@ public class PlanServiceImpl implements PlanService {
                     .isPayment(paymentHistory.getIsPayment())
                     .build();
 
-            paymentHistoryByDate.computeIfAbsent(paymentDateStr, k -> new ArrayList<>()).add(paymentHistoryDto);
+            paymentHistoryByDate.computeIfAbsent(paymentDate, k -> new ArrayList<>()).add(paymentHistoryDto);
         }
-        responseData.put("paymentHistory", paymentHistoryByDate);
+        responseData.put("timePaymentHistory", paymentHistoryByDate);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+    //카테고리 정렬로 경비내역 보여주기
+    public ResponseEntity<?> getPlanByCategory(String accessToken, Integer id) {
+        User userAccount = userService.getUserByAccessToken(accessToken);
+        Optional<Plan> plan = planRepository.findByIdAndUser_Id(id, userAccount.getId());
+        TravelBudgetDto travelBudgetDto = TravelBudgetDto
+                .builder()
+                .title(plan.get().getTitle())
+                .city(plan.get().getCity())
+                .endDate(plan.get().getEndDate())
+                .startDate(plan.get().getStartDate())
+                .country(plan.get().getCountry())
+                .build();
+        List<CategoryPlan> categoryPlanList = categoryPlanRepository.findAllByPlan_Id(id);
+        List<CategoryPlanDto> categoryPlanDtoList = new ArrayList<>();
+        for (CategoryPlan categoryPlan : categoryPlanList) {
+            CategoryPlanDto categoryPlanDto = CategoryPlanDto
+                    .builder()
+                    .categoryId(categoryPlan.getCategory().getId())
+                    .categoryBalance(categoryPlan.getCategoryBalance())
+                    .categoryBudget(categoryPlan.getCategoryBudget())
+                    .build();
+            categoryPlanDtoList.add(categoryPlanDto);
+        }
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("travelBudget", travelBudgetDto);
+        responseData.put("category", categoryPlanDtoList);
+        // 결제 내역 추출 및 그룹화 로직 추가
+        List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findByUserIdAndPaymentDateBetween(userAccount.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
+        Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
+        for (PaymentHistory paymentHistory : paymentHistoryList) {
+            String paymentCategory = paymentHistory.getCategory().toString();
+            PlanPaymentHistoryDto paymentHistoryDto = PlanPaymentHistoryDto.builder()
+                    .price(paymentHistory.getPrice())
+                    .store(paymentHistory.getStore())
+                    .createdAt(paymentHistory.getCreatedAt())
+                    .id(paymentHistory.getId())
+                    .balance(paymentHistory.getBalance())
+                    .category(paymentHistory.getCategory())
+                    .lat(paymentHistory.getLat())
+                    .lng(paymentHistory.getLng())
+                    .address(paymentHistory.getAddress())
+                    .memo(paymentHistory.getMemo())
+                    .isPayment(paymentHistory.getIsPayment())
+                    .build();
 
+            paymentHistoryByDate.computeIfAbsent(paymentCategory, k -> new ArrayList<>()).add(paymentHistoryDto);
+        }
+        responseData.put("categoryPaymentHistory", paymentHistoryByDate);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
     public ResponseEntity<?> deletePlan(String accessToken, Integer id) {
         categoryPlanRepository.deleteById(id);
         planRepository.deleteById(id);
@@ -227,5 +276,7 @@ public class PlanServiceImpl implements PlanService {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+
     // Illegal
 }

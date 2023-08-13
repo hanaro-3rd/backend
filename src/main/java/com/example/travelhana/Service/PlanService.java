@@ -9,6 +9,7 @@ public interface PlanService {
     ResponseEntity<?> savePlan (String accessToken, PlanDto planDto);
     ResponseEntity<?> getPlanList(String accessToken);
     ResponseEntity<?> getPlan(String accessToken, Integer plan_id);
+    ResponseEntity<?> getPlanByCategory(String accessToken, Integer plan_id);
     ResponseEntity<?> deletePlan(String accessToken, Integer id);
     ResponseEntity<?> updatePlan(String accessToken, UpdateTravelBudgetDto updateTravelBudgetDto);
     ResponseEntity<?> updateCategoryPlan(String accessToken, Integer plan_Id, UpdateCategoryArrayDto updateCategoryArrayDto);

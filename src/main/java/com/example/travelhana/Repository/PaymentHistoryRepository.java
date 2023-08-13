@@ -15,7 +15,8 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	List<PaymentHistory> findAllByKeymoneyId(int id);
 
 	Optional<PaymentHistory> findByIdAndUserId(Long id, int getUserId);
-	@Query("SELECT ph FROM PaymentHistory ph WHERE ph.userId = :userId AND ph.createdAt BETWEEN :startDate AND :endDate")
+	@Query("SELECT ph FROM PaymentHistory ph WHERE ph.userId = :userId AND ph.createdAt BETWEEN :startDate AND :endDate ORDER BY ph.createdAt ASC")
 	List<PaymentHistory> findByUserIdAndPaymentDateBetween(Integer userId, LocalDateTime startDate, LocalDateTime  endDate);
+
 
 }
