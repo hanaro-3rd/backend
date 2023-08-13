@@ -23,18 +23,32 @@ public class CustomAuthProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
-		String username = authentication.getName();
-		String password = (String) authentication.getCredentials();
-
 		log.info("CustomAuthProvider");
+
+		String username = authentication.getName();
+		String inputpassword = (String) authentication.getCredentials();
+		String isPassword = (String) authentication.getDetails();
+
+
 		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
 				username);
 		String salt = userDetails.getSalt();
+		String userpattern = userDetails.getPattern();
 		String userpassword = userDetails.getPassword();
-		String inputsaltpw = saltUtil.encodePassword(salt, password); //받아온거
-		// PW 검사
-		if (!userpassword.equals(inputsaltpw)) {
-			throw new BadCredentialsException("Provider - authenticate() : 비밀번호가 일치하지 않습니다.");
+
+
+		if (isPassword.equals("password")) {
+			String inputsaltpw = saltUtil.encodePassword(salt, inputpassword); //받아온거
+			// 비밀번호 검사
+			if (!userpassword.equals(inputsaltpw)) {
+				throw new BadCredentialsException("Provider - authenticate() : 비밀번호가 일치하지 않습니다.");
+			}
+		} else {
+			String inputsaltpat = saltUtil.encodePassword(salt, inputpassword); //받아온거
+			// 패턴 검사
+			if (!userpattern.equals(inputsaltpat)) {
+				throw new BadCredentialsException("Provider - authenticate() : 패턴이 일치하지 않습니다.");
+			}
 		}
 
 		return new UsernamePasswordAuthenticationToken(userDetails, null,
@@ -46,3 +60,4 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		return true;
 	}
 }
+

@@ -37,7 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		CustomAuthenticationFilter customAuthenticationFilter =
 				new CustomAuthenticationFilter(authenticationManagerBean());
-		customAuthenticationFilter.setFilterProcessesUrl("/signin/password");
+		customAuthenticationFilter.setFilterProcessesUrl("/signin/**");
+
 		customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
 		customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
 
@@ -50,8 +51,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/swagger-resources/**",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
-                "/account/dummy", "/marker/dummy").permitAll();
+				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
+				"/account/dummy", "/marker/dummy").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(customAuthenticationFilter);
