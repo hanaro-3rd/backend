@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -186,10 +186,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.stream().map(role -> new SimpleGrantedAuthority(role.getName()))
 				.collect(Collectors.toList());
 
-		return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getPattern(),user.getSalt(),
+		return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getPattern(), user.getSalt(),
 				authorities, true, true, true, true);
 	}
-
 
 
 	//==============토큰발급=================
@@ -209,9 +208,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
 		DecodedJWT decodedJWT = verifier.verify(refreshToken);
 
-
-
-
 		//Access Token 재발급
 		long now = System.currentTimeMillis();
 		String username = decodedJWT.getSubject();
@@ -228,76 +224,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
 		Map<String, String> accessTokenResponseMap = new HashMap<>();
 
-		//현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산
-		//Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
-		long refreshExpireTime = decodedJWT.getClaim("exp").asLong() * 1000;
-		long diffDays = (refreshExpireTime - now) / 1000 / (24 * 3600);
-		long diffMin = (refreshExpireTime - now) / 1000 / 60;
-		if (diffMin < 5) {
-			String newRefreshToken = JWT.create()
-					.withSubject(user.getDeviceId())
-					.withExpiresAt(new Date(now + RT_EXP_TIME))
-					.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
-			accessTokenResponseMap.put(RT_HEADER, newRefreshToken);
-			user.updateRefreshToken(newRefreshToken);
-		}
 
-		accessTokenResponseMap.put(AT_HEADER, newaccessToken);
-		return accessTokenResponseMap;
-
-	}
-
-
-	//액세스도 재발급
-	@Override
-	public Map<String, String> accessrefresh(String refreshToken, String accessToken) {
-		// Access Token 유효성 검사
-		JWTVerifier accessTokenVerifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
-		DecodedJWT decodedAccessJWT = accessTokenVerifier.verify(accessToken);
-
-		// Access Token의 만료 날짜 확인
-		long accessTokenExpireTime = decodedAccessJWT.getClaim("exp").asLong() * 1000;
-		long now = System.currentTimeMillis();
-		long diffMinutes = (accessTokenExpireTime - now) / 1000 / 60;
-
-		//Refresh Token 유효성 검사
-		JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
-		DecodedJWT decodedJWT = verifier.verify(refreshToken);
-		if(diffMinutes>0){
-			//아직 액세스토큰의 기한이 남아있다.
-		}
-
-
-
-
-		//Access Token 재발급
-		String username = decodedJWT.getSubject();
-		User user = userRepository.findByDeviceId(username)
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-		if (!user.getRefreshToken().equals(refreshToken)) {
-			throw new JWTVerificationException("유효하지 않은 Refresh Token 입니다.");
-		}
-		String newaccessToken = JWT.create()
+		String newRefreshToken = JWT.create()
 				.withSubject(user.getDeviceId())
-				.withExpiresAt(new Date(now + AT_EXP_TIME))
-				.withClaim("roles", user.getRoles().stream().map(Role::getName)
-						.collect(Collectors.toList()))
+				.withExpiresAt(new Date(now + RT_EXP_TIME))
 				.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
-		Map<String, String> accessTokenResponseMap = new HashMap<>();
-
-		//현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산
-		//Refresh Token 만료시간 계산해 1개월 미만일 시 refresh token도 발급
-		long refreshExpireTime = decodedJWT.getClaim("exp").asLong() * 1000;
-		long diffDays = (refreshExpireTime - now) / 1000 / (24 * 3600);
-		long diffMin = (refreshExpireTime - now) / 1000 / 60;
-		if (diffMin < 5) {
-			String newRefreshToken = JWT.create()
-					.withSubject(user.getDeviceId())
-					.withExpiresAt(new Date(now + RT_EXP_TIME))
-					.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
-			accessTokenResponseMap.put(RT_HEADER, newRefreshToken);
-			user.updateRefreshToken(newRefreshToken);
-		}
+		accessTokenResponseMap.put(RT_HEADER, newRefreshToken);
+		user.updateRefreshToken(newRefreshToken);
 
 		accessTokenResponseMap.put(AT_HEADER, newaccessToken);
 		return accessTokenResponseMap;
