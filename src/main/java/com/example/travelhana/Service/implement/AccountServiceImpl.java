@@ -131,7 +131,7 @@ public class AccountServiceImpl implements AccountService {
 		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
 		AccountListDto result = AccountListDto
 				.builder()
-				.externalAccounts(decryptAccountNum(0, projections))
+				.externalAccounts(decryptAccountNum(user.getId(), projections))
 				.build();
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
