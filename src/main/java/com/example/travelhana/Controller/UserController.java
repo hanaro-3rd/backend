@@ -5,14 +5,17 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
+import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
+import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +37,7 @@ public class UserController {
 	private final UserService userService;
 	private final PhoneAuthService phoneAuthService;
 	private final JwtConstants jwtConstants;
+	private final UserRepository userRepository;
 
 	//기기 존재 여부 확인
 	@GetMapping("/registration/{deviceId}")
@@ -88,24 +92,16 @@ public class UserController {
 
 	//refresh token 요청
 	@GetMapping("/refresh")
-	public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void refresh(HttpServletRequest request,
+	                                                   HttpServletResponse response) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
 			throw new RuntimeException("JWT Token이 존재하지 않습니다.");
 		}
 		String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
-		Map<String, String> tokens = userService.refresh(refreshToken);
-		response.setHeader(AT_HEADER, tokens.get(AT_HEADER));
-		if (tokens.get(RT_HEADER) != null) {
-			response.setHeader(RT_HEADER, tokens.get(RT_HEADER));
-		}
-		ApiResponse apiResponse = ApiResponse.builder()
-				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
-				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
-				.build();
-		return ResponseEntity.ok(tokens);
+		userService.refresh(refreshToken);
+
 	}
 
 }
