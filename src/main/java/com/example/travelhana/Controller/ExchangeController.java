@@ -24,7 +24,6 @@ public class ExchangeController {
 		return exchangeService.exchange(accessToken, exchangeRequestDto);
 	}
 
-
 	@GetMapping("/getFromRedis")
 	public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
 		return exchangeService.getExchangeRateFromRedis();
@@ -35,5 +34,4 @@ public class ExchangeController {
 			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
 		return exchangeService.getExchangeRate();
 	}
-
 }

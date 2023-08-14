@@ -1,12 +1,6 @@
 package com.example.travelhana.Controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Dto.Authentication.*;
-import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -31,8 +24,6 @@ public class UserController {
 
 	private final UserService userService;
 	private final PhoneAuthService phoneAuthService;
-	private final JwtConstants jwtConstants;
-	private final UserRepository userRepository;
 
 	//기기 존재 여부 확인
 	@GetMapping("/registration/{deviceId}")
@@ -56,21 +47,6 @@ public class UserController {
 	@PostMapping("/verification/auth")
 	public ResponseEntity<?> isSuccessAuth(@RequestHeader("Cookie") String ignoredHeaderValue, @RequestBody CodeRequestDto codedto) {
 		return phoneAuthService.checkCode(codedto);
-	}
-
-	@GetMapping("/user")
-	public String getUser(@RequestHeader("Authorization") String headerValue) {
-		// Access Token만 꺼내옴
-		String accessToken = headerValue.substring(TOKEN_HEADER_PREFIX.length());
-
-		//Access Token 검증
-		JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET)).build();
-		DecodedJWT decodedJWT = verifier.verify(accessToken);
-
-		//Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
-		List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
-		String username = decodedJWT.getSubject();
-		return username;
 	}
 
 	//회원가입
@@ -98,7 +74,8 @@ public class UserController {
 
 	}
 
-	@PostMapping("/updatePassword")
+	//비밀번호 수정
+	@PatchMapping("/updatePassword")
 	public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDto dto) {
 		return userService.updatePassword(dto);
 	}
