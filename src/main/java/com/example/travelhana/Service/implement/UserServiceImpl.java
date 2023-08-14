@@ -21,7 +21,6 @@ import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import com.example.travelhana.Util.CryptoUtil;
@@ -51,8 +50,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
-    private final CryptoUtil cryptoUtil;
+	private final CryptoUtil cryptoUtil;
 	private final ExternalAccountRepository externalAccountRepository;
+
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -98,8 +98,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
 		Random random = new Random();
-
-		// 입력한 정보와 랜덤값으로 유저 정보 생성
 
 		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
 		String accountPassword = accountDummyDto.getAccountPassword();
@@ -123,44 +121,45 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.password(saltUtil.encodePassword(accountSalt, accountPassword))
 					.registrationNum(accountDummyDto.getRegistrationNum())
 					.balance(1000000L)
+					.isConnected(false)
 					.build();
 			externalAccountRepository.save(externalAccount);
 		}
 
 	}
+
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
-
 		try {
 			validateDuplicateUsername(dto);
 			isValidUser(dto);
-				String salt = saltUtil.generateSalt();
-				User user = new User().builder()
-						.password(saltUtil.encodePassword(salt, dto.getPassword()))
-						.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
-						.phoneNum(dto.getPhonenum())
-						.deviceId(dto.getDeviceId())
-						.salt(salt)
-						.isWithdrawal(false) //탈퇴했는지
-						.name(dto.getName())
-						.registrationNum(dto.getRegistrationNum())
-						.build();
-				User saveuser = userRepository.save(user);
-			    AccountDummyDto accountDummyDto = AccountDummyDto
+			String salt = saltUtil.generateSalt();
+			User user = new User().builder()
+					.password(saltUtil.encodePassword(salt, dto.getPassword()))
+					.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
+					.phoneNum(dto.getPhonenum())
+					.deviceId(dto.getDeviceId())
+					.salt(salt)
+					.isWithdrawal(false) //탈퇴했는지
+					.name(dto.getName())
+					.registrationNum(dto.getRegistrationNum())
+					.build();
+			User saveuser = userRepository.save(user);
+			AccountDummyDto accountDummyDto = AccountDummyDto
 					.builder()
 					.userId(saveuser.getId())
 					.accountPassword("1234")
-						.registrationNum(dto.getRegistrationNum())
+					.registrationNum(dto.getRegistrationNum())
 					.build();
-				createDummyExternalAccounts(accountDummyDto);
+			createDummyExternalAccounts(accountDummyDto);
 
-				ApiResponse apiResponse = ApiResponse.builder()
-						.result("signup success")
-						.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-						.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-						.build();
-				return ResponseEntity.ok(apiResponse);
+			ApiResponse apiResponse = ApiResponse.builder()
+					.result("signup success")
+					.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+					.build();
+			return ResponseEntity.ok(apiResponse);
 		} catch (Exception e) {
 			ErrorResponse errorResponse = ErrorResponse.builder()
 					.errorCode(400)
@@ -168,7 +167,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
-
 	}
 
 	private void validateDuplicateUsername(SignupRequestDto dto) {

@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -41,5 +41,12 @@ public class ExternalAccount {
 
 	@Column(nullable = false)
 	private String registrationNum;
+
+	@ColumnDefault("false")
+	private Boolean isConnected;
+
+	public void changeConnectionStatus() {
+		this.isConnected = true;
+	}
 
 }
