@@ -121,7 +121,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.password(saltUtil.encodePassword(accountSalt, accountPassword))
 					.registrationNum(accountDummyDto.getRegistrationNum())
 					.balance(1000000L)
-					.isConnected(false)
 					.build();
 			externalAccountRepository.save(externalAccount);
 		}
