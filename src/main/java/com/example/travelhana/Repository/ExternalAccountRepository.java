@@ -6,9 +6,12 @@ import com.example.travelhana.Projection.AccountInfoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExternalAccountRepository extends JpaRepository<ExternalAccount, Integer> {
 
-	List<AccountInfoProjection> findAllByRegistrationNum(String registrationNum);
+	Optional<ExternalAccount> findByIdAndIsConnected(int externalAccountId, Boolean isConnected);
+
+	List<AccountInfoProjection> findAllByRegistrationNumAndIsConnected(String registrationNum, Boolean isConnected);
 
 }
