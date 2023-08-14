@@ -52,15 +52,6 @@ public class ExchangeRateUtil {
 		Double basePrice = object.getDouble("basePrice");
 		Double changePrice = object.getDouble("signedChangePrice");
 
-		ExchangeRate exchangeRate = ExchangeRate.builder()
-				.exchangeRate(basePrice)
-				.changePrice(changePrice)
-				.unit(currencyCode)
-				.updatedAt(LocalDateTime.now())
-				.build();
-
-//		exchangeRateRepository.save(exchangeRate);
-
 		return new ExchangeRateInfo(basePrice, changePrice);
 	}
 }
