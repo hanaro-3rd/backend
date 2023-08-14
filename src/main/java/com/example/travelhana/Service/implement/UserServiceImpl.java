@@ -54,10 +54,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
-	private final PhoneAuthService phoneAuthService;
 	private final CryptoUtil cryptoUtil;
 	private final ExternalAccountRepository externalAccountRepository;
 
+
+	//==============회원가입=================
+	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
 		Boolean isRegistrate;
 		String name;
@@ -87,8 +89,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
 		Random random = new Random();
-
-		// 입력한 정보와 랜덤값으로 유저 정보 생성
 
 		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
 		String accountPassword = accountDummyDto.getAccountPassword();
@@ -121,7 +121,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
-
 		try {
 			validateDuplicateUsername(dto);
 			isValidUser(dto);
@@ -157,7 +156,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
-
 	}
 
 	//회원가입 형식 유효성 검사

@@ -2,14 +2,14 @@ package com.example.travelhana.Domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -17,7 +17,7 @@ import java.util.Date;
 public class ExternalAccount {
 
 	@Id
-	@Column(name = "EXTERNAL_ACCOUNT_ID")
+	@Column(name = "EXTERNALACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
@@ -36,10 +36,17 @@ public class ExternalAccount {
 	@Column
 	private String salt;
 
-	@Column(nullable = false)
-	private Long balance;
+	@Builder.Default
+	private Long balance=10000000L;
 
 	@Column(nullable = false)
 	private String registrationNum;
+
+	@Builder.Default
+	private Boolean isConnected=false;
+
+	public void changeConnectionStatus() {
+		this.isConnected = true;
+	}
 
 }
