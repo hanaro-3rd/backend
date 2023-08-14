@@ -22,3 +22,4 @@ public interface PlanService {
     ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto);
 
 }
+

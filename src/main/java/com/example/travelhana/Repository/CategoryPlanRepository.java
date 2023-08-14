@@ -15,4 +15,5 @@ public interface CategoryPlanRepository extends JpaRepository<CategoryPlan, Inte
 	Optional<CategoryPlan> findByIdAndPlan_Id(Integer Id, Integer categoryPlanId);
 
 	Optional<CategoryPlan> findByCategory_IdAndPlan_Id(int categoryId, int planId);
+
 }

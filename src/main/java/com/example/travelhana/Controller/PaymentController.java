@@ -15,9 +15,14 @@ public class PaymentController {
 	private final PaymentService paymentService;
 
 	@PostMapping("") //결제하기 POST
+<<<<<<< HEAD
 	public ResponseEntity<?> pay(
 			@RequestHeader(value = "Authorization") String accessToken,
 			@RequestBody PaymentRequestDto paymentListDto) {
+=======
+	public ResponseEntity<?> pay(@RequestHeader(value = "Authorization") String accessToken,
+								 @RequestBody PaymentRequestDto paymentListDto) {
+>>>>>>> 2c922a40dc60536113a5a6cdd329816dc15e42c3
 		return paymentService.payment(accessToken, paymentListDto);
 	}
 

@@ -1,6 +1,10 @@
 package com.example.travelhana.Domain;
 
+<<<<<<< HEAD
 import com.example.travelhana.Dto.Plan.UpdatePlanDto;
+=======
+import com.example.travelhana.Dto.Plan.UpdateTravelBudgetDto;
+>>>>>>> 2c922a40dc60536113a5a6cdd329816dc15e42c3
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,6 +53,7 @@ public class Plan {
 
 	@ColumnDefault("false")
 	private boolean isDeleted;
+<<<<<<< HEAD
 
 	public void updatePlan(UpdatePlanDto updatePlanDto) {
 		this.city = updatePlanDto.getCity();
@@ -61,5 +66,15 @@ public class Plan {
 	public void softDeletePlan() {
 		this.isDeleted = true;
 	}
+=======
+	public void updatePlan(UpdateTravelBudgetDto updateTravelBudgetDto) {
+		this.city = updateTravelBudgetDto.getCity();
+		this.country = updateTravelBudgetDto.getCountry();
+		this.startDate = updateTravelBudgetDto.getStartDate();
+		this.endDate = updateTravelBudgetDto.getEndDate();
+		this.title = updateTravelBudgetDto.getTitle();
+	}
+
+>>>>>>> 2c922a40dc60536113a5a6cdd329816dc15e42c3
 
 }
