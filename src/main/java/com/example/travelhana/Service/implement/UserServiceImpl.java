@@ -103,6 +103,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if(dto.getRegistrationNum().length()!=7){
 			throw new IllegalArgumentException("주민번호는 생년월일 6자리+성별 1자리 총 7자리로 구성해주세요.");
 		}
+		char lastChar = dto.getRegistrationNum().charAt(dto.getRegistrationNum().length() - 1);
+		if (lastChar == '1' || lastChar == '2' || lastChar == '3' || lastChar == '4') {
+			System.out.println("마지막 글자는 유효한 값입니다.");
+		}
 		return true;
 	}
 
