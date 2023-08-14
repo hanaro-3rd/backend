@@ -2,13 +2,13 @@ package com.example.travelhana.Domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class PaymentHistory {
 
 	@Id
-	@Column
+	@Column(name = "PAYMENTHISTORY_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

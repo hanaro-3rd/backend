@@ -2,14 +2,14 @@ package com.example.travelhana.Domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -17,7 +17,7 @@ import java.util.Date;
 public class ExternalAccount {
 
 	@Id
-	@Column(name = "EXTERNAL_ACCOUNT_ID")
+	@Column(name = "EXTERNALACCOUNT_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
