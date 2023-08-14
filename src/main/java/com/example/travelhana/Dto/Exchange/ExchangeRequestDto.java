@@ -14,4 +14,5 @@ public class ExchangeRequestDto {
 	private Boolean isBought;
 	private Boolean isNow;
 	private String unit;
+
 }

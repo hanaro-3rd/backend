@@ -28,50 +28,52 @@ import java.util.Map;
 @Configuration
 @EnableRedisRepositories
 public class RedisConfig {
-    @Value("${spring.redis.host}")
-    private String redisHost;
 
-    @Value("${spring.redis.port}")
-    private int redisPort;
+	@Value("${spring.redis.host}")
+	private String redisHost;
 
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(redisHost, redisPort);
-        return connectionFactory;
-    }
+	@Value("${spring.redis.port}")
+	private int redisPort;
 
-    @Bean
-    public RedisTemplate<?, ?> redisTemplate() {
-        RedisTemplate<String, ExchangeRateDto> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+	@Bean
+	public RedisConnectionFactory redisConnectionFactory() {
+		LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(redisHost, redisPort);
+		return connectionFactory;
+	}
 
-        return redisTemplate;
-    }
+	@Bean
+	public RedisTemplate<?, ?> redisTemplate() {
+		RedisTemplate<String, ExchangeRateDto> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(redisConnectionFactory());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+		return redisTemplate;
+	}
 
 
-    @Bean
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+	@Bean
+	public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
 
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext
-                        .SerializationPair
-                        .fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext
-                        .SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+		RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+				.serializeKeysWith(RedisSerializationContext
+						.SerializationPair
+						.fromSerializer(new StringRedisSerializer()))
+				.serializeValuesWith(RedisSerializationContext
+						.SerializationPair
+						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-        Map<String, RedisCacheConfiguration> cacheConfigurationMap = new HashMap<>();
+		Map<String, RedisCacheConfiguration> cacheConfigurationMap = new HashMap<>();
 
-        cacheConfigurationMap.put(RedisCacheKey.EXCHANGE_RATE,
-                redisCacheConfiguration.entryTtl(Duration.ofDays(2L)));
+		cacheConfigurationMap.put(RedisCacheKey.EXCHANGE_RATE,
+				redisCacheConfiguration.entryTtl(Duration.ofDays(2L)));
 
-        return RedisCacheManager
-                .RedisCacheManagerBuilder
-                .fromConnectionFactory(redisConnectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
-                .build();
-    }
+		return RedisCacheManager
+				.RedisCacheManagerBuilder
+				.fromConnectionFactory(redisConnectionFactory)
+				.cacheDefaults(redisCacheConfiguration)
+				.build();
+	}
+
 }
 

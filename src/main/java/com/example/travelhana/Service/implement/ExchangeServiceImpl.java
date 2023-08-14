@@ -48,6 +48,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	private final KeymoneyRepository keymoneyRepository;
 	private final ExchangeHistoryRepository exchangeHistoryRepository;
 	private final ExchangeRateRepository exchangeRateRepository;
+
 	private final UserService userService;
 	private final ExchangeRateUtil exchangeRateUtil;
 	private final HolidayUtil holidayUtil;
@@ -105,7 +106,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	}
 
 	//redis에서 환율 읽기
-	public ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException {
+	public ResponseEntity<?> getExchangeRateFromRedis() throws JsonProcessingException {
 		String getone = stringStringListOperations.rightPop("mystack");
 		ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
 		ApiResponse apiResponse = ApiResponse.builder()
@@ -214,9 +215,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 	}
 
 	@Transactional
-	public ExchangeResponseDto saveExchangeThings(Keymoney keymoney, Account account,
-	                                              ExchangeRequestDto dto)
-			throws URISyntaxException {
+	public ExchangeResponseDto saveExchangeThings(
+			Keymoney keymoney, Account account, ExchangeRequestDto dto)	throws URISyntaxException {
 
 		Long money = dto.getMoney(); //요청 원화
 		ExchangeSuccess exchangeResult;
@@ -288,8 +288,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//원화->외화
 	@Transactional
-	public ExchangeSuccess wonToKey(Long won, Keymoney keyMoney, Account account,
-	                                ExchangeRateInfo exchangeRateInfo) {
+	public ExchangeSuccess wonToKey(
+			Long won, Keymoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
@@ -325,8 +325,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외화->원화
 	@Transactional
-	public ExchangeSuccess keyToWon(Long key, Keymoney keyMoney, Account account,
-	                                ExchangeRateInfo exchangeRateInfo) {
+	public ExchangeSuccess keyToWon(
+			Long key, Keymoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
@@ -335,8 +335,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
-		Double won = (double) key * exchangeRateInfo.getExchangeRate()
-				/ (double) currency.getBaseCurrency();
+		Double won =
+				(double) key * exchangeRateInfo.getExchangeRate() / (double) currency.getBaseCurrency();
 		Long realwon = Math.round(won); //외화에서 환전하고 결과 원화
 
 		keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
@@ -362,6 +362,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 		keymoneyRepository.save(newKeymoney);
 		return newKeymoney;
 	}
+
 }
 
 

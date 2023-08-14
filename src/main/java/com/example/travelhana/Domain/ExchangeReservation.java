@@ -14,23 +14,24 @@ import javax.persistence.*;
 @Entity
 public class ExchangeReservation {
 
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@Column
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column
-    private int accountId;
+	@Column
+	private int accountId;
 
-    @Column
-    private Long money;
+	@Column
+	private Long money;
 
-    @Column
-    private Boolean isBought;
+	@Column
+	private Boolean isBought;
 
-    @Column
-    private Boolean isNow;
+	@Column
+	private Boolean isNow;
 
-    @Column
-    private String unit;
+	@Column
+	private String unit;
+
 }

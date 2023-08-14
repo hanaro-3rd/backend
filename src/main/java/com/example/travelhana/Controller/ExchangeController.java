@@ -25,9 +25,9 @@ public class ExchangeController {
 	}
 
 
-	@GetMapping("/getFromRredis")
+	@GetMapping("/getFromRedis")
 	public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
-		return exchangeService.getDtoFromRedis();
+		return exchangeService.getExchangeRateFromRedis();
 	}
 
 	@GetMapping("/getFromApi")

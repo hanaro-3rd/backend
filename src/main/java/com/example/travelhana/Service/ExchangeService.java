@@ -14,7 +14,7 @@ public interface ExchangeService {
 	ResponseEntity<?> exchange(String accessToken, ExchangeRequestDto request)
 			throws URISyntaxException;
 
-	ResponseEntity<?> getDtoFromRedis() throws JsonProcessingException;
+	ResponseEntity<?> getExchangeRateFromRedis() throws JsonProcessingException;
 
 }
 

@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Builder
 public class ExchangeRateDto implements Serializable {
 
-    ExchangeRateInfo jpy;
-    ExchangeRateInfo usd;
-    ExchangeRateInfo eur;
-    LocalDateTime updatedAt;
+	ExchangeRateInfo jpy;
+	ExchangeRateInfo usd;
+	ExchangeRateInfo eur;
+	LocalDateTime updatedAt;
 
 }
