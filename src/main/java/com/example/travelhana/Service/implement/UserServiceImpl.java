@@ -8,10 +8,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
-import com.example.travelhana.Dto.Authentication.DeviceDto;
-import com.example.travelhana.Dto.Authentication.FindPasswordRequestDto;
-import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
-import com.example.travelhana.Dto.Authentication.SignupRequestDto;
+import com.example.travelhana.Dto.Account.AccountDummyDto;
+import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
@@ -19,6 +17,8 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Service.AccountService;
+import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +53,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
+	private final PhoneAuthService phoneAuthService;
+	private final AccountService accountService;
 
 
 	//==============회원가입=================
@@ -67,6 +69,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.isRegistrate(true)
 					.name(user.getName())
 					.build();
+			AccountDummyDto accountDummyDto=new AccountDummyDto("1234");
+			accountService.createDummyExternalAccounts(accountDummyDto,user);
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(deviceDto)
 					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
@@ -79,6 +83,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -93,6 +99,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 		if (dto.getName().length() > 15) {
 			throw new IllegalArgumentException("이름은 15글자 이내로 입력해주세요.");
+		}
+		if(dto.getRegistrationNum().length()!=7){
+			throw new IllegalArgumentException("주민번호는 생년월일 6자리+성별 1자리 총 7자리로 구성해주세요.");
 		}
 		return true;
 	}
@@ -135,9 +144,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
-	public void isUserExist(String deviceId){
-		User user=userRepository.findByDeviceId(deviceId).orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
-
+	public void isUserExist(String deviceId) {
+		User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
 
 
 
@@ -203,9 +211,30 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	//==============비밀번호 찾기==============
-	public void findPassword(FindPasswordRequestDto dto){
-		User user=userRepository.findByNameAndRegistrationNum(dto.getName(),dto.getRegistrateNum())
-				.orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
+	//휴대폰인증은 원래있는 phoneauth 컨트롤러 api를 호출할 것
+	//휴대폰 인증이 끝난다음 진행할 로직임
+	public User findPassword(FindPasswordRequestDto dto) {
+		//디바이스 아이디로 조회
+		User user = userRepository.findByDeviceId(dto.getDeviceId())
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+
+		//주민번호가 일치하지 않을 때
+		if (!dto.getRegistrateNum().equals(user.getRegistrationNum())) {
+			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
+		}
+		//이름이 일치하지 않을 때
+		if (!dto.getName().equals(user.getName())) {
+			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
+		}
+		return user;
+
+	}
+
+	public void updatePassword(UpdatePasswordDto dto){
+
+
+
+
 	}
 
 

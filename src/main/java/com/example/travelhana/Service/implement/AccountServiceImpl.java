@@ -88,13 +88,9 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> createDummyExternalAccounts(AccountDummyDto accountDummyDto)
+	public void createDummyExternalAccounts(AccountDummyDto accountDummyDto,User user)
 			throws Exception {
 		Random random = new Random();
-
-		// 입력한 정보와 랜덤값으로 유저 정보 생성
-		User user = userRepository.findById(accountDummyDto.getUserId())
-				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
 
 		String registrationNum = user.getRegistrationNum();
 
@@ -137,7 +133,6 @@ public class AccountServiceImpl implements AccountService {
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.build();
-		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
 	@Override

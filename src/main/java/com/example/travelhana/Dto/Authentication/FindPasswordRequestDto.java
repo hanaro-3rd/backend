@@ -13,5 +13,6 @@ public class FindPasswordRequestDto {
 	private String name;
 	private String registrateNum;
 	private String phoneNum;
+	private String deviceId;
 
 }

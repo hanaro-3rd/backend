@@ -1,6 +1,5 @@
-package com.example.travelhana.Dto.Account;
+package com.example.travelhana.Dto.Authentication;
 
-import com.example.travelhana.Domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,8 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class AccountDummyDto {
-
-	String accountPassword;
-
+public class UpdatePasswordDto {
+	private String newPassword;
 }
