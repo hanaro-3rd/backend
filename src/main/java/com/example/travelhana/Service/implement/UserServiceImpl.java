@@ -6,8 +6,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
+import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
+import com.example.travelhana.Dto.Account.AccountDummyDto;
 import com.example.travelhana.Dto.Authentication.DeviceDto;
 import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
 import com.example.travelhana.Dto.Authentication.SignupRequestDto;
@@ -16,10 +18,13 @@ import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
+import com.example.travelhana.Util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -30,6 +35,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,13 +47,12 @@ import static com.example.travelhana.Config.JwtConstants.*;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
-
-
+    private final CryptoUtil cryptoUtil;
+	private final ExternalAccountRepository externalAccountRepository;
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
@@ -76,27 +81,60 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
+
 	//회원가입 형식 유효성 검사
-	public Boolean isValidUser(SignupRequestDto dto) {
+	public void isValidUser(SignupRequestDto dto) {
 		if (dto.getPassword().length() != 6) {
 			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
 		}
 		if (!dto.getPassword().matches("\\d+")) {
-			throw new IllegalArgumentException("숫자로만 구성해주세요");
+			throw new IllegalArgumentException("비밀번호는 숫자로만 구성해주세요");
 		}
 		if (dto.getName().length() > 15) {
 			throw new IllegalArgumentException("이름은 15글자 이내로 입력해주세요.");
 		}
-		return true;
+
 	}
 
+	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
+		Random random = new Random();
+
+		// 입력한 정보와 랜덤값으로 유저 정보 생성
+
+		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
+		String accountPassword = accountDummyDto.getAccountPassword();
+		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
+
+		for (int i = 0; i < 5; i++) {
+			String accountSalt = saltUtil.generateSalt();
+
+			String group1 = String.format("%03d", random.nextInt(1000));
+			String group2 = String.format("%04d", random.nextInt(10000));
+			String group3 = String.format("%04d", random.nextInt(10000));
+
+			String accountNum = group1 + "-" + group2 + "-" + group3;
+
+			ExternalAccount externalAccount = ExternalAccount
+					.builder()
+					.accountNum(cryptoUtil.encrypt(accountNum))
+					.bank(banks.get(random.nextInt(banks.size())))
+					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
+					.salt(accountSalt)
+					.password(saltUtil.encodePassword(accountSalt, accountPassword))
+					.registrationNum(accountDummyDto.getRegistrationNum())
+					.balance(1000000L)
+					.build();
+			externalAccountRepository.save(externalAccount);
+		}
+
+	}
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
 
 		try {
 			validateDuplicateUsername(dto);
-			if (isValidUser(dto)) {
+			isValidUser(dto);
 				String salt = saltUtil.generateSalt();
 				User user = new User().builder()
 						.password(saltUtil.encodePassword(salt, dto.getPassword()))
@@ -108,16 +146,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 						.name(dto.getName())
 						.registrationNum(dto.getRegistrationNum())
 						.build();
-				userRepository.save(user);
-			}
-
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result("save Success")
-					.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+				User saveuser = userRepository.save(user);
+			    AccountDummyDto accountDummyDto = AccountDummyDto
+					.builder()
+					.userId(saveuser.getId())
+					.accountPassword("1234")
+						.registrationNum(dto.getRegistrationNum())
 					.build();
-			return ResponseEntity.ok(apiResponse);
+				createDummyExternalAccounts(accountDummyDto);
 
+				ApiResponse apiResponse = ApiResponse.builder()
+						.result("signup success")
+						.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+						.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+						.build();
+				return ResponseEntity.ok(apiResponse);
 		} catch (Exception e) {
 			ErrorResponse errorResponse = ErrorResponse.builder()
 					.errorCode(400)
