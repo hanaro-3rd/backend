@@ -1,8 +1,6 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Authentication;
 
-import com.example.travelhana.Domain.User;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

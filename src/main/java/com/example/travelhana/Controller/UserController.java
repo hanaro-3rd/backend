@@ -5,17 +5,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
-import com.example.travelhana.Domain.User;
-import com.example.travelhana.Dto.*;
-import com.example.travelhana.Exception.Code.SuccessCode;
-import com.example.travelhana.Exception.Response.ApiResponse;
+import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +21,8 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
 
-import static com.example.travelhana.Config.JwtConstants.*;
+import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -47,8 +42,7 @@ public class UserController {
 
 	//로그인 테스트용
 	@PostMapping("/signin/password")
-	public void signin(@RequestBody LoginRequestDto dto) {
-		return;
+	public void signin(@RequestBody LoginRequestDto ignoredDto) {
 	}
 
 	//휴대폰 인증코드 전송
@@ -60,7 +54,7 @@ public class UserController {
 
 	//휴대폰 인증코드 일치여부 확인
 	@PostMapping("/verification/auth")
-	public ResponseEntity<?> isSusccessAuth(@RequestBody CodeRequestDto codedto) {
+	public ResponseEntity<?> isSuccessAuth(@RequestHeader("Cookie") String ignoredHeaderValue, @RequestBody CodeRequestDto codedto) {
 		return phoneAuthService.checkCode(codedto);
 	}
 

@@ -1,7 +1,7 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Dto.PaymentRequestDto;
-import com.example.travelhana.Dto.PaymentMemoDto;
+import com.example.travelhana.Dto.Payment.PaymentRequestDto;
+import com.example.travelhana.Dto.Payment.PaymentMemoDto;
 import com.example.travelhana.Service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

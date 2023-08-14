@@ -12,7 +12,7 @@ public interface AccountService {
 
 	ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception;
 
-	ResponseEntity<?> connectExternalAccount(String accessToken, int externalAccountId,
-			AccountPasswordDto accountPasswordDto) throws Exception;
+	ResponseEntity<?> connectExternalAccount(
+			String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception;
 
 }
