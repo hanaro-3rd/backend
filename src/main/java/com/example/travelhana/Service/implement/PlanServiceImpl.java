@@ -2,6 +2,7 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.Plan.*;
+import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
@@ -27,6 +28,7 @@ public class PlanServiceImpl implements PlanService {
     private final CategoryPlanRepository categoryPlanRepository;
     private final UserService userService;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final KeymoneyRepository keymoneyRepository;
     //경비 생성
     public ResponseEntity<?> savePlan(String accessToken, PlanDto planDto) {
         try{
@@ -65,7 +67,7 @@ public class PlanServiceImpl implements PlanService {
             List<CategoryBudgetDto> updateCategoryBudgetDtoList = planDto.getCategory();
             for(CategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
                 CategoryPlan categoryPlan = CategoryPlan.builder()
-                        .category(categoryRepository.getById(updateCategoryBudgetDto.getCategoryId()))
+                        .category(categoryRepository.findById(updateCategoryBudgetDto.getCategoryId()).orElseThrow(()-> new BusinessExceptionHandler(ErrorCode.CATEGORY_NOT_FOUND)))
                         .plan(returnPlan)
                         .categoryBalance(updateCategoryBudgetDto.getCategoryBudget())
                         .categoryBudget(updateCategoryBudgetDto.getCategoryBudget())
@@ -103,7 +105,7 @@ public class PlanServiceImpl implements PlanService {
         try{
             User userAccount = userService.getUserByAccessToken(accessToken);
             //유적가 가지고 있는 경비계획 리스트 가져오기
-            List<Plan> planList = planRepository.findAllByUser_Id(userAccount.getId());
+            List<Plan> planList = planRepository.findAllByUser_IdAndIsDeletedFalse(userAccount.getId());
             List<TravelElementDto> travelElementDtoList = new ArrayList<>();
 
             for (Plan plan : planList) {
@@ -122,8 +124,8 @@ public class PlanServiceImpl implements PlanService {
             }
             ApiResponse apiResponse = ApiResponse.builder()
                     .result(travelElementDtoList)
-                    .resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-                    .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+                    .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                    .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
                     .build();
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         }catch(BusinessExceptionHandler e) {
@@ -135,16 +137,18 @@ public class PlanServiceImpl implements PlanService {
         }
     }
     //경비 계획 상세 읽어오기
-    public ResponseEntity<Map<String, Object>> getPlan(String accessToken, Integer id) {
+    public ResponseEntity<?> getPlan(String accessToken, int id) {
         User userAccount = userService.getUserByAccessToken(accessToken);
-        Optional<Plan> plan = planRepository.findByIdAndUser_Id(id, userAccount.getId());
+        Plan plan = planRepository.findByIdAndUser_Id(id, userAccount.getId()).orElseThrow(
+                ()-> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND)
+        );
         TravelBudgetDto travelBudgetDto = TravelBudgetDto
                 .builder()
-                .title(plan.get().getTitle())
-                .city(plan.get().getCity())
-                .endDate(plan.get().getEndDate())
-                .startDate(plan.get().getStartDate())
-                .country(plan.get().getCountry())
+                .title(plan.getTitle())
+                .city(plan.getCity())
+                .endDate(plan.getEndDate())
+                .startDate(plan.getStartDate())
+                .country(plan.getCountry())
                 .build();
         List<CategoryPlan> categoryPlanList = categoryPlanRepository.findAllByPlan_Id(id);
         List<CategoryPlanDto> categoryPlanDtoList = new ArrayList<>();
@@ -166,6 +170,7 @@ public class PlanServiceImpl implements PlanService {
         Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
         for (PaymentHistory paymentHistory : paymentHistoryList) {
             String paymentDate = paymentHistory.getCreatedAt().toString();
+            Keymoney keymoney = keymoneyRepository.getById(paymentHistory.getKeymoneyId());
             PlanPaymentHistoryDto paymentHistoryDto = PlanPaymentHistoryDto.builder()
                     .price(paymentHistory.getPrice())
                     .store(paymentHistory.getStore())
@@ -178,15 +183,21 @@ public class PlanServiceImpl implements PlanService {
                     .address(paymentHistory.getAddress())
                     .memo(paymentHistory.getMemo())
                     .isPayment(paymentHistory.getIsPayment())
+                    .unit(keymoney.getUnit())
                     .build();
 
             paymentHistoryByDate.computeIfAbsent(paymentDate, k -> new ArrayList<>()).add(paymentHistoryDto);
         }
         responseData.put("timePaymentHistory", paymentHistoryByDate);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(responseData)
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
     //카테고리 정렬로 경비내역 보여주기
-    public ResponseEntity<?> getPlanByCategory(String accessToken, Integer id) {
+    public ResponseEntity<?> getPlanByCategory(String accessToken, int id) {
         User userAccount = userService.getUserByAccessToken(accessToken);
         Optional<Plan> plan = planRepository.findByIdAndUser_Id(id, userAccount.getId());
         TravelBudgetDto travelBudgetDto = TravelBudgetDto
@@ -233,11 +244,16 @@ public class PlanServiceImpl implements PlanService {
             paymentHistoryByDate.computeIfAbsent(paymentCategory, k -> new ArrayList<>()).add(paymentHistoryDto);
         }
         responseData.put("categoryPaymentHistory", paymentHistoryByDate);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .result(responseData)
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    public ResponseEntity<?> deletePlan(String accessToken, Integer id) {
-        categoryPlanRepository.deleteById(id);
-        planRepository.deleteById(id);
+    public ResponseEntity<?> deletePlan(String accessToken, int id) {
+        categoryPlanRepository.updateByPlan_Id(id);
+        planRepository.updateById(id);
         ApiResponse apiResponse = ApiResponse.builder()
                 .result("삭제 성공")
                 .resultCode(SuccessCode.DELETE_SUCCESS.getStatusCode())
@@ -249,34 +265,36 @@ public class PlanServiceImpl implements PlanService {
     @Transactional
     // 카테고리별 경비 계획 제외한 수정
     public ResponseEntity<?> updatePlan(String accessToken, UpdateTravelBudgetDto updateTravelBudgetDto) {
-        Optional <Plan> plan = planRepository.findById(updateTravelBudgetDto.getPlanId());
-        plan.get().updatePlan(updateTravelBudgetDto);
-        planRepository.save(plan.get());
+        Plan plan = planRepository.findById(updateTravelBudgetDto.getPlanId()).orElseThrow(
+                ()-> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND)
+        );
+        plan.updatePlan(updateTravelBudgetDto);
+        planRepository.save(plan);
         ApiResponse apiResponse = ApiResponse.builder()
                 .result("공통 경비계획 수정 성공")
                 .resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
                 .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
                 .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
 
     @Transactional
     //카테고리별 경비 계획 수정
-    public ResponseEntity<?> updateCategoryPlan(String accessToken, Integer plan_Id, UpdateCategoryArrayDto updateCategoryArrayDto) {
+    public ResponseEntity<?> updateCategoryPlan(String accessToken, int plan_Id, UpdateCategoryArrayDto updateCategoryArrayDto) {
         List<UpdateCategoryBudgetDto> updateCategoryBudgetDtoList = updateCategoryArrayDto.getCategory();
         for(UpdateCategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
-            Optional <CategoryPlan> categoryPlan = categoryPlanRepository.findById(plan_Id);
-            categoryPlan.get().updateCategoryBudget(updateCategoryBudgetDto);
-            categoryPlanRepository.save(categoryPlan.get());
+            CategoryPlan categoryPlan = categoryPlanRepository.findByCategory_IdAndPlan_Id(updateCategoryBudgetDto.getCategoryId(),plan_Id)
+                            .orElseThrow(  ()-> new BusinessExceptionHandler(ErrorCode.CATEGORY_PLAN_NOT_FOUND));
+            categoryPlan.updateCategoryBudget(updateCategoryBudgetDto);
+            categoryPlanRepository.save(categoryPlan);
         }
         ApiResponse apiResponse = ApiResponse.builder()
                 .result("카테고리 경비계획 수정 성공")
                 .resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
                 .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
                 .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
 
 
-    // Illegal
 }

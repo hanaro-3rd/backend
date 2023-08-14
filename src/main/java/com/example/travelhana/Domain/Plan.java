@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -46,6 +47,8 @@ public class Plan {
 	@Column
 	private Long totalBalance; //디폴트 0
 
+	@ColumnDefault("false")
+	private boolean isDeleted;
 	public void updatePlan(UpdateTravelBudgetDto updateTravelBudgetDto) {
 		this.city = updateTravelBudgetDto.getCity();
 		this.country = updateTravelBudgetDto.getCountry();

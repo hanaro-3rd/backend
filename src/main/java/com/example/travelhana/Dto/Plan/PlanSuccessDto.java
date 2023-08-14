@@ -8,7 +8,7 @@ import lombok.Setter;
 @Builder
 public class PlanSuccessDto {
 
-    Integer planId;
-    Integer userId;
+    int planId;
+    int userId;
 
 }

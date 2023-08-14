@@ -3,6 +3,8 @@ package com.example.travelhana.Repository;
 import com.example.travelhana.Domain.Plan;
 import io.swagger.models.auth.In;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,11 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     List<Plan> findAllByUser_Id(int id);
 
     Optional<Plan> findByIdAndUser_Id(Integer id, Integer userId);
+
+    @Query("SELECT pl FROM Plan pl WHERE pl.user.id = :userId AND pl.isDeleted = false ORDER BY pl.startDate DESC")
+    List<Plan> findAllByUser_IdAndIsDeletedFalse(int userId);
+
+    @Modifying
+    @Query("UPDATE Plan pl SET pl.isDeleted = true WHERE pl.id = :id")
+    void updateById(int id);
 }

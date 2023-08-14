@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter @Setter
 @Builder
 public class CategoryPlanDto {
-    Integer categoryId;
+    int categoryId;
     Long categoryBudget;
     Long categoryBalance;
 

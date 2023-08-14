@@ -2,6 +2,8 @@ package com.example.travelhana.Repository;
 
 import com.example.travelhana.Domain.CategoryPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +16,9 @@ public interface CategoryPlanRepository extends JpaRepository<CategoryPlan,Integ
 
     Optional<CategoryPlan> findByIdAndPlan_Id(Integer Id, Integer categoryPlanId);
 
+    @Modifying
+    @Query("UPDATE CategoryPlan cp SET cp.isDeleted = true WHERE cp.plan.id = :id")
+    void updateByPlan_Id(int id);
+
+    Optional<CategoryPlan> findByCategory_IdAndPlan_Id(int categoryId, int planId);
 }

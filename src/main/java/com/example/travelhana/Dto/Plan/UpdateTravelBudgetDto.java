@@ -14,5 +14,5 @@ public class UpdateTravelBudgetDto {
     String title;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    Integer planId;
+    int planId;
 }

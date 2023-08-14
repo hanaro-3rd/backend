@@ -16,7 +16,7 @@ public class TravelElementDto {
 
     LocalDateTime startDate;
     LocalDateTime endDate;
-    Integer planId;
+    int planId;
     Long totalBalance;
     Long totalBudget;
 

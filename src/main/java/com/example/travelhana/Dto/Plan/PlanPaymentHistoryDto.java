@@ -30,6 +30,7 @@ public class PlanPaymentHistoryDto {
 
     private String memo;
 
+    private String unit;
 
     private Boolean isPayment;
 }

@@ -37,13 +37,13 @@ public class PlanController {
     }
 
     @GetMapping(value = "/travelbudget/{plan_id}/category")
-    public ResponseEntity<?> getTravelBudgetByCategory (@RequestHeader(value = "Authorization") String accessToken, @PathVariable Integer plan_id) {
+    public ResponseEntity<?> getTravelBudgetByCategory (@RequestHeader(value = "Authorization") String accessToken, @PathVariable int plan_id) {
         return planService.getPlanByCategory(accessToken,plan_id);
     }
 
     // 여행 삭제
     @DeleteMapping("/travelBudget/{plan_id}")
-    public ResponseEntity<?> deleteTravelBudget( @RequestHeader(value = "Authorization") String accessToken,@PathVariable Integer plan_id){
+    public ResponseEntity<?> deleteTravelBudget( @RequestHeader(value = "Authorization") String accessToken,@PathVariable int plan_id){
         return planService.deletePlan(accessToken,plan_id);
     }
 
@@ -55,7 +55,7 @@ public class PlanController {
 
     //카테고리별 예산 경비 수정
     @PatchMapping("/travelBudget/{plan_id}")
-    public ResponseEntity<?> updateTravelCategoryBudget(@RequestHeader(value = "Authorization") String accessToken,@PathVariable Integer plan_id, @RequestBody UpdateCategoryArrayDto updateCategoryArrayDto) {
+    public ResponseEntity<?> updateTravelCategoryBudget(@RequestHeader(value = "Authorization") String accessToken,@PathVariable int plan_id, @RequestBody UpdateCategoryArrayDto updateCategoryArrayDto) {
         return planService.updateCategoryPlan(accessToken,plan_id,updateCategoryArrayDto);
     }
 }

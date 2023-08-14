@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Integer> {
+public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
 
 	List<PaymentHistory> findAllByKeymoneyId(int id);
 
