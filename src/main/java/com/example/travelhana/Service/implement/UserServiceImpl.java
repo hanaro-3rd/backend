@@ -135,8 +135,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	private void validateDuplicateUsername(SignupRequestDto dto) {
-		if (userRepository.existsByDeviceId(dto.getDeviceId())) {
-			throw new RuntimeException("이미 존재하는 ID입니다.");
+		if (userRepository.existsByRegistrationNum(dto.getRegistrationNum())) {
+			throw new RuntimeException("이미 존재하는 사용자입니다.");
 		}
 	}
 
