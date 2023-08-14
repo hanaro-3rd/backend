@@ -170,7 +170,9 @@ public class PlanServiceImpl implements PlanService {
         Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
         for (PaymentHistory paymentHistory : paymentHistoryList) {
             String paymentDate = paymentHistory.getCreatedAt().toString();
-            Keymoney keymoney = keymoneyRepository.getById(paymentHistory.getKeymoneyId());
+            Keymoney keymoney = keymoneyRepository.findById(paymentHistory.getKeymoneyId()).orElseThrow(
+                    () -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY)
+            );
             PlanPaymentHistoryDto paymentHistoryDto = PlanPaymentHistoryDto.builder()
                     .price(paymentHistory.getPrice())
                     .store(paymentHistory.getStore())
@@ -199,14 +201,16 @@ public class PlanServiceImpl implements PlanService {
     //카테고리 정렬로 경비내역 보여주기
     public ResponseEntity<?> getPlanByCategory(String accessToken, int id) {
         User userAccount = userService.getUserByAccessToken(accessToken);
-        Optional<Plan> plan = planRepository.findByIdAndUser_Id(id, userAccount.getId());
+        Plan plan = planRepository.findByIdAndUser_Id(id, userAccount.getId()).orElseThrow(
+                () -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND)
+        );
         TravelBudgetDto travelBudgetDto = TravelBudgetDto
                 .builder()
-                .title(plan.get().getTitle())
-                .city(plan.get().getCity())
-                .endDate(plan.get().getEndDate())
-                .startDate(plan.get().getStartDate())
-                .country(plan.get().getCountry())
+                .title(plan.getTitle())
+                .city(plan.getCity())
+                .endDate(plan.getEndDate())
+                .startDate(plan.getStartDate())
+                .country(plan.getCountry())
                 .build();
         List<CategoryPlan> categoryPlanList = categoryPlanRepository.findAllByPlan_Id(id);
         List<CategoryPlanDto> categoryPlanDtoList = new ArrayList<>();
@@ -280,10 +284,10 @@ public class PlanServiceImpl implements PlanService {
 
     @Transactional
     //카테고리별 경비 계획 수정
-    public ResponseEntity<?> updateCategoryPlan(String accessToken, int plan_Id, UpdateCategoryArrayDto updateCategoryArrayDto) {
+    public ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto) {
         List<UpdateCategoryBudgetDto> updateCategoryBudgetDtoList = updateCategoryArrayDto.getCategory();
         for(UpdateCategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
-            CategoryPlan categoryPlan = categoryPlanRepository.findByCategory_IdAndPlan_Id(updateCategoryBudgetDto.getCategoryId(),plan_Id)
+            CategoryPlan categoryPlan = categoryPlanRepository.findByCategory_IdAndPlan_Id(updateCategoryBudgetDto.getCategoryId(),planId)
                             .orElseThrow(  ()-> new BusinessExceptionHandler(ErrorCode.CATEGORY_PLAN_NOT_FOUND));
             categoryPlan.updateCategoryBudget(updateCategoryBudgetDto);
             categoryPlanRepository.save(categoryPlan);
@@ -295,6 +299,7 @@ public class PlanServiceImpl implements PlanService {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
+
 
 
 }
