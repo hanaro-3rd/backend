@@ -6,13 +6,13 @@ import lombok.Getter;
 @Getter
 public class BusinessExceptionHandler extends RuntimeException {
 
-    private ErrorCode errorCode;
+	private ErrorCode errorCode;
 
-    public BusinessExceptionHandler(ErrorCode errorCode) {
+	public BusinessExceptionHandler(ErrorCode errorCode) {
 
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+		super(errorCode.getMessage());
+		this.errorCode = errorCode;
 
-    }
+	}
 
 }
