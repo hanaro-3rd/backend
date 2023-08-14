@@ -16,10 +16,10 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
 	private final boolean credentialsNonExpired;
 	private final boolean enabled;
 
-	public CustomUserDetailsImpl(String username, String password, String salt,
-			Collection<? extends GrantedAuthority> authorities,
-			boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired,
-			boolean enabled) {
+	public CustomUserDetailsImpl(String username, String password,String salt,
+	                             Collection<? extends GrantedAuthority> authorities,
+	                             boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired,
+	                             boolean enabled) {
 		this.username = username;
 		this.password = password;
 		this.salt = salt;

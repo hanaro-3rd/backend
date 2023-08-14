@@ -1,4 +1,5 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Authentication;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class PhonenumResponseDto {
+public class MessageDto {
 
-	private String statusCode;
-	private String statusMessage;
+	private String to;
+	private String content;
+
+
 }

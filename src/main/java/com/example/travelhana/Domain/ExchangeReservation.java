@@ -6,15 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-public class ExchangeRate {
+public class ExchangeReservation {
 
 	@Id
 	@Column
@@ -22,15 +20,18 @@ public class ExchangeRate {
 	private Long id;
 
 	@Column
-	private Double exchangeRate;
+	private int accountId;
+
+	@Column
+	private Long money;
+
+	@Column
+	private Boolean isBought;
+
+	@Column
+	private Boolean isNow;
 
 	@Column
 	private String unit;
-
-	@Column
-	private LocalDateTime updatedAt;
-
-	@Column
-	private Double changePrice;
 
 }

@@ -1,6 +1,7 @@
 package com.example.travelhana.Util;
 
 import com.example.travelhana.Domain.ExchangeRate;
+
 import com.example.travelhana.Dto.Exchange.ExchangeRateInfo;
 import com.example.travelhana.Repository.ExchangeRateRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,15 +51,6 @@ public class ExchangeRateUtil {
 
 		Double basePrice = object.getDouble("basePrice");
 		Double changePrice = object.getDouble("signedChangePrice");
-
-		ExchangeRate exchangeRate = ExchangeRate.builder()
-				.exchangeRate(basePrice)
-				.changePrice(changePrice)
-				.unit(currencyCode)
-				.updatedAt(LocalDateTime.now())
-				.build();
-
-		exchangeRateRepository.save(exchangeRate);
 
 		return new ExchangeRateInfo(basePrice, changePrice);
 	}

@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Payment;
 
 import com.example.travelhana.Domain.PaymentHistory;
 import javax.persistence.GeneratedValue;

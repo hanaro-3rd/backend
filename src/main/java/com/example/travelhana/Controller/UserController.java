@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
-import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.PhoneAuthService;
@@ -43,8 +43,7 @@ public class UserController {
 
 	//로그인 테스트용
 	@PostMapping("/signin/password")
-	public void signin(@RequestBody LoginRequestDto dto) {
-		return;
+	public void signin(@RequestBody LoginRequestDto ignoredDto) {
 	}
 
 	//휴대폰 인증코드 전송
@@ -56,7 +55,7 @@ public class UserController {
 
 	//휴대폰 인증코드 일치여부 확인
 	@PostMapping("/verification/auth")
-	public ResponseEntity<?> isSusccessAuth(@RequestBody CodeRequestDto codedto) {
+	public ResponseEntity<?> isSuccessAuth(@RequestHeader("Cookie") String ignoredHeaderValue, @RequestBody CodeRequestDto codedto) {
 		return phoneAuthService.checkCode(codedto);
 	}
 
@@ -89,7 +88,7 @@ public class UserController {
 	//refresh token 요청
 	@GetMapping("/refresh")
 	public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request,
-			HttpServletResponse response) {
+	                                                   HttpServletResponse response) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
