@@ -92,7 +92,7 @@ public class UserController {
 
 	//refresh token 요청
 	@GetMapping("/refresh")
-	public void refresh(HttpServletRequest request,
+	public ResponseEntity<?> refresh(HttpServletRequest request,
 	                                                   HttpServletResponse response) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
@@ -100,7 +100,7 @@ public class UserController {
 			throw new RuntimeException("JWT Token이 존재하지 않습니다.");
 		}
 		String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
-		userService.refresh(refreshToken);
+		return userService.refresh(refreshToken);
 
 	}
 

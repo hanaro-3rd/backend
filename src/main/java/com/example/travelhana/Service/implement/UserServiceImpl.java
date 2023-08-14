@@ -217,9 +217,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		long now = System.currentTimeMillis();
 		try {
 			if (!user.getRefreshToken().equals(refreshToken)) {
-				System.out.println(deviceId);
 				userRepository.updateRefreshToken(user.getDeviceId());
-				System.out.println("null 업데이트 완료");
 				throw new JWTVerificationException("유효하지 않은 Refresh Token 입니다. Refresh Token을 삭제합니다. 재로그인하세요.");
 			}
 			String newaccessToken = JWT.create()
@@ -228,21 +226,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.withClaim("roles", user.getRoles().stream().map(Role::getName)
 							.collect(Collectors.toList()))
 					.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
-			Map<String, String> accessTokenResponseMap = new HashMap<>();
 
 			String newRefreshToken = JWT.create()
 					.withSubject(user.getDeviceId())
 					.withExpiresAt(new Date(now + RT_EXP_TIME))
 					.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
-			accessTokenResponseMap.put(RT_HEADER, newRefreshToken);
 			user.updateRefreshToken(newRefreshToken);
-
-			accessTokenResponseMap.put(AT_HEADER, newaccessToken);
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.add(AT_HEADER, newaccessToken);
 			headers.add(RT_HEADER, newRefreshToken);
-			// Access Token , Refresh Token 프론트 단에 Response Header로 전달
 
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result("success")
@@ -253,15 +246,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.headers(headers)
 					.body(apiResponse);
 		} catch (Exception e) {
-
+			ApiResponse apiResponse = ApiResponse.builder()
+					.result("success")
+					.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+					.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
+					.build();
+			return ResponseEntity.status(HttpStatus.ACCEPTED)
+					.body(apiResponse);
 		}
-		ApiResponse apiResponse = ApiResponse.builder()
-				.result("success")
-				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
-				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
-				.build();
-		return ResponseEntity.status(HttpStatus.ACCEPTED)
-				.body(apiResponse);
+
 	}
 
 }
