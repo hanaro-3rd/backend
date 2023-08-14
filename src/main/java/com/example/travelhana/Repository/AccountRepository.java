@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Integer> {
 
 	Optional<Account> findById(int id);
+
 	Boolean existsAccountByAccountNum(String accountNum);
 
 	// QueryDSL 적용하고 각 컬럼만 가져오는 쿼리 짜도록 바꿀 예정

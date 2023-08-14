@@ -9,6 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class ErrorResponse {
-    private final int errorCode;
-    private final String errorMessage;
+
+	private final int errorCode;
+	private final String errorMessage;
+
 }

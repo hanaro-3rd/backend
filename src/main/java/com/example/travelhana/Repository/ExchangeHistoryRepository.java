@@ -1,7 +1,6 @@
 package com.example.travelhana.Repository;
 
 import com.example.travelhana.Domain.ExchangeHistory;
-import com.example.travelhana.Domain.PaymentHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

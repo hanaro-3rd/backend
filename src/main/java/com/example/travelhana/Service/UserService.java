@@ -1,7 +1,8 @@
 package com.example.travelhana.Service;
 
 import com.example.travelhana.Domain.User;
-import com.example.travelhana.Dto.*;
+import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
+import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;

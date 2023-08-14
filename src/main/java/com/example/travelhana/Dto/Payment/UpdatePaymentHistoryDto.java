@@ -1,4 +1,5 @@
-package com.example.travelhana.Dto.Plan;
+package com.example.travelhana.Dto.Payment;
+
 
 import lombok.Builder;
 import lombok.Getter;
