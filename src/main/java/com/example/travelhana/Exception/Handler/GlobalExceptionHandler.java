@@ -34,6 +34,13 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ResponseDto> exception(Exception e) {
+
+		ResponseDto errorResponse = new ResponseDto(400, e.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+
+	}
 
 	@ExceptionHandler(BusinessExceptionHandler.class)
 	public ResponseEntity<ResponseDto> handleBusinessException(BusinessExceptionHandler e) {
