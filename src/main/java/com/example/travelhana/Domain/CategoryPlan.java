@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -32,5 +33,16 @@ public class CategoryPlan {
 
 	@Column(nullable = false)
 	private Long categoryBalance; //디폴트 0
+
+	@ColumnDefault("false")
+	private boolean isDeleted;
+
+	public void updateCategoryBudget(Long updateCategoryBudget) {
+		this.categoryBudget = updateCategoryBudget;
+	}
+
+	public void softDeleteCategoryPlan() {
+		this.isDeleted = true;
+	}
 
 }
