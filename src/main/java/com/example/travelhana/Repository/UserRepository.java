@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	boolean existsByDeviceId(String deviceId);
 	boolean existsByRegistrationNum(String registrationNum);
+	Optional<User> findByNameAndRegistrationNum(String name,String registrationNum);
 
 	Optional<User> findByIdAndIsWithdrawal(int userId, Boolean isWithdrawal);
 

@@ -9,6 +9,7 @@ import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.Authentication.DeviceDto;
+import com.example.travelhana.Dto.Authentication.FindPasswordRequestDto;
 import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
 import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Exception.Code.ErrorCode;
@@ -134,6 +135,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
+	public void isUserExist(String deviceId){
+		User user=userRepository.findByDeviceId(deviceId).orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
+
+
+
+
+	}
+
 	private void validateDuplicateUsername(SignupRequestDto dto) {
 		if (userRepository.existsByRegistrationNum(dto.getRegistrationNum())) {
 			throw new RuntimeException("이미 존재하는 사용자입니다.");
@@ -191,6 +200,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 		return new CustomUserDetailsImpl(user.getDeviceId(), user.getPassword(), user.getPattern(), user.getSalt(),
 				authorities, true, true, true, true);
+	}
+
+	//==============비밀번호 찾기==============
+	public void findPassword(FindPasswordRequestDto dto){
+		User user=userRepository.findByNameAndRegistrationNum(dto.getName(),dto.getRegistrateNum())
+				.orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
 	}
 
 

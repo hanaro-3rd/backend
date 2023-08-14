@@ -67,11 +67,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			}
 		}
 
-		//디바이스 아이디+패스워드 받아서 유저 존재여부 확인
-		//만약 회원이 기기를 변경했다면
-		//회원의 본인인증을 한번 더 하고 deviceId를 업데이트하고
-		//앞으로 로그인할 떄 동일하게 deviceId 체크
-
 	}
 
 	@Getter
