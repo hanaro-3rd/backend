@@ -36,14 +36,14 @@ public class ExternalAccount {
 	@Column
 	private String salt;
 
-	@Column(nullable = false)
-	private Long balance;
+	@Builder.Default
+	private Long balance=10000000L;
 
 	@Column(nullable = false)
 	private String registrationNum;
 
-	@ColumnDefault("false")
-	private Boolean isConnected;
+	@Builder.Default
+	private Boolean isConnected=false;
 
 	public void changeConnectionStatus() {
 		this.isConnected = true;
