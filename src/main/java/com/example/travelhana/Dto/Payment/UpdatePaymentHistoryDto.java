@@ -13,8 +13,5 @@ public class UpdatePaymentHistoryDto {
 	Long id;
 	String memo;
 	String Category;
-<<<<<<< HEAD
 
-=======
->>>>>>> 2c922a40dc60536113a5a6cdd329816dc15e42c3
 }
