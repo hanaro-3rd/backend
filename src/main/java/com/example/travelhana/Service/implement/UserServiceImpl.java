@@ -9,6 +9,7 @@ import com.example.travelhana.Config.JwtConstants;
 import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
+import com.example.travelhana.Dto.Account.AccountDummyDto;
 import com.example.travelhana.Dto.Account.AccountInformation;
 import com.example.travelhana.Dto.Account.AccountListDto;
 import com.example.travelhana.Dto.DeviceDto;
@@ -23,6 +24,7 @@ import com.example.travelhana.Projection.AccountInfoProjection;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
+import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.SaltUtil;
 import com.example.travelhana.Util.CryptoUtil;
@@ -48,7 +50,7 @@ import static com.example.travelhana.Config.JwtConstants.*;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-
+    private final AccountService accountService;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
@@ -83,6 +85,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
+
 	//회원가입 형식 유효성 검사
 	public void isValidUser(SignupRequestDto dto) {
 		if (dto.getPassword().length() != 6) {
@@ -116,51 +119,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 						.registrationNum(dto.getRegistrationNum())
 						.build();
 				userRepository.save(user);
+			    AccountDummyDto  accountDummyDto = AccountDummyDto
+					.builder()
+					.userId(user.getId())
+					.accountPassword("1234")
+					.build();
+				accountService.createDummyExternalAccounts(accountDummyDto);
 
-				String registrationNum = user.getRegistrationNum();
-				String accountPassword = "1234";
-				Random random = new Random();
-				for (int i = 0; i < 5; i++) {
-					String accountSalt = saltUtil.generateSalt();
-
-					String group1 = String.format("%03d", random.nextInt(1000));
-					String group2 = String.format("%04d", random.nextInt(10000));
-					String group3 = String.format("%04d", random.nextInt(10000));
-					List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
-					String accountNum = group1 + "-" + group2 + "-" + group3;
-
-					ExternalAccount externalAccount = ExternalAccount
-							.builder()
-							.accountNum(cryptoUtil.encrypt(accountNum))
-							.bank(banks.get(random.nextInt(banks.size())))
-							.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
-							.salt(accountSalt)
-							.password(saltUtil.encodePassword(accountSalt, accountPassword))
-							.registrationNum(registrationNum)
-							.balance(1000000L)
-							.build();
-					externalAccountRepository.save(externalAccount);
-				}
-				// 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
-				List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
-				List<AccountInformation> accountInformationList = new ArrayList<>();
-				for (AccountInfoProjection projection : projections) {
-					AccountInformation account = AccountInformation.builder()
-							.userId(user.getId())
-							.accountId(projection.getId())
-							.accountNum(cryptoUtil.decrypt(projection.getAccountNum()))
-							.bank(projection.getBank())
-							.balance(projection.getBalance())
-							.build();
-					accountInformationList.add(account);
-				}
-				// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
-				AccountListDto result = AccountListDto
-						.builder()
-						.externalAccounts(accountInformationList)
-						.build();
 				ApiResponse apiResponse = ApiResponse.builder()
-						.result(result)
+						.result("signup success")
 						.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 						.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 						.build();
