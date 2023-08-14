@@ -35,7 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional
 	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentRequestDto) {
 		try {
-			// access token으로 유저 가져오기턴
+			// access token으로 유저 가져오기
 			User user = userService.getUserByAccessToken(accessToken);
 			int userId = user.getId();
 
