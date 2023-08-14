@@ -175,6 +175,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (dto.getRegistrationNum().length() != 7) {
 			throw new IllegalArgumentException("주민번호는 생년월일 6자리+성별 1자리 총 7자리로 구성해주세요.");
 		}
+		if(Integer.parseInt(dto.getRegistrationNum().substring(2,4))>12){
+			throw new IllegalArgumentException("탄생 월은 1월~12월에서 선택해주세요.");
+		}
+		if(Integer.parseInt(dto.getRegistrationNum().substring(4,6))>31){
+			throw new IllegalArgumentException("탄생 일은 1일~31일에서 선택해주세요.");
+		}
 		char lastChar = dto.getRegistrationNum().charAt(dto.getRegistrationNum().length() - 1);
 		if (lastChar != '1' && lastChar != '2' && lastChar != '3' && lastChar != '4') {
 			throw new IllegalArgumentException("뒷자리는 1,2,3,4 중 하나로 입력해주세요.");
@@ -250,11 +256,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//==============비밀번호 찾기==============
 	//휴대폰인증은 원래있는 phoneauth 컨트롤러 api를 호출할 것
 	//휴대폰 인증이 끝난다음 진행할 로직임
-	public User findPassword(FindPasswordRequestDto dto) {
+	private void findPassword(UpdatePasswordDto dto) {
 		//디바이스 아이디로 조회
 		User user = userRepository.findByDeviceId(dto.getDeviceId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
-
 		//주민번호가 일치하지 않을 때
 		if (!dto.getRegistrateNum().equals(user.getRegistrationNum())) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
@@ -263,12 +268,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (!dto.getName().equals(user.getName())) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
-		return user;
-
 	}
 
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
-		User user = userRepository.findByDeviceId(dto.getDeviceId()).orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
+		findPassword(dto);
+		User user = userRepository.findByDeviceId(dto.getDeviceId()).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
 
 		if (dto.getNewPassword().length() != 6) {
 			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
@@ -276,19 +280,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (!dto.getNewPassword().matches("\\d+")) {
 			throw new IllegalArgumentException("숫자로만 구성해주세요");
 		}
-		if(saltUtil.encodePassword(user.getSalt(), dto.getNewPassword()).equals(user.getPassword())){
+		if (saltUtil.encodePassword(user.getSalt(), dto.getNewPassword()).equals(user.getPassword())) {
 			throw new IllegalArgumentException("이전 비밀번호와 다른 비밀번호로 설정해주세요.");
 		}
-		String newPassword=saltUtil.encodePassword(user.getSalt(), dto.getNewPassword());
-		userRepository.updatePassword(user.getDeviceId(),newPassword);
-		ApiResponse apiResponse=ApiResponse.builder()
+		String newPassword = saltUtil.encodePassword(user.getSalt(), dto.getNewPassword());
+		userRepository.updatePassword(user.getDeviceId(), newPassword);
+		ApiResponse apiResponse = ApiResponse.builder()
 				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
 				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
 				.result("success")
 				.build();
-		return new ResponseEntity(apiResponse,HttpStatus.ACCEPTED);
+		return new ResponseEntity(apiResponse, HttpStatus.ACCEPTED);
 	}
-
 
 	//==============토큰발급=================
 	//로그인 성공 시 refresh token 발급 후 DB에 저장

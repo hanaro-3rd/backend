@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class UpdatePasswordDto {
 	private String deviceId;
 	private String newPassword;
+	private String name;
+	private String registrateNum;
+	private String phoneNum;
 }
