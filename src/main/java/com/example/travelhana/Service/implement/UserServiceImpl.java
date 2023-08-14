@@ -10,17 +10,14 @@ import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.Account.AccountDummyDto;
-import com.example.travelhana.Dto.Account.AccountInformation;
-import com.example.travelhana.Dto.Account.AccountListDto;
-import com.example.travelhana.Dto.DeviceDto;
-import com.example.travelhana.Dto.RoleToUserRequestDto;
-import com.example.travelhana.Dto.SignupRequestDto;
+import com.example.travelhana.Dto.Authentication.DeviceDto;
+import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
+import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
-import com.example.travelhana.Projection.AccountInfoProjection;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
@@ -50,7 +47,6 @@ import static com.example.travelhana.Config.JwtConstants.*;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private final AccountService accountService;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
@@ -80,7 +76,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return ResponseEntity.ok(errorResponse);
+			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -100,6 +96,38 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
+	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
+		Random random = new Random();
+
+		// 입력한 정보와 랜덤값으로 유저 정보 생성
+
+		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
+		String accountPassword = accountDummyDto.getAccountPassword();
+		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
+
+		for (int i = 0; i < 5; i++) {
+			String accountSalt = saltUtil.generateSalt();
+
+			String group1 = String.format("%03d", random.nextInt(1000));
+			String group2 = String.format("%04d", random.nextInt(10000));
+			String group3 = String.format("%04d", random.nextInt(10000));
+
+			String accountNum = group1 + "-" + group2 + "-" + group3;
+
+			ExternalAccount externalAccount = ExternalAccount
+					.builder()
+					.accountNum(cryptoUtil.encrypt(accountNum))
+					.bank(banks.get(random.nextInt(banks.size())))
+					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
+					.salt(accountSalt)
+					.password(saltUtil.encodePassword(accountSalt, accountPassword))
+					.registrationNum(accountDummyDto.getRegistrationNum())
+					.balance(1000000L)
+					.build();
+			externalAccountRepository.save(externalAccount);
+		}
+
+	}
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
@@ -118,13 +146,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 						.name(dto.getName())
 						.registrationNum(dto.getRegistrationNum())
 						.build();
-				userRepository.save(user);
-			    AccountDummyDto  accountDummyDto = AccountDummyDto
+				User saveuser = userRepository.save(user);
+			    AccountDummyDto accountDummyDto = AccountDummyDto
 					.builder()
-					.userId(user.getId())
+					.userId(saveuser.getId())
 					.accountPassword("1234")
+						.registrationNum(dto.getRegistrationNum())
 					.build();
-				accountService.createDummyExternalAccounts(accountDummyDto);
+				createDummyExternalAccounts(accountDummyDto);
 
 				ApiResponse apiResponse = ApiResponse.builder()
 						.result("signup success")

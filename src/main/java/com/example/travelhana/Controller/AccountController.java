@@ -36,10 +36,6 @@ public class AccountController {
 				accountPasswordDto);
 	}
 
-	@PostMapping("/dummy")
-	public ResponseEntity<?> createDummyExternalAccounts(
-			@RequestBody AccountDummyDto accountDummyDto) throws Exception {
-		return accountService.createDummyExternalAccounts(accountDummyDto);
-	}
+
 
 }

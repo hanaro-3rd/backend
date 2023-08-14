@@ -13,5 +13,6 @@ public class AccountDummyDto {
 
 	int userId;
 	String accountPassword;
+	String registrationNum;
 
 }

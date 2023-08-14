@@ -43,7 +43,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			Arrays.asList("/swagger-ui.html",
 					"/registration",
 					"/verification/auth", "/verification",
-					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css",
+					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css","/redistest","/dummy",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",

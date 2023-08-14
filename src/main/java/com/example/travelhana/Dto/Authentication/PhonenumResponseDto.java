@@ -1,4 +1,4 @@
-package com.example.travelhana.Dto;
+package com.example.travelhana.Dto.Authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class CodeResponseDto {
+public class PhonenumResponseDto {
 
-	private Boolean isExistUser;
-	private Boolean isCodeEqual;
-
+	private String statusCode;
+	private String statusMessage;
 }
