@@ -87,7 +87,7 @@ public class UserController {
 	//refresh token 요청
 	@GetMapping("/refresh")
 	public ResponseEntity<?> refresh(HttpServletRequest request,
-	                                                   HttpServletResponse response) {
+	                                 HttpServletResponse response) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
@@ -96,6 +96,11 @@ public class UserController {
 		String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 		return userService.refresh(refreshToken);
 
+	}
+
+	@PostMapping("/updatePassword")
+	public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDto dto) {
+		return userService.updatePassword(dto);
 	}
 
 }

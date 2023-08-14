@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class UpdatePasswordDto {
+	private String deviceId;
 	private String newPassword;
 }

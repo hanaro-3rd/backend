@@ -85,7 +85,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
 		if (servletPath.contains("registration") || servletPath.contains("dummy")
 				|| servletPath.equals("/swagger-ui/index.html") || servletPath.contains("signin") ||servletPath.contains("refresh") || servletPath.equals(
-				"/signup")) {
+				"/signup")||servletPath.equals("/updatePassword")) {
 			System.out.println("CustomAuthorizationFilter");
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {

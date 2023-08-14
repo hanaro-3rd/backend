@@ -19,12 +19,10 @@ import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
@@ -37,11 +35,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Log4j2
 @Transactional
@@ -57,6 +57,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final PhoneAuthService phoneAuthService;
 	private final CryptoUtil cryptoUtil;
 	private final ExternalAccountRepository externalAccountRepository;
+
 	public ResponseEntity<?> isExistDevice(String deviceId) {
 		Boolean isRegistrate;
 		String name;
@@ -78,11 +79,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
-
 
 
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
@@ -117,6 +117,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 
 	}
+
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
@@ -161,7 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	//회원가입 형식 유효성 검사
-	public Boolean isValidUser(SignupRequestDto dto) {
+	public void isValidUser(SignupRequestDto dto) {
 		if (dto.getPassword().length() != 6) {
 			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
 		}
@@ -171,21 +172,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (dto.getName().length() > 15) {
 			throw new IllegalArgumentException("이름은 15글자 이내로 입력해주세요.");
 		}
-		if(dto.getRegistrationNum().length()!=7){
+		if (dto.getRegistrationNum().length() != 7) {
 			throw new IllegalArgumentException("주민번호는 생년월일 6자리+성별 1자리 총 7자리로 구성해주세요.");
 		}
 		char lastChar = dto.getRegistrationNum().charAt(dto.getRegistrationNum().length() - 1);
-		if (lastChar == '1' || lastChar == '2' || lastChar == '3' || lastChar == '4') {
-			System.out.println("마지막 글자는 유효한 값입니다.");
+		if (lastChar != '1' && lastChar != '2' && lastChar != '3' && lastChar != '4') {
+			throw new IllegalArgumentException("뒷자리는 1,2,3,4 중 하나로 입력해주세요.");
 		}
-		return true;
 	}
-
 
 
 	public void isUserExist(String deviceId) {
 		User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
-
 
 
 	}
@@ -269,11 +267,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	}
 
-	public void updatePassword(UpdatePasswordDto dto){
+	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
+		User user = userRepository.findByDeviceId(dto.getDeviceId()).orElseThrow(()->new BusinessExceptionHandler(ErrorCode.NO_USER));
 
-
-
-
+		if (dto.getNewPassword().length() != 6) {
+			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
+		}
+		if (!dto.getNewPassword().matches("\\d+")) {
+			throw new IllegalArgumentException("숫자로만 구성해주세요");
+		}
+		if(saltUtil.encodePassword(user.getSalt(), dto.getNewPassword()).equals(user.getPassword())){
+			throw new IllegalArgumentException("이전 비밀번호와 다른 비밀번호로 설정해주세요.");
+		}
+		String newPassword=saltUtil.encodePassword(user.getSalt(), dto.getNewPassword());
+		userRepository.updatePassword(user.getDeviceId(),newPassword);
+		ApiResponse apiResponse=ApiResponse.builder()
+				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
+				.result("success")
+				.build();
+		return new ResponseEntity(apiResponse,HttpStatus.ACCEPTED);
 	}
 
 
