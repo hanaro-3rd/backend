@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
+import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Role;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.Account.AccountDummyDto;
@@ -15,11 +16,13 @@ import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
+import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +36,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.*;
@@ -54,11 +55,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
 	private final PhoneAuthService phoneAuthService;
-	private final AccountService accountService;
-
-
-	//==============회원가입=================
-	//최초 접속 시 기기 존재 여부 확인
+	private final CryptoUtil cryptoUtil;
+	private final ExternalAccountRepository externalAccountRepository;
 	public ResponseEntity<?> isExistDevice(String deviceId) {
 		Boolean isRegistrate;
 		String name;
@@ -69,8 +67,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.isRegistrate(true)
 					.name(user.getName())
 					.build();
-			AccountDummyDto accountDummyDto=new AccountDummyDto("1234");
-			accountService.createDummyExternalAccounts(accountDummyDto,user);
 			ApiResponse apiResponse = ApiResponse.builder()
 					.result(deviceDto)
 					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
@@ -82,9 +78,84 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.errorCode(ErrorCode.NO_USER.getStatusCode())
 					.errorMessage(ErrorCode.NO_USER.getMessage())
 					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+
+
+
+	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
+		Random random = new Random();
+
+		// 입력한 정보와 랜덤값으로 유저 정보 생성
+
+		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
+		String accountPassword = accountDummyDto.getAccountPassword();
+		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
+
+		for (int i = 0; i < 5; i++) {
+			String accountSalt = saltUtil.generateSalt();
+
+			String group1 = String.format("%03d", random.nextInt(1000));
+			String group2 = String.format("%04d", random.nextInt(10000));
+			String group3 = String.format("%04d", random.nextInt(10000));
+
+			String accountNum = group1 + "-" + group2 + "-" + group3;
+
+			ExternalAccount externalAccount = ExternalAccount
+					.builder()
+					.accountNum(cryptoUtil.encrypt(accountNum))
+					.bank(banks.get(random.nextInt(banks.size())))
+					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
+					.salt(accountSalt)
+					.password(saltUtil.encodePassword(accountSalt, accountPassword))
+					.registrationNum(accountDummyDto.getRegistrationNum())
+					.balance(1000000L)
+					.build();
+			externalAccountRepository.save(externalAccount);
+		}
+
+	}
+	//회원가입 - 계정 저장
+	@Override
+	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
+
+		try {
+			validateDuplicateUsername(dto);
+			isValidUser(dto);
+			String salt = saltUtil.generateSalt();
+			User user = new User().builder()
+					.password(saltUtil.encodePassword(salt, dto.getPassword()))
+					.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
+					.phoneNum(dto.getPhonenum())
+					.deviceId(dto.getDeviceId())
+					.salt(salt)
+					.isWithdrawal(false) //탈퇴했는지
+					.name(dto.getName())
+					.registrationNum(dto.getRegistrationNum())
+					.build();
+			User saveuser = userRepository.save(user);
+			AccountDummyDto accountDummyDto = AccountDummyDto
+					.builder()
+					.userId(saveuser.getId())
+					.accountPassword("1234")
+					.registrationNum(dto.getRegistrationNum())
+					.build();
+			createDummyExternalAccounts(accountDummyDto);
+
+			ApiResponse apiResponse = ApiResponse.builder()
+					.result("signup success")
+					.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+					.build();
+			return ResponseEntity.ok(apiResponse);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			ErrorResponse errorResponse = ErrorResponse.builder()
+					.errorCode(400)
+					.errorMessage(e.getMessage())
+					.build();
+			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
 
 	}
@@ -110,43 +181,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return true;
 	}
 
-	//회원가입 - 계정 저장
-	@Override
-	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
 
-		try {
-			validateDuplicateUsername(dto);
-			if (isValidUser(dto)) {
-				String salt = saltUtil.generateSalt();
-				User user = new User().builder()
-						.password(saltUtil.encodePassword(salt, dto.getPassword()))
-						.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
-						.phoneNum(dto.getPhonenum())
-						.deviceId(dto.getDeviceId())
-						.salt(salt)
-						.isWithdrawal(false) //탈퇴했는지
-						.name(dto.getName())
-						.registrationNum(dto.getRegistrationNum())
-						.build();
-				userRepository.save(user);
-			}
-
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result("save Success")
-					.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-					.build();
-			return ResponseEntity.ok(apiResponse);
-
-		} catch (Exception e) {
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorCode(400)
-					.errorMessage(e.getMessage())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-		}
-
-	}
 
 	public void isUserExist(String deviceId) {
 		User user = userRepository.findByDeviceId(deviceId).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));

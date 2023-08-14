@@ -87,53 +87,6 @@ public class AccountServiceImpl implements AccountService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
-	@Override
-	public void createDummyExternalAccounts(AccountDummyDto accountDummyDto,User user)
-			throws Exception {
-		Random random = new Random();
-
-		String registrationNum = user.getRegistrationNum();
-
-		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
-		String accountPassword = accountDummyDto.getAccountPassword();
-		List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
-
-		for (int i = 0; i < 10; i++) {
-			String accountSalt = saltUtil.generateSalt();
-
-			String group1 = String.format("%03d", random.nextInt(1000));
-			String group2 = String.format("%04d", random.nextInt(10000));
-			String group3 = String.format("%04d", random.nextInt(10000));
-
-			String accountNum = group1 + "-" + group2 + "-" + group3;
-
-			ExternalAccount externalAccount = ExternalAccount
-					.builder()
-					.accountNum(cryptoUtil.encrypt(accountNum))
-					.bank(banks.get(random.nextInt(banks.size())))
-					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
-					.salt(accountSalt)
-					.password(saltUtil.encodePassword(accountSalt, accountPassword))
-					.registrationNum(registrationNum)
-					.balance(1000000L)
-					.build();
-			externalAccountRepository.save(externalAccount);
-		}
-
-		// 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
-		List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
-
-		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
-		AccountListDto result = AccountListDto
-				.builder()
-				.externalAccounts(decryptAccountNum(0, projections))
-				.build();
-		ApiResponse apiResponse = ApiResponse.builder()
-				.result(result)
-				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-				.build();
-	}
 
 	@Override
 	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {

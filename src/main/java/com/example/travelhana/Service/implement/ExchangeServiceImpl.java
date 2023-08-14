@@ -75,6 +75,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.usd(usdExchangeRate)
 				.jpy(jpyExchangeRate)
 				.eur(eurExchangeRate)
+				.updatedAt(LocalDateTime.now())
 				.build();
 
 		// ResponseEntity에 묶어서 리턴

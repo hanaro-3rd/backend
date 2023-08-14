@@ -12,7 +12,6 @@ public interface UserService {
 	ResponseEntity<?> isExistDevice(String deviceId);
 
 	ResponseEntity<?> saveAccount(SignupRequestDto dto);
-
 	void saveRole(String roleName);
 
 	int addRoleToUser(RoleToUserRequestDto dto);

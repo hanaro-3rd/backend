@@ -36,10 +36,28 @@ public class AccountController {
 //				accountPasswordDto);
 //	}
 
-//	@PostMapping("/dummy")
-//	public ResponseEntity<?> createDummyExternalAccounts(
-//			@RequestBody AccountDummyDto accountDummyDto) throws Exception {
-//		return accountService.createDummyExternalAccounts(accountDummyDto);
-//	}
+
+	@GetMapping(value = "")
+	public ResponseEntity<?> getAccountList(
+			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
+		return accountService.getConnectedAccountList(accessToken);
+	}
+
+	@GetMapping(value = "/external")
+	public ResponseEntity<?> getExternalAccountList(
+			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
+		return accountService.findExternalAccountList(accessToken);
+	}
+
+	@PostMapping("/{externalAccountId}")
+	public ResponseEntity<?> connectExternalAccount(
+			@RequestHeader(value = "Authorization") String accessToken,
+			@PathVariable int externalAccountId, @RequestBody AccountPasswordDto accountPasswordDto)
+			throws Exception {
+		return accountService.connectExternalAccount(accessToken, externalAccountId,
+				accountPasswordDto);
+	}
+
+
 
 }
