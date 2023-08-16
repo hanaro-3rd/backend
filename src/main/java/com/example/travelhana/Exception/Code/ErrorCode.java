@@ -35,6 +35,7 @@ public enum ErrorCode {
 	EXTERNAL_ACCOUNT_NOT_FOUND(404, "External Account Not Found", "해당하는 외부 계좌를 찾을 수 없습니다."),
 	PAYMENT_HISTORY_NOT_FOUND(404, "Payment History Not Found", "해당하는 결제 내역을 찾을 수 없습니다."),
 	EXCHANGE_HISTORY_NOT_FOUND(404, "Exchange History Not Found", "해당하는 환전 내역을 찾을 수 없습니다."),
+	MARKER_HISTORY_NOT_FOUND(404, "Marker History Not Found", "해당하는 마커줍기 내역을 찾을 수 없습니다."),
 
 	LOCATION_NOT_SAME(406, "Location Not Same", "마커의 위치와 현재 위치가 다릅니다."),
 

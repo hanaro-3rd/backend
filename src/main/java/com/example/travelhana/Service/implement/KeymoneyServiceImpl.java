@@ -8,6 +8,7 @@ import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.ExchangeHistoryRepository;
 import com.example.travelhana.Repository.KeymoneyRepository;
+import com.example.travelhana.Repository.MarkerHistoryRepository;
 import com.example.travelhana.Repository.PaymentHistoryRepository;
 import com.example.travelhana.Service.KeymoneyService;
 import com.example.travelhana.Service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.error.Mark;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +32,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	private final KeymoneyRepository keymoneyRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final ExchangeHistoryRepository exchangeHistoryRepository;
+	private final MarkerHistoryRepository markerHistoryRepository;
 
 	private String makeExchangeTitle(Boolean isBought, String unit) {
 		String title = "";
@@ -87,7 +90,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 		}
 
 		// 유효하지 않은 필터 에러
-		if (!filter.equals("all") && !filter.equals("payment") && !filter.equals("exchange")) {
+		if (!filter.equals("all") && !filter.equals("deposit") && !filter.equals("withdrawal")) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_HISTORY_FILTER);
 		}
 
@@ -97,46 +100,70 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 		int keymoneyId = keymoney.getId();
 
 		// 해당 키머니에 대한 결제 내역 가져오기
-		List<KeymoneyDto> keymoneyDtos = new ArrayList<>();
-		if (filter.equals("all") || filter.equals("payment")) {
-			List<PaymentHistory> paymentHistories = paymentHistoryRepository.findAllByKeymoneyId(keymoneyId);
-			// 엔티티에서 dto 파싱
-			for (PaymentHistory paymentHistory : paymentHistories) {
-				KeymoneyDto keymoneyDto = KeymoneyDto
-						.builder()
-						.historyId(paymentHistory.getId())
-						.subject(paymentHistory.getStore())
-						.keymoney(paymentHistory.getPrice())
-						.type("payment")
-						.category(paymentHistory.getCategory())
-						.createdAt(paymentHistory.getCreatedAt())
-						.balance(paymentHistory.getBalance())
-						.unit(unit)
-						.isDeposit(!paymentHistory.getIsPayment())
-						.build();
-				keymoneyDtos.add(keymoneyDto);
-			}
+		List<PaymentHistory> paymentHistories;
+		List<ExchangeHistory> exchangeHistories;
+		List<MarkerHistory> markerHistories = new ArrayList<>();
+		if (filter.equals("all")) {
+			paymentHistories = paymentHistoryRepository.findAllByKeymoneyId(keymoneyId);
+			exchangeHistories = exchangeHistoryRepository.findAllByKeymoneyId(keymoneyId);
+			markerHistories = markerHistoryRepository.findAllByKeymoneyId(keymoneyId);
+		} else if(filter.equals("deposit")) {
+			paymentHistories = paymentHistoryRepository.findAllByKeymoneyIdAndIsPayment(keymoneyId, false);
+			exchangeHistories = exchangeHistoryRepository.findAllByKeymoneyIdAndIsBought(keymoneyId, true);
+			markerHistories = markerHistoryRepository.findAllByKeymoneyId(keymoneyId);
+		} else {
+			paymentHistories = paymentHistoryRepository.findAllByKeymoneyIdAndIsPayment(keymoneyId, true);
+			exchangeHistories = exchangeHistoryRepository.findAllByKeymoneyIdAndIsBought(keymoneyId, false);
 		}
 
-		// 해당 키머니에 대한 환전 내역 가져오기
-		if (filter.equals("all") || filter.equals("exchange")) {
-			List<ExchangeHistory> exchangeHistories = exchangeHistoryRepository.findAllByKeymoneyId(keymoneyId);
-			// 엔티티에서 dto 파싱
-			for (ExchangeHistory exchangeHistory : exchangeHistories) {
-				KeymoneyDto keymoneyDto = KeymoneyDto
-						.builder()
-						.historyId(exchangeHistory.getId())
-						.subject(makeExchangeTitle(exchangeHistory.getIsBought(), unit))
-						.keymoney(exchangeHistory.getExchangeKey())
-						.type("exchange")
-						.category("환전")
-						.createdAt(exchangeHistory.getExchangeDate())
-						.balance(exchangeHistory.getBalance())
-						.unit(unit)
-						.isDeposit(exchangeHistory.getIsBought()) // 원화 키머니에 대한 분기 처리 필요
-						.build();
-				keymoneyDtos.add(keymoneyDto);
-			}
+		// 엔티티에서 dto 파싱
+		List<KeymoneyDto> keymoneyDtos = new ArrayList<>();
+		for (PaymentHistory paymentHistory : paymentHistories) {
+			KeymoneyDto keymoneyDto = KeymoneyDto
+					.builder()
+					.historyId(paymentHistory.getId())
+					.subject(paymentHistory.getStore())
+					.keymoney(paymentHistory.getPrice())
+					.type("payment")
+					.category(paymentHistory.getCategory())
+					.createdAt(paymentHistory.getCreatedAt())
+					.balance(paymentHistory.getBalance())
+					.unit(unit)
+					.isDeposit(!paymentHistory.getIsPayment())
+					.build();
+			keymoneyDtos.add(keymoneyDto);
+		}
+
+		for (ExchangeHistory exchangeHistory : exchangeHistories) {
+			KeymoneyDto keymoneyDto = KeymoneyDto
+					.builder()
+					.historyId(exchangeHistory.getId())
+					.subject(makeExchangeTitle(exchangeHistory.getIsBought(), unit))
+					.keymoney(exchangeHistory.getExchangeKey())
+					.type("exchange")
+					.category("환전")
+					.createdAt(exchangeHistory.getExchangeDate())
+					.balance(exchangeHistory.getBalance())
+					.unit(unit)
+					.isDeposit(exchangeHistory.getIsBought()) // 원화 키머니에 대한 분기 처리 필요
+					.build();
+			keymoneyDtos.add(keymoneyDto);
+		}
+
+		for (MarkerHistory markerHistory : markerHistories) {
+			KeymoneyDto keymoneyDto = KeymoneyDto
+					.builder()
+					.historyId(markerHistory.getId())
+					.subject(markerHistory.getPlace())
+					.keymoney(markerHistory.getAmount())
+					.type("marker")
+					.category("마커")
+					.createdAt(markerHistory.getPickDate())
+					.balance(markerHistory.getBalance())
+					.unit(unit)
+					.isDeposit(true) // 원화 키머니에 대한 분기 처리 필요
+					.build();
+			keymoneyDtos.add(keymoneyDto);
 		}
 
 		// 환전 내역과 결제 내역을 합친 배열을 시간 내림차순으로 정렬
@@ -162,16 +189,17 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	public ResponseEntity<?> getDetailKeymoneyHistory(String accessToken, Long historyId, String type) {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
+		int userId = user.getId();
 
 		// type이 결제(payment)나 환전(exchange)가 아니라면 에러
-		if (!type.equals("payment") && !type.equals("exchange")) {
+		if (!type.equals("payment") && !type.equals("exchange") && !type.equals("marker")) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_HISTORY_TYPE);
 		}
 
 		// type이 결제(payment)라면 historyId로 결제내역 테이블을 검색
 		Object result;
 		if (type.equals("payment")) {
-			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(historyId, user.getId())
+			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(historyId, userId)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PAYMENT_HISTORY_NOT_FOUND));
 			Keymoney keymoney = keymoneyRepository.findById(paymentHistory.getKeymoneyId())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
@@ -190,7 +218,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 		}
 		// type이 환전(exchange)이라면 historyId로 결제내역 테이블을 검색
 		else if (type.equals("exchange")) {
-			ExchangeHistory exchangeHistory = exchangeHistoryRepository.findByIdAndUserId(historyId, user.getId())
+			ExchangeHistory exchangeHistory = exchangeHistoryRepository.findByIdAndUserId(historyId, userId)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXCHANGE_HISTORY_NOT_FOUND));
 			Keymoney keymoney = keymoneyRepository.findById(exchangeHistory.getKeymoneyId())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
@@ -204,6 +232,23 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 					.unit(keymoney.getUnit())
 					.createdAt(exchangeHistory.getExchangeDate())
 					.isDeposit(exchangeHistory.getIsBought())
+					.build();
+		}
+		// type이 마커(marker)라면 historyId로 마커 줍기 내역 테이블을 검색
+		else if (type.equals("marker")) {
+			MarkerHistory markerHistory = markerHistoryRepository.findByIdAndUserId(historyId, userId)
+					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXCHANGE_HISTORY_NOT_FOUND));
+			Keymoney keymoney = keymoneyRepository.findById(markerHistory.getKeymoneyId())
+					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
+			result = KeymoneyMarkerDto
+					.builder()
+					.historyId(markerHistory.getId())
+					.place(markerHistory.getPlace())
+					.pickDate(markerHistory.getPickDate())
+					.amount(markerHistory.getAmount())
+					.isDeposit(true)
+					.type(type)
+					.unit(keymoney.getUnit())
 					.build();
 		}
 		// type이 둘 다 아니라면 에러

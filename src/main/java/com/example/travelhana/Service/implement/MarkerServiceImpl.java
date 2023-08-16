@@ -1,9 +1,6 @@
 package com.example.travelhana.Service.implement;
 
-import com.example.travelhana.Domain.Keymoney;
-import com.example.travelhana.Domain.Marker;
-import com.example.travelhana.Domain.User;
-import com.example.travelhana.Domain.UserToMarker;
+import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.Marker.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
@@ -29,8 +26,9 @@ import java.util.Optional;
 public class MarkerServiceImpl implements MarkerService {
 
 	private final MarkerRepository markerRepository;
-	private final UserToMarkerRepository userToMarkerRepository;
 	private final KeymoneyRepository keyMoneyRepository;
+	private final MarkerHistoryRepository markerHistoryRepository;
+	private final UserToMarkerRepository userToMarkerRepository;
 
 	private final UserService userService;
 
@@ -76,6 +74,12 @@ public class MarkerServiceImpl implements MarkerService {
 	@Override
 	@Transactional
 	public ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto) {
+		// 입력된 마커에 대한 통화 검증
+		Currency currency = Currency.getByCode(markerDummyDto.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
+
 		// 더미 마커가 없으면 더미 마커 데이터를 생성
 		Boolean isExist = markerRepository.existsById(1);
 		if (!isExist) {
@@ -183,9 +187,10 @@ public class MarkerServiceImpl implements MarkerService {
 		// 해당 유저와 통화에 대한 외화 계좌가 있는 지 확인
 		String unit = marker.getUnit();
 		Long amount = marker.getAmount();
+		int keymoneyId;
 		Long storedKeyMoney;
-		Optional<Keymoney> keyMoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
-		if (!keyMoney.isPresent()) {
+		Optional<Keymoney> keymoney = keyMoneyRepository.findByUser_IdAndUnit(userId, unit);
+		if (!keymoney.isPresent()) {
 			// 없으면 포인트만큼 추가한 외화 계좌 생성
 			storedKeyMoney = amount;
 			Keymoney newKeymoney = Keymoney
@@ -194,11 +199,12 @@ public class MarkerServiceImpl implements MarkerService {
 					.balance(storedKeyMoney)
 					.unit(unit)
 					.build();
-			keyMoneyRepository.save(newKeymoney);
+			keymoneyId = keyMoneyRepository.save(newKeymoney).getId();
 		} else {
 			// 있으면 해당 외화 계좌에 포인트만큼 추가
-			keyMoney.get().updatePlusBalance(amount);
-			storedKeyMoney = keyMoney.get().getBalance();
+			keymoney.get().updatePlusBalance(amount);
+			storedKeyMoney = keymoney.get().getBalance();
+			keymoneyId = keymoney.get().getId();
 		}
 
 		// 마커 인원수 차감
@@ -212,6 +218,19 @@ public class MarkerServiceImpl implements MarkerService {
 				.pickDate(LocalDateTime.now())
 				.build();
 		userToMarkerRepository.save(userToMarker);
+
+		// MarkerHistory 테이블 레코드 추가
+		MarkerHistory markerHistory = MarkerHistory
+				.builder()
+				.markerId(markerId)
+				.userId(userId)
+				.keymoneyId(keymoneyId)
+				.pickDate(LocalDateTime.now())
+				.amount(amount)
+				.balance(storedKeyMoney)
+				.place(marker.getPlace())
+				.build();
+		markerHistoryRepository.save(markerHistory);
 
 		// MarkerPickUpResultDto에 파싱 후 리턴
 		MarkerPickUpResultDto result = MarkerPickUpResultDto
