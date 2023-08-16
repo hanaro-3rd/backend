@@ -243,6 +243,9 @@ public class PlanServiceImpl implements PlanService {
 				paymentHistoryRepository.findByUserIdAndPaymentDateBetween(userAccount.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
 		Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
 		for (PaymentHistory paymentHistory : paymentHistoryList) {
+			Keymoney keymoney = keymoneyRepository.findById(paymentHistory.getKeymoneyId()).orElseThrow(
+					() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY)
+			);
 			String paymentCategory = paymentHistory.getCategory().toString();
 			PlanPaymentHistoryDto paymentHistoryDto = PlanPaymentHistoryDto.builder()
 					.price(paymentHistory.getPrice())
@@ -256,8 +259,8 @@ public class PlanServiceImpl implements PlanService {
 					.address(paymentHistory.getAddress())
 					.memo(paymentHistory.getMemo())
 					.isPayment(paymentHistory.getIsPayment())
+					.unit(keymoney.getUnit())
 					.build();
-
 			paymentHistoryByDate.computeIfAbsent(paymentCategory, k -> new ArrayList<>()).add(paymentHistoryDto);
 		}
 
