@@ -35,6 +35,11 @@ public class UserController {
 	private final PhoneAuthService phoneAuthService;
 	private final JwtConstants jwtConstants;
 
+	@GetMapping("/test")
+	public void isExistDevice() {
+		System.out.println("hello test success!");
+	}
+
 	//기기 존재 여부 확인
 	@GetMapping("/registration/{deviceId}")
 	public ResponseEntity<?> isExistDevice(@PathVariable("deviceId") String deviceId) {

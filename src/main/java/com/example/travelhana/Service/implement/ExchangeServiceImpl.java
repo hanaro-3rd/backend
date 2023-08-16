@@ -286,6 +286,42 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 		return responseDto;
 	}
+	@Transactional
+	public ExchangeSuccess wonToKeyByClient(
+			Long won, Keymoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
+		Currency currency = Currency.getByCode(keyMoney.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
+
+		if (won > 1000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
+		}
+
+		Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
+		Long realkey = Math.round(key);
+
+		if (realkey < currency.getMinCurrency()) {
+			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
+		}
+
+		//키머니 잔액 200만원 초과 금지
+		if (realkey + keyMoney.getBalance() >= 2000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
+		}
+
+		keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
+		account.updateBalance(won * (-1)); //원화 잔액 차감
+
+		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+				.exchangeWon(won)
+				.exchangeKey(realkey)
+				.keymoneyBalance(keyMoney.getBalance())
+				.isBought(true)
+				.build();
+		return exchangeSuccess;
+	}
+
 
 	//원화->외화
 	@Transactional

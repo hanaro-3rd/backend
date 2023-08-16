@@ -11,8 +11,9 @@ public class ExchangeRequestDto {
 
 	private int accountId;
 	private Long money;
+	private Double exchangeRate;
 	private Boolean isBought;
-	private Boolean isNow;
 	private String unit;
+	private Long moneyToExchange;
 
 }
