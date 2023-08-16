@@ -37,11 +37,13 @@ public enum ErrorCode {
 	EXCHANGE_HISTORY_NOT_FOUND(404, "Exchange History Not Found", "해당하는 환전 내역을 찾을 수 없습니다."),
 	MARKER_HISTORY_NOT_FOUND(404, "Marker History Not Found", "해당하는 마커줍기 내역을 찾을 수 없습니다."),
 
+	CATEGORY_PLAN_NOT_FOUND(404, "Category Plan Not Found", "해당하는 카테고리 경비계획을 찾을 수 없습니다."),
 	LOCATION_NOT_SAME(406, "Location Not Same", "마커의 위치와 현재 위치가 다릅니다."),
+	PLAN_NOT_FOUND(404, "Plan Not Found", "해당하는 경비계획을 찾을 수 없습니다."),
+	CATEGORY_NOT_FOUND(404, "Caregory Not Found", "해당하는 카테고리를 찾을 수 없습니다."),
 
 	ALREADY_PICK_UPPED_MARKER(409, "Already Pick upped Marker", "이미 주운 마커입니다."),
 	ALREADY_EXIST_ACCOUNT(409, "Already Connected Account", "이미 연결된 계좌입니다."),
-
 
 	INTERNAL_SEVER_ERROR(500, "Internal Server Error", "서버 에러가 발생했습니다."),
 	ONLY_PUCHASE_IN_HOLIDAY(500, "ONLY_PUCHASE_IN_HOLIDAY", "공휴일에는 외화 매수만 가능합니다."),
