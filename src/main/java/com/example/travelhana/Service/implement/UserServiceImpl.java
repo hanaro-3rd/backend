@@ -120,42 +120,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	//회원가입 - 계정 저장
 	@Override
-	public ResponseEntity<?> saveAccount(SignupRequestDto dto) {
-		try {
-			validateDuplicateUsername(dto);
-			isValidUser(dto);
-			String salt = saltUtil.generateSalt();
-			User user = new User().builder()
-					.password(saltUtil.encodePassword(salt, dto.getPassword()))
-					.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
-					.phoneNum(dto.getPhonenum())
-					.deviceId(dto.getDeviceId())
-					.salt(salt)
-					.name(dto.getName())
-					.registrationNum(dto.getRegistrationNum())
-					.build();
-			User saveuser = userRepository.save(user);
-			AccountDummyDto accountDummyDto = AccountDummyDto
-					.builder()
-					.userId(saveuser.getId())
-					.accountPassword("1234")
-					.registrationNum(dto.getRegistrationNum())
-					.build();
-			createDummyExternalAccounts(accountDummyDto);
+	public ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception {
+		validateDuplicateUsername(dto);
+		isValidUser(dto);
+		String salt = saltUtil.generateSalt();
+		User user = new User().builder()
+				.password(saltUtil.encodePassword(salt, dto.getPassword()))
+				.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
+				.phoneNum(dto.getPhonenum())
+				.deviceId(dto.getDeviceId())
+				.salt(salt)
+				.name(dto.getName())
+				.registrationNum(dto.getRegistrationNum())
+				.build();
+		userRepository.save(user);
+		AccountDummyDto accountDummyDto = AccountDummyDto
+				.builder()
+				.userId(user.getId())
+				.accountPassword("1234")
+				.registrationNum(dto.getRegistrationNum())
+				.build();
+		createDummyExternalAccounts(accountDummyDto);
 
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result("signup success")
-					.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-					.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-					.build();
-			return ResponseEntity.ok(apiResponse);
-		} catch (Exception e) {
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorCode(400)
-					.errorMessage(e.getMessage())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-		}
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(user.getName())
+				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
+				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
+				.build();
+		return ResponseEntity.ok(apiResponse);
 	}
 
 	//회원가입 형식 유효성 검사

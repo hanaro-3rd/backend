@@ -12,7 +12,7 @@ public interface UserService {
 
 	ResponseEntity<?> isExistDevice(String deviceId);
 
-	ResponseEntity<?> saveAccount(SignupRequestDto dto);
+	ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception;
 
 	void saveRole(String roleName);
 

@@ -51,7 +51,7 @@ public class UserController {
 
 	//회원가입
 	@PostMapping("/signup")
-	public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
+	public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) throws Exception {
 		return userService.saveAccount(dto);
 	}
 
