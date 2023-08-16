@@ -15,7 +15,8 @@ public class PaymentController {
 	private final PaymentService paymentService;
 
 	@PostMapping("") //결제하기 POST
-	public ResponseEntity<?> pay(@RequestHeader(value = "Authorization") String accessToken,
+	public ResponseEntity<?> pay(
+			@RequestHeader(value = "Authorization") String accessToken,
 			@RequestBody PaymentRequestDto paymentListDto) {
 		return paymentService.payment(accessToken, paymentListDto);
 	}

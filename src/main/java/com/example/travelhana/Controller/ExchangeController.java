@@ -26,7 +26,8 @@ public class ExchangeController {
 
 
 	@GetMapping("/getFromRedis")
-	public ResponseEntity<?> getFromRedis() throws JsonProcessingException {
+	public ResponseEntity<?> getFromRedis(
+			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws JsonProcessingException {
 		return exchangeService.getExchangeRateFromRedis();
 	}
 

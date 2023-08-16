@@ -1,14 +1,17 @@
 package com.example.travelhana.Domain;
 
+import com.example.travelhana.Dto.Plan.UpdatePlanDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -37,12 +40,27 @@ public class Plan {
 	private String city;
 
 	@Column(nullable = false)
-	private Date startDate;
+	private LocalDateTime startDate;
 
 	@Column(nullable = false)
-	private Date endDate;
+	private LocalDateTime endDate;
 
 	@Column
 	private Long totalBalance; //디폴트 0
+
+	@ColumnDefault("false")
+	private boolean isDeleted;
+
+	public void updatePlan(UpdatePlanDto updatePlanDto) {
+		this.city = updatePlanDto.getCity();
+		this.country = updatePlanDto.getCountry();
+		this.startDate = updatePlanDto.getStartDate();
+		this.endDate = updatePlanDto.getEndDate();
+		this.title = updatePlanDto.getTitle();
+	}
+
+	public void softDeletePlan() {
+		this.isDeleted = true;
+	}
 
 }

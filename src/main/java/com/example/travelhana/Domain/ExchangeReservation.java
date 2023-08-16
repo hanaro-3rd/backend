@@ -2,12 +2,12 @@ package com.example.travelhana.Domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class ExchangeReservation {
 
 	@Id
-	@Column
+	@Column(name = "EXCHANGERESERVATION_ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

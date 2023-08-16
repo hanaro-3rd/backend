@@ -7,7 +7,6 @@ import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Service.AccountService;
 import com.example.travelhana.Service.UserService;
-import com.example.travelhana.Util.ExchangeRateUtil;
 import com.example.travelhana.Util.HolidayUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExternalAccountRepository;
-import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
 import com.example.travelhana.Projection.AccountInfoProjection;
@@ -37,16 +35,14 @@ public class AccountServiceImpl implements AccountService {
 	private final SaltUtil saltUtil;
 	private final CryptoUtil cryptoUtil;
 	private final HolidayUtil holidayUtil;
-	private final ExchangeRateUtil exchangeRateUtil;
 
-	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final ExternalAccountRepository externalAccountRepository;
 
 	private final UserService userService;
 
-	private List<AccountInformation> decryptAccountNum(int userId,
-	                                                   List<AccountInfoProjection> projections) throws Exception {
+	private List<AccountInformation> decryptAccountNum(
+			int userId, List<AccountInfoProjection> projections) throws Exception {
 		List<AccountInformation> result = new ArrayList<>();
 		for (AccountInfoProjection projection : projections) {
 			AccountInformation account = AccountInformation.builder()
@@ -87,67 +83,15 @@ public class AccountServiceImpl implements AccountService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
-	@Override
-	public ResponseEntity<?> createDummyExternalAccounts(AccountDummyDto accountDummyDto)
-			throws Exception {
-		Random random = new Random();
-
-		// 입력한 정보와 랜덤값으로 유저 정보 생성
-		User user = userRepository.findById(accountDummyDto.getUserId())
-				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.USER_NOT_FOUND));
-
-		String registrationNum = user.getRegistrationNum();
-
-		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
-		String accountPassword = accountDummyDto.getAccountPassword();
-		List<String> banks = Arrays.asList("신한", "국민", "하나", "우리", "토스", "카카오");
-
-		for (int i = 0; i < 10; i++) {
-			String accountSalt = saltUtil.generateSalt();
-
-			String group1 = String.format("%03d", random.nextInt(1000));
-			String group2 = String.format("%04d", random.nextInt(10000));
-			String group3 = String.format("%04d", random.nextInt(10000));
-
-			String accountNum = group1 + "-" + group2 + "-" + group3;
-
-			ExternalAccount externalAccount = ExternalAccount
-					.builder()
-					.accountNum(cryptoUtil.encrypt(accountNum))
-					.bank(banks.get(random.nextInt(banks.size())))
-					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
-					.salt(accountSalt)
-					.password(saltUtil.encodePassword(accountSalt, accountPassword))
-					.registrationNum(registrationNum)
-					.balance(1000000L)
-					.build();
-			externalAccountRepository.save(externalAccount);
-		}
-
-		// 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
-		List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(registrationNum);
-
-		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
-		AccountListDto result = AccountListDto
-				.builder()
-				.externalAccounts(decryptAccountNum(0, projections))
-				.build();
-		ApiResponse apiResponse = ApiResponse.builder()
-				.result(result)
-				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
-				.build();
-		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
-	}
 
 	@Override
 	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 
-		// 유저의 주민번호에 해당하는 외부 계좌 목록을 불러옴
-		List<AccountInfoProjection> projections = externalAccountRepository.findAllByRegistrationNum(
-				user.getRegistrationNum());
+		// 유저의 주민번호에 해당하는 연결되지 않은 외부 계좌 목록을 불러옴
+		List<AccountInfoProjection> projections =
+				externalAccountRepository.findAllByRegistrationNumAndIsConnected(user.getRegistrationNum(), false);
 
 		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
 		AccountListDto result = AccountListDto
@@ -163,13 +107,13 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> connectExternalAccount(String accessToken, int externalAccountId,
-	                                                AccountPasswordDto accountPasswordDto) throws Exception {
+	public ResponseEntity<?> connectExternalAccount(
+			String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 
-		// externalAccountId에 대한 외부 계좌 존재 여부 확인
-		ExternalAccount externalAccount = externalAccountRepository.findById(externalAccountId)
+		// externalAccountId에 대한 연결되지 않은 외부 계좌 존재 여부 확인
+		ExternalAccount externalAccount = externalAccountRepository.findByIdAndIsConnected(externalAccountId, false)
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
 		// 해당 유저의 계좌 소유 여부 확인
@@ -205,6 +149,9 @@ public class AccountServiceImpl implements AccountService {
 				.balance(externalAccount.getBalance())
 				.build();
 		accountRepository.save(account);
+
+		// 외부 계좌의 연결 상태 변경
+		externalAccount.changeConnectionStatus();
 
 		// 계좌번호를 복호화하여 AccountConnectResultDto 파싱 후 리턴
 		AccountInformation result = AccountInformation
