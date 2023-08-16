@@ -85,7 +85,6 @@ public class MarkerServiceImpl implements MarkerService {
 		return distance < 0.05 ;
 	}
 
-
 	@Override
 	public ResponseEntity<?> getMarkerList(String accessToken) {
 		// access token으로 유저 가져오기
