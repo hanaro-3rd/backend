@@ -53,6 +53,39 @@ public class MarkerServiceImpl implements MarkerService {
 		return new MarkerListDto(returnMarkers);
 	}
 
+	private Boolean inRangeOfMarker(LocationDto markerLocation, LocationDto userLocation) {
+		// 마커의 위도, 경도
+		double markerX = markerLocation.getLat();
+		double markerY = markerLocation.getLng();
+		// 유저의 위도, 경도
+		double userX = userLocation.getLat();
+		double userY = userLocation.getLng();
+
+		// 지구 반지름(km)
+		final double radius = 6371;
+		final double toRadian = Math.PI / 180;
+
+		double deltaLat = Math.abs(markerX - userX) * toRadian;
+		double deltaLng = Math.abs(markerY - userY) * toRadian;
+
+		double squareSinDeltaLat = Math.pow(Math.sin(deltaLat / 2), 2);
+		double squareSinDeltaLng = Math.pow(Math.sin(deltaLng / 2), 2);
+
+		double squareRoot = Math.sqrt(
+				squareSinDeltaLat +
+						Math.cos(markerX * toRadian) *
+								Math.cos(userX * toRadian) *
+								squareSinDeltaLng
+		);
+
+		double result = 2 * radius * Math.asin(squareRoot);
+		double distance = (Math.round(result * 100) / 100.0);
+		System.out.println("distance = " + distance);
+		// 거리가 50m(0.05km)이내면 True, 아니면 False를 반환
+		return distance < 0.05 ;
+	}
+
+
 	@Override
 	public ResponseEntity<?> getMarkerList(String accessToken) {
 		// access token으로 유저 가져오기
@@ -155,8 +188,8 @@ public class MarkerServiceImpl implements MarkerService {
 
 	@Override
 	@Transactional
-	public ResponseEntity<?> pickUpMarker(String accessToken, int markerId,
-			MarkerLocationDto markerLocationDto) {
+	public ResponseEntity<?> pickUpMarker(
+			String accessToken, int markerId, LocationDto userLocation) {
 		// access token으로 유저 가져오기
 		User user = userService.getUserByAccessToken(accessToken);
 		int userId = user.getId();
@@ -165,10 +198,9 @@ public class MarkerServiceImpl implements MarkerService {
 		Marker marker = markerRepository.findById(markerId)
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.MARKER_NOT_FOUND));
 
-		// 현재 위치의 위도, 경도와 마커의 위도, 경도가 같은지 확인
-		Double lat = markerLocationDto.getLat();
-		Double lng = markerLocationDto.getLng();
-		if (!marker.getLat().equals(lat) || !marker.getLng().equals(lng)) {
+		// 현재 위치가 마커를 주울 수 있는 범위내인지 확인
+		LocationDto markerLocation = new LocationDto(marker.getLat(), marker.getLng());
+		if (!inRangeOfMarker(markerLocation, userLocation)) {
 			throw new BusinessExceptionHandler(ErrorCode.LOCATION_NOT_SAME);
 		}
 
