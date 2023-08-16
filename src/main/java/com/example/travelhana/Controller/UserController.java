@@ -36,8 +36,8 @@ public class UserController {
 	private final JwtConstants jwtConstants;
 
 	@GetMapping("/test")
-	public void isExistDevice() {
-		System.out.println("hello test success!");
+	public String isExistDevice() {
+		return "hello test success!test";
 	}
 
 	//기기 존재 여부 확인
