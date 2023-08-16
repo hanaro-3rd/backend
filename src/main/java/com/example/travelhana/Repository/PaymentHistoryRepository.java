@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
 
-	List<PaymentHistory> findAllByKeymoneyId(int id);
+	List<PaymentHistory> findAllByKeymoneyId(int keymoneyId);
+	List<PaymentHistory> findAllByKeymoneyIdAndIsPayment(int keymoneyId, Boolean isPayment);
 
 	Optional<PaymentHistory> findByIdAndUserId(Long id, int getUserId);
 
