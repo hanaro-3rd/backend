@@ -16,9 +16,9 @@ public class ExchangeRequestDto {
 	private Boolean isBought;
 	private String unit;
 	private Long moneyToExchange;
-
 	public void updateExchangeRate(Double rate){
 		this.exchangeRate+=rate;
 	}
+
 
 }

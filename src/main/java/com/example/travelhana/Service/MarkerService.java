@@ -2,7 +2,7 @@ package com.example.travelhana.Service;
 
 
 import com.example.travelhana.Dto.Marker.MarkerDummyDto;
-import com.example.travelhana.Dto.Marker.MarkerLocationDto;
+import com.example.travelhana.Dto.Marker.LocationDto;
 import org.springframework.http.ResponseEntity;
 
 public interface MarkerService {
@@ -12,6 +12,6 @@ public interface MarkerService {
 	ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto);
 
 	ResponseEntity<?> pickUpMarker(
-			String accessToken, int markerId, MarkerLocationDto markerLocationDto);
+			String accessToken, int markerId, LocationDto locationDto);
 
 }

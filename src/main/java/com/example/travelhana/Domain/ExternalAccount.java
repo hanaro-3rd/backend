@@ -42,6 +42,9 @@ public class ExternalAccount {
 	@Column(nullable = false)
 	private String registrationNum;
 
+	@Column(nullable = false)
+	private String phoneNum;
+
 	@Builder.Default
 	private Boolean isConnected=false;
 

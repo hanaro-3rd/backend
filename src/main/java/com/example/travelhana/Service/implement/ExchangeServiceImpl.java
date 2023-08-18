@@ -236,6 +236,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 		}
 
 		return saveExchangeHistory(account, keymoney, exchangeResult, dto, isBusinessDay);
+
 	}
 
 	//환전내역 저장
@@ -254,8 +255,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.balance(exchangeSuccess.getKeymoneyBalance())
 				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
 				.build();
-
 		exchangeHistoryRepository.save(exchangeHistory);
+
 		ExchangeResponseDto responseDto;
 		if (exchangeSuccess.getIsBought()) { //원화->외화
 			responseDto = ExchangeResponseDto
@@ -281,11 +282,47 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 		return responseDto;
 	}
+	//원화->외화
+	@Transactional
+	public ExchangeSuccess wonToKeyByClient(
+			Long won, Keymoney keyMoney, Account account, ExchangeRequestDto dto) {
+		Currency currency = Currency.getByCode(keyMoney.getUnit());
+		if (currency == null) {
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
+
+		if (won > 1000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
+		}
+
+		Long key=dto.getMoneyToExchange();
+		if (key < currency.getMinCurrency()) {
+			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
+		}
+
+		//키머니 잔액 200만원 초과 금지
+		if (key + keyMoney.getBalance() >= 2000000) {
+			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
+		}
+
+		keyMoney.updatePlusBalance(key); //키머니 잔액 추가
+		account.updateBalance(won * (-1)); //원화 잔액 차감
+
+		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+				.exchangeWon(won)
+				.exchangeKey(key)
+				.keymoneyBalance(keyMoney.getBalance())
+				.isBought(true)
+				.build();
+		return exchangeSuccess;
+	}
+
 
 	//원화->외화
 	@Transactional
 	public ExchangeSuccess wonToKeyByClient(
 			Keymoney keyMoney, Account account, ExchangeRequestDto dto) {
+
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);

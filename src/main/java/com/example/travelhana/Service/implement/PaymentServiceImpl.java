@@ -112,7 +112,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.INVALID_UPDATE));
 
 			// 메모와 카테고리를 수정
-			paymentHistory.updateCategoryAndMemo(paymentMemoDto.getMemo(), paymentMemoDto.getCategory());
+			paymentHistory.updateCategoryAndMemo(paymentMemoDto.getCategory(), paymentMemoDto.getMemo());
 
 			// 엔티티를 dto에 파싱
 			PaymentHistoryDto paymentHistoryDto = PaymentHistoryDto.builder()

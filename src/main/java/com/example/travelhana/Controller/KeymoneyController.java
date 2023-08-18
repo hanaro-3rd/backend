@@ -33,4 +33,5 @@ public class KeymoneyController {
 			@RequestParam String type) throws Exception {
 		return keymoneyService.getDetailKeymoneyHistory(accessToken, historyId, type);
 	}
+
 }
