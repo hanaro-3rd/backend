@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class CodeResponseDto {
-
-	private Boolean isExistUser;
-	private Boolean isCodeEqual;
-	private UserResponseDto userResponseDto;
-
+public class UpdateDeviceRequestDto {
+//	private String phonenum;
+//	private String deviceId;
+	private String registrationNum;
 }

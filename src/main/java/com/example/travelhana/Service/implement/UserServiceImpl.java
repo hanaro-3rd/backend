@@ -19,7 +19,6 @@ import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Repository.RoleRepository;
 import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
@@ -35,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.*;
@@ -115,7 +111,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception {
-		validateDuplicateUsername(dto);
+		validateDuplicateUsername(dto.getRegistrationNum());
 		isValidUser(dto);
 		String salt = saltUtil.generateSalt();
 		User user = new User().builder()
@@ -170,10 +166,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 	}
 
-	private void validateDuplicateUsername(SignupRequestDto dto) {
-		if (userRepository.existsByRegistrationNum(dto.getRegistrationNum())) {
+	public Optional<User> validateDuplicateUsername(String phoneNum) {
+		Optional<User> user=userRepository.findByPhoneNum(phoneNum);
+		if (user==null) {
 			throw new RuntimeException("이미 존재하는 사용자입니다.");
 		}
+		return user;
 	}
 
 	@Override
@@ -186,7 +184,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (roleRepository.existsByName(roleName)) {
 			throw new RuntimeException("이미 존재하는 Role입니다.");
 		}
-	}
+	};;
 
 	@Override
 	public int addRoleToUser(RoleToUserRequestDto dto) {
@@ -267,6 +265,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.result("success")
 				.build();
 		return new ResponseEntity(apiResponse, HttpStatus.ACCEPTED);
+	}
+
+
+	private void updateDevice(UpdateDeviceRequestDto dto){
+
+
 	}
 
 	//==============토큰발급=================

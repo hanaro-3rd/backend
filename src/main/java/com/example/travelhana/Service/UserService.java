@@ -6,7 +6,7 @@ import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Dto.Authentication.UpdatePasswordDto;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -25,5 +25,6 @@ public interface UserService {
 	User getUserByAccessToken(String header);
 
 	ResponseEntity<?> updatePassword(UpdatePasswordDto dto);
+	Optional<User> validateDuplicateUsername(String registrationNum);
 
 }

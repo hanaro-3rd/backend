@@ -13,12 +13,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
 	Optional<User> findByDeviceId(String deviceId);
-
+	Optional<User> findByPhoneNum(String phonenum);
 	boolean existsByDeviceId(String deviceId);
 
-	boolean existsByRegistrationNum(String registrationNum);
-
-	Optional<User> findByPhoneNum(String phonenum);
 
 }
 

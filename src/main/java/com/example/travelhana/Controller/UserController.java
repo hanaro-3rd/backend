@@ -85,4 +85,10 @@ public class UserController {
 		return userService.updatePassword(dto);
 	}
 
+
+	@PatchMapping("/updateDevice")
+	public void updateDevice(@RequestBody UpdateDeviceRequestDto dto){
+		userService.validateDuplicateUsername(dto.getRegistrationNum());
+	}
+
 }

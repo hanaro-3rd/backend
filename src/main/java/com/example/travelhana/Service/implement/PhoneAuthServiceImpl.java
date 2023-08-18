@@ -9,6 +9,7 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
+import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -49,6 +50,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
     private final HttpSession session;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public static int generateRandomNumber() {
         return ThreadLocalRandom.current().nextInt(100000, 1000000);
@@ -151,7 +153,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
         if(code!=null)
         {
             if (codeDto.getCode().equals(code)) {
-                Optional<User> user=userRepository.findByPhoneNum(codeDto.getPhonenum());
+                Optional<User> user=userService.validateDuplicateUsername(codeDto.getPhonenum());
 
                 CodeResponseDto codeResponseDto;
                 if(user==null)
