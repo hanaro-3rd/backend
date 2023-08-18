@@ -59,9 +59,6 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.6'
 }
 
-jar {
-    enabled = false
-}
 
 tasks.named('test') {
     useJUnitPlatform()
