@@ -219,9 +219,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 	public ExchangeResponseDto saveExchangeThings(
 			Keymoney keymoney, Account account, ExchangeRequestDto dto) throws URISyntaxException {
 
-		Long money = dto.getMoney(); //요청 원화
 		ExchangeSuccess exchangeResult;
-
 		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
 		if (!isBusinessDay) {
 			//공휴일이면
@@ -238,22 +236,21 @@ public class ExchangeServiceImpl implements ExchangeService {
 			exchangeResult = keyToWonByClient(keymoney, account, dto); //money=외화
 		}
 
-		return saveExchangeHistory(account, keymoney, exchangeResult, dto);
+		return saveExchangeHistory(account, keymoney, exchangeResult, dto, isBusinessDay);
 	}
 
 	//환전내역 저장
 	@Transactional
 	public ExchangeResponseDto saveExchangeHistory(
-			Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRequestDto exchangeRateInfo) {
+			Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRequestDto exchangeRateInfo, Boolean isBusinessDay) {
 		ExchangeHistory exchangeHistory = ExchangeHistory
 				.builder()
 				.accountId(account.getId())
-				.exchangeDate(LocalDateTime.now())
 				.exchangeRate(exchangeRateInfo.getExchangeRate())
 				.keymoneyId(keyMoney.getId())
 				.exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
 				.isBought(exchangeSuccess.getIsBought())
-				.isBusinessday(true)
+				.isBusinessday(isBusinessDay)
 				.userId(account.getUser().getId())
 				.balance(exchangeSuccess.getKeymoneyBalance())
 				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
