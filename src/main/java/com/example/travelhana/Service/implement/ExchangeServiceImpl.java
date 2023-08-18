@@ -199,7 +199,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
 			}
 		} else { //외화->원화 요청 : 외화계좌 확인
-			if (dto.getMoney() > keymoney.get().getBalance()) {
+			if (dto.getMoneyToExchange() > keymoney.get().getBalance()) {
 				throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
 			}
 		}
@@ -217,11 +217,11 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	@Transactional
 	public ExchangeResponseDto saveExchangeThings(
-			Keymoney keymoney, Account account, ExchangeRequestDto dto)	throws URISyntaxException {
+			Keymoney keymoney, Account account, ExchangeRequestDto dto) throws URISyntaxException {
 
 		Long money = dto.getMoney(); //요청 원화
 		ExchangeSuccess exchangeResult;
-		ExchangeRateInfo exchangeRateDto = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
+
 		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
 		if (!isBusinessDay) {
 			//공휴일이면
@@ -229,23 +229,22 @@ public class ExchangeServiceImpl implements ExchangeService {
 				//외화매도는 안됨
 				throw new BusinessExceptionHandler(ErrorCode.ONLY_PUCHASE_IN_HOLIDAY);
 			}
-			exchangeRateDto.updateExchangeRate(20.0); //수수료 20원 추가해서 환전
+			dto.updateExchangeRate(20.0); //수수료 20원 추가해서 환전
 		}
-		ExchangeRateInfo exchangeRateInfo = exchangeRateUtil.getExchangeRateByAPI(dto.getUnit());
 
 		if (dto.getIsBought()) { //원화 -> 외화
-			exchangeResult = wonToKey(money, keymoney, account, exchangeRateInfo); //money=원화
+			exchangeResult = wonToKeyByClient(keymoney, account, dto); //money=원화
 		} else { //외화 -> 원화
-			exchangeResult = keyToWon(money, keymoney, account, exchangeRateInfo); //money=외화
+			exchangeResult = keyToWonByClient(keymoney, account, dto); //money=외화
 		}
 
-		return saveExchangeHistory(account, keymoney, exchangeResult, exchangeRateInfo);
+		return saveExchangeHistory(account, keymoney, exchangeResult, dto);
 	}
 
 	//환전내역 저장
 	@Transactional
 	public ExchangeResponseDto saveExchangeHistory(
-			Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRateInfo exchangeRateInfo) {
+			Account account, Keymoney keyMoney, ExchangeSuccess exchangeSuccess, ExchangeRequestDto exchangeRateInfo) {
 		ExchangeHistory exchangeHistory = ExchangeHistory
 				.builder()
 				.accountId(account.getId())
@@ -289,35 +288,32 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//원화->외화
 	@Transactional
-	public ExchangeSuccess wonToKey(
-			Long won, Keymoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
+	public ExchangeSuccess wonToKeyByClient(
+			Keymoney keyMoney, Account account, ExchangeRequestDto dto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
 
-		if (won > 1000000) {
+		if (dto.getMoney() > 1000000) {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
 		}
 
-		Double key = (double) won * (double) currency.getBaseCurrency() / exchangeRateInfo.getExchangeRate();
-		Long realkey = Math.round(key);
-
-		if (realkey < currency.getMinCurrency()) {
+		if (dto.getMoneyToExchange() < currency.getMinCurrency()) {
 			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
 		//키머니 잔액 200만원 초과 금지
-		if (realkey + keyMoney.getBalance() >= 2000000) {
+		if (dto.getMoneyToExchange() + keyMoney.getBalance() >= 2000000) {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
 		}
 
-		keyMoney.updatePlusBalance(realkey); //키머니 잔액 추가
-		account.updateBalance(won * (-1)); //원화 잔액 차감
+		keyMoney.updatePlusBalance(dto.getMoneyToExchange()); //키머니 잔액 추가
+		account.updateBalance(dto.getMoney() * (-1)); //원화 잔액 차감
 
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-				.exchangeWon(won)
-				.exchangeKey(realkey)
+				.exchangeWon(dto.getMoney())
+				.exchangeKey(dto.getMoneyToExchange())
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(true)
 				.build();
@@ -326,26 +322,22 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외화->원화
 	@Transactional
-	public ExchangeSuccess keyToWon(
-			Long key, Keymoney keyMoney, Account account, ExchangeRateInfo exchangeRateInfo) {
+	public ExchangeSuccess keyToWonByClient(
+			Keymoney keyMoney, Account account, ExchangeRequestDto dto) {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
 		}
-		if (key < currency.getMinCurrency()) {
+		if (dto.getMoneyToExchange() < currency.getMinCurrency()) {
 			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
-		Double won =
-				(double) key * exchangeRateInfo.getExchangeRate() / (double) currency.getBaseCurrency();
-		Long realwon = Math.round(won); //외화에서 환전하고 결과 원화
-
-		keyMoney.updatePlusBalance(key * (-1)); //키머니 잔액 차감
-		account.updateBalance(realwon); //원화 잔액 추가
+		keyMoney.updatePlusBalance(dto.getMoneyToExchange() * (-1)); //키머니 잔액 차감
+		account.updateBalance(dto.getMoney()); //원화 잔액 추가
 
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
-				.exchangeWon(realwon)
-				.exchangeKey(key)
+				.exchangeWon(dto.getMoney())
+				.exchangeKey(dto.getMoneyToExchange())
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(false)
 				.build();
