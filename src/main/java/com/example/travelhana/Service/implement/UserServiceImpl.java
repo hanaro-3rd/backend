@@ -61,8 +61,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
-		Boolean isRegistrate;
-		String name;
 		try {
 			User user = userRepository.findByDeviceId(deviceId)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
@@ -335,7 +333,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			return ResponseEntity.status(HttpStatus.ACCEPTED)
 					.body(apiResponse);
 		}
-
 	}
 
 }
