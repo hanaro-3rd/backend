@@ -59,6 +59,8 @@ public class User {
 		this.refreshToken = newToken;
 	}
 
-	public void updatePassword(String password) { this.password = password;	}
+	public void updatePassword(String password) {
+		this.password = password;
+	}
 
 }

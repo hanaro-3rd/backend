@@ -30,8 +30,8 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		String isPassword = (String) authentication.getDetails();
 
 
-		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
-				username);
+		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService
+				.loadUserByUsername(username);
 		String salt = userDetails.getSalt();
 		String userpattern = userDetails.getPattern();
 		String userpassword = userDetails.getPassword();
@@ -51,8 +51,8 @@ public class CustomAuthProvider implements AuthenticationProvider {
 			}
 		}
 
-		return new UsernamePasswordAuthenticationToken(userDetails, null,
-				userDetails.getAuthorities());
+		return new UsernamePasswordAuthenticationToken(
+				userDetails, null, userDetails.getAuthorities());
 	}
 
 	@Override

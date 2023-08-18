@@ -36,8 +36,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			try {
 				log.info("CustomAuthenticationFilter - pattern");
 				// Request를 JSON으로 변환
-				JsonAuthRequestPattern authRequest = objectMapper.readValue(request.getReader(),
-						JsonAuthRequestPattern.class);
+				JsonAuthRequestPattern authRequest = objectMapper.readValue(
+						request.getReader(), JsonAuthRequestPattern.class);
 				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 						authRequest.getDeviceId(),
 						authRequest.getPattern()
@@ -48,7 +48,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-
 		} else {
 			try {
 				log.info("CustomAuthenticationFilter - password");
@@ -66,25 +65,21 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 				throw new RuntimeException(e);
 			}
 		}
-
 	}
 
 	@Getter
 	@Setter
 	private static class JsonAuthRequest {
-
 		private String deviceId;
 		private String password;
-
 	}
 
 	@Getter
 	@Setter
 	private static class JsonAuthRequestPattern {
-
 		private String deviceId;
 		private String pattern;
-
 	}
+
 }
 

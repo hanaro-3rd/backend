@@ -62,16 +62,16 @@ public class UserController {
 
 	//refresh token 요청
 	@GetMapping("/refresh")
-	public ResponseEntity<?> refresh(HttpServletRequest request,
-	                                 HttpServletResponse response) {
+	public ResponseEntity<?> refresh(
+			HttpServletRequest request, HttpServletResponse response) {
 		String authorizationHeader = request.getHeader(AUTHORIZATION);
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
 			throw new RuntimeException("JWT Token이 존재하지 않습니다.");
 		}
+
 		String refreshToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 		return userService.refresh(refreshToken);
-
 	}
 
 	//비밀번호 수정

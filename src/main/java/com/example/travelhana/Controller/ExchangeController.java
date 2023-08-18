@@ -35,4 +35,5 @@ public class ExchangeController {
 			@RequestHeader(value = "Authorization") String ignoredAccessToken) throws URISyntaxException {
 		return exchangeService.getExchangeRate();
 	}
+
 }

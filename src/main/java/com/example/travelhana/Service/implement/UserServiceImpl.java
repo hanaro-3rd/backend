@@ -49,14 +49,12 @@ import static com.example.travelhana.Config.JwtConstants.*;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final SaltUtil saltUtil;
 	private final JwtConstants jwtConstants;
 	private final CryptoUtil cryptoUtil;
 	private final ExternalAccountRepository externalAccountRepository;
-
 
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
@@ -81,7 +79,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.build();
 			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 
 
@@ -113,7 +110,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.build();
 			externalAccountRepository.save(externalAccount);
 		}
-
 	}
 
 	//회원가입 - 계정 저장
@@ -213,7 +209,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		User user = userRepository.findByDeviceId(deviceId)
 				.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 		return user;
-
 	}
 
 	//==============로그인=================
