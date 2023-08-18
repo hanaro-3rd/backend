@@ -29,7 +29,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
 		auth.authenticationProvider(authenticationProvider);
-
 	}
 
 	@Override
@@ -37,7 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		CustomAuthenticationFilter customAuthenticationFilter =
 				new CustomAuthenticationFilter(authenticationManagerBean());
-		customAuthenticationFilter.setFilterProcessesUrl("/signin/password");
+		customAuthenticationFilter.setFilterProcessesUrl("/signin/**");
+
 		customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
 		customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
 
@@ -52,8 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/redistest",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
-                "/account/dummy", "/marker/dummy").permitAll();
+				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
+				"/account/dummy","/updatePassword", "/marker/dummy").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(customAuthenticationFilter);

@@ -44,8 +44,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/.well-known",
 					"/swagger-ui.html",
 					"/registration",
-					"/verification/auth", "/verification",
-					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy",
+					"/verification/auth", "/verification", "/updatePassword",
+					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -88,7 +88,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		if (servletPath.contains("registration") || servletPath.contains("dummy")
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
-				"/signup") || servletPath.contains(".well-known")) {
+				"/signup") || servletPath.equals(
+				"/updatePassword") || servletPath.contains(".well-known")) {
 			System.out.println("CustomAuthorizationFilter");
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
