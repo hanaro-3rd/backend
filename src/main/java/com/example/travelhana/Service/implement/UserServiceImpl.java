@@ -296,7 +296,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		long now = System.currentTimeMillis();
 		try {
 			if (!user.getRefreshToken().equals(refreshToken)) {
-				userRepository.updateRefreshToken(user.getDeviceId());
+				user.updateRefreshToken(null);
 				throw new JWTVerificationException("유효하지 않은 Refresh Token 입니다. Refresh Token을 삭제합니다. 재로그인하세요.");
 			}
 			String newaccessToken = JWT.create()
