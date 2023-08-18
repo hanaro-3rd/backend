@@ -13,7 +13,7 @@ public class MarkerPickUpResultDto {
 
 	int userId;
 	String place;
-	Long balance;
+	Long price;
 	String unit;
 
 }

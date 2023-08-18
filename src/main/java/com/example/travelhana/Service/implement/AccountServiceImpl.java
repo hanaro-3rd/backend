@@ -91,7 +91,7 @@ public class AccountServiceImpl implements AccountService {
 
 		// 유저의 주민번호에 해당하는 연결되지 않은 외부 계좌 목록을 불러옴
 		List<AccountInfoProjection> projections =
-				externalAccountRepository.findAllByRegistrationNumAndIsConnected(user.getRegistrationNum(), false);
+				externalAccountRepository.findAllByPhoneNumAndIsConnected(user.getPhoneNum(), false);
 
 		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
 		AccountListDto result = AccountListDto
