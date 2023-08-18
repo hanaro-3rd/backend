@@ -12,22 +12,11 @@ import java.util.Optional;
 @Transactional
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-
-	@Modifying
-	@Query(value = "UPDATE user SET refresh_token = NULL WHERE device_id = :deviceId", nativeQuery = true)
-	void updateRefreshToken(String deviceId);
-
-	@Modifying
-	@Query(value = "UPDATE user SET password =:password WHERE device_id = :deviceId", nativeQuery = true)
-	void updatePassword(@Param("deviceId") String deviceId, @Param("password")String password);
-
 	Optional<User> findByDeviceId(String deviceId);
 
 	boolean existsByDeviceId(String deviceId);
-	boolean existsByRegistrationNum(String registrationNum);
-	Optional<User> findByNameAndRegistrationNum(String name,String registrationNum);
 
-	Optional<User> findByIdAndIsWithdrawal(int userId, Boolean isWithdrawal);
+	boolean existsByRegistrationNum(String registrationNum);
 
 	Optional<User> findByPhoneNum(String phonenum);
 

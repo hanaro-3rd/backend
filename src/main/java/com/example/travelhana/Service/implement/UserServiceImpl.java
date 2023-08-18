@@ -249,6 +249,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 	}
 
+	@Transactional
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
 		findPassword(dto);
 		User user = userRepository.findByDeviceId(dto.getDeviceId()).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
@@ -264,7 +265,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 
 		String newPassword = saltUtil.encodePassword(user.getSalt(), dto.getNewPassword());
-		userRepository.updatePassword(user.getDeviceId(), newPassword);
+		user.updatePassword(newPassword);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
 				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
@@ -283,7 +284,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	//Refresh token 재발급
-	@Override
 	@Transactional
 	public ResponseEntity<?> refresh(String refreshToken) {
 

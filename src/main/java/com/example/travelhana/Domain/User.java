@@ -38,7 +38,7 @@ public class User {
 	private String pattern;
 
 	@Builder.Default
-	private Boolean isWithdrawal=false; //디폴트 =false
+	private Boolean isWithdrawal = false; //디폴트 =false
 
 	@ManyToMany
 	private final List<Role> roles = new ArrayList<>();
@@ -50,6 +50,7 @@ public class User {
 	private String salt;
 
 	private String refreshToken;
+
 	public User() {
 		this.isWithdrawal = false;
 	}
@@ -57,5 +58,7 @@ public class User {
 	public void updateRefreshToken(String newToken) {
 		this.refreshToken = newToken;
 	}
+
+	public void updatePassword(String password) { this.password = password;	}
 
 }
