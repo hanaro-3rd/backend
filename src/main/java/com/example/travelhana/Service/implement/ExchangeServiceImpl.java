@@ -75,7 +75,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.usd(usdExchangeRate)
 				.jpy(jpyExchangeRate)
 				.eur(eurExchangeRate)
-				.updatedAt(LocalDateTime.now())
 				.build();
 
 		// ResponseEntity에 묶어서 리턴
@@ -100,8 +99,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.usd(usdExchangeRate)
 				.jpy(jpyExchangeRate)
 				.eur(eurExchangeRate)
-				.updatedAt(LocalDateTime.now())
 				.build();
+		System.out.println(result.getUpdatedAt());
 		String dtoAsString = objectMapper.writeValueAsString(result);
 		stringStringListOperations.leftPush("mystack", dtoAsString);
 	}
