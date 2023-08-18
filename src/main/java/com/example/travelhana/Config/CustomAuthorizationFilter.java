@@ -40,10 +40,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 	//필터를 거치지 않을 url
 	private List<String> excludeUrlPatterns = new ArrayList<String>(
-			Arrays.asList("/swagger-ui.html",
+			Arrays.asList(
+					"/.well-known",
+					"/swagger-ui.html",
 					"/registration",
-					"/verification/auth", "/verification",
-					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css","/redistest","/dummy",
+					"/verification/auth", "/verification", "/updatePassword",
+					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -77,7 +79,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-			FilterChain filterChain) throws ServletException, IOException {
+	                                FilterChain filterChain) throws ServletException, IOException {
 
 		String servletPath = request.getServletPath();
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
@@ -86,7 +88,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		if (servletPath.contains("registration") || servletPath.contains("dummy")
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
-				"/signup")) {
+				"/signup") || servletPath.equals(
+				"/updatePassword") || servletPath.contains(".well-known")) {
 			System.out.println("CustomAuthorizationFilter");
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
@@ -134,8 +137,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
 				new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 			} catch (Exception e) {
-				log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}",
-						e.getMessage());
+				log.info(
+						"CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage(), e);
 				response.setStatus(SC_BAD_REQUEST);
 				response.setContentType(APPLICATION_JSON_VALUE);
 				response.setCharacterEncoding("utf-8");

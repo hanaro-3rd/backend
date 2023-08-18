@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface ExchangeHistoryRepository extends JpaRepository<ExchangeHistory, Long> {
 
 	List<ExchangeHistory> findAllByKeymoneyId(int keymoneyId);
+	List<ExchangeHistory> findAllByKeymoneyIdAndIsBought(int keymoneyId, Boolean isBought);
 
 	Optional<ExchangeHistory> findByIdAndUserId(Long id, int getUserId);
 

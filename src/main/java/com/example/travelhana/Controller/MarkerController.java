@@ -3,7 +3,7 @@ package com.example.travelhana.Controller;
 import com.example.travelhana.Dto.*;
 import com.example.travelhana.Dto.Marker.MarkerDummyDto;
 import com.example.travelhana.Dto.Marker.MarkerListDto;
-import com.example.travelhana.Dto.Marker.MarkerLocationDto;
+import com.example.travelhana.Dto.Marker.LocationDto;
 import com.example.travelhana.Dto.Marker.MarkerPickUpResultDto;
 import com.example.travelhana.Service.MarkerService;
 
@@ -40,8 +40,8 @@ public class MarkerController {
 	})
 	public ResponseEntity<?> pickUpMarker(
 			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int markerId,
-			@RequestBody MarkerLocationDto markerLocationDto) {
-		return markerService.pickUpMarker(accessToken, markerId, markerLocationDto);
+			@RequestBody LocationDto locationDto) {
+		return markerService.pickUpMarker(accessToken, markerId, locationDto);
 	}
 
 	@PostMapping("/dummy")

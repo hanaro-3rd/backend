@@ -13,9 +13,8 @@ import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class User {
 
 	@Id
@@ -38,8 +37,8 @@ public class User {
 	@Column(nullable = false)
 	private String pattern;
 
-	@ColumnDefault("false")
-	private Boolean isWithdrawal; //디폴트 =false
+	@Builder.Default
+	private Boolean isWithdrawal = false; //디폴트 =false
 
 	@ManyToMany
 	private final List<Role> roles = new ArrayList<>();
@@ -52,8 +51,16 @@ public class User {
 
 	private String refreshToken;
 
+	public User() {
+		this.isWithdrawal = false;
+	}
+
 	public void updateRefreshToken(String newToken) {
 		this.refreshToken = newToken;
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
 	}
 
 }

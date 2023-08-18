@@ -9,6 +9,7 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
 
 	private final String username;
 	private final String password;
+	private final String pattern;
 	private final String salt;
 	private final Collection<? extends GrantedAuthority> authorities;
 	private final boolean accountNonExpired;
@@ -16,12 +17,13 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
 	private final boolean credentialsNonExpired;
 	private final boolean enabled;
 
-	public CustomUserDetailsImpl(String username, String password,String salt,
+	public CustomUserDetailsImpl(String username, String password, String pattern, String salt,
 	                             Collection<? extends GrantedAuthority> authorities,
 	                             boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired,
 	                             boolean enabled) {
 		this.username = username;
 		this.password = password;
+		this.pattern = pattern;
 		this.salt = salt;
 		this.authorities = authorities;
 		this.accountNonExpired = accountNonExpired;
@@ -33,6 +35,11 @@ public class CustomUserDetailsImpl implements CustomUserDetails {
 	@Override
 	public String getSalt() {
 		return salt;
+	}
+
+	@Override
+	public String getPattern() {
+		return pattern;
 	}
 
 	@Override

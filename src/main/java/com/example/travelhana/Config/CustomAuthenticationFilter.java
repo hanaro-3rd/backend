@@ -25,41 +25,61 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) {
+	                                            HttpServletResponse response) {
 		if (request.getContentType() == null || !request.getContentType()
 				.contains(MediaType.APPLICATION_JSON_VALUE)) {
 			log.info("CustomAuthenticationFilter");
 			return super.attemptAuthentication(request, response);
 		}
+		String servletPath = request.getServletPath();
+		if (servletPath.contains("pattern")) {
+			try {
+				log.info("CustomAuthenticationFilter - pattern");
+				// Request를 JSON으로 변환
+				JsonAuthRequestPattern authRequest = objectMapper.readValue(
+						request.getReader(), JsonAuthRequestPattern.class);
+				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+						authRequest.getDeviceId(),
+						authRequest.getPattern()
+				);
+				token.setDetails("pattern");
 
-		try {
-			log.info("CustomAuthenticationFilter");
-			// Request를 JSON으로 변환
-			JsonAuthRequest authRequest = objectMapper.readValue(request.getReader(),
-					JsonAuthRequest.class);
-			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-					authRequest.getDeviceId(),
-					authRequest.getPassword()
-			);
+				return authenticationManager.authenticate(token);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			try {
+				log.info("CustomAuthenticationFilter - password");
+				// Request를 JSON으로 변환
+				JsonAuthRequest authRequest = objectMapper.readValue(request.getReader(),
+						JsonAuthRequest.class);
+				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+						authRequest.getDeviceId(),
+						authRequest.getPassword()
+				);
+				token.setDetails("password");
 
-			return authenticationManager.authenticate(token);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+				return authenticationManager.authenticate(token);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
-		//디바이스 아이디+패스워드 받아서 유저 존재여부 확인
-		//만약 회원이 기기를 변경했다면
-		//회원의 본인인증을 한번 더 하고 deviceId를 업데이트하고
-		//앞으로 로그인할 떄 동일하게 deviceId 체크
-
 	}
 
 	@Getter
 	@Setter
 	private static class JsonAuthRequest {
-
 		private String deviceId;
 		private String password;
-
 	}
+
+	@Getter
+	@Setter
+	private static class JsonAuthRequestPattern {
+		private String deviceId;
+		private String pattern;
+	}
+
 }
 
