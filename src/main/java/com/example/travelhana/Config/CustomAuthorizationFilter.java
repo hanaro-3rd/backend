@@ -40,7 +40,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 	//필터를 거치지 않을 url
 	private List<String> excludeUrlPatterns = new ArrayList<String>(
-			Arrays.asList("/swagger-ui.html",
+			Arrays.asList(
+					"/.well-known",
+					"/swagger-ui.html",
 					"/registration",
 					"/verification/auth", "/verification",
 					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy","/refresh",
@@ -84,8 +86,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
 		if (servletPath.contains("registration") || servletPath.contains("dummy")
-				|| servletPath.equals("/swagger-ui/index.html") || servletPath.contains("signin") ||servletPath.contains("refresh") || servletPath.equals(
-				"/signup")||servletPath.equals("/updatePassword")) {
+				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
+				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
+				"/signup") || servletPath.contains(".well-known")) {
 			System.out.println("CustomAuthorizationFilter");
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
@@ -133,8 +136,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				ErrorResponse errorResponse = new ErrorResponse(401, "Access Token이 만료되었습니다.");
 				new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 			} catch (Exception e) {
-				log.info("CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}",
-						e.getMessage());
+				log.info(
+						"CustomAuthorizationFilter : JWT 토큰이 잘못되었습니다. message : {}", e.getMessage(), e);
 				response.setStatus(SC_BAD_REQUEST);
 				response.setContentType(APPLICATION_JSON_VALUE);
 				response.setCharacterEncoding("utf-8");

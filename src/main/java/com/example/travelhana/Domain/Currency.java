@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum Currency {
 	JPY("JPY", 100, 1000), // 일본 엔 환율
 	EUR("EUR", 1, 10), // 유럽 유로 환율
-	USD("USD", 1, 10); // 미국 달러 환율
+	USD("USD", 1, 10), // 미국 달러 환율
+	KRW("KRW", 1000, 10000); // 미국 달러 환율
 
 
 	private final String code;

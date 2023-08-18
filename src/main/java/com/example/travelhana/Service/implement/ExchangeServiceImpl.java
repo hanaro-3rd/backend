@@ -260,8 +260,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.balance(exchangeSuccess.getKeymoneyBalance())
 				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
 				.build();
-
 		exchangeHistoryRepository.save(exchangeHistory);
+
 		ExchangeResponseDto responseDto;
 		if (exchangeSuccess.getIsBought()) { //원화->외화
 			responseDto = ExchangeResponseDto

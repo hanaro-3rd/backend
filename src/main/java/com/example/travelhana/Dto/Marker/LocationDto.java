@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class MarkerLocationDto {
+public class LocationDto {
 
 	Double lat;
 	Double lng;
