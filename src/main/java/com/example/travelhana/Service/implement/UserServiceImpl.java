@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 					.salt(accountSalt)
 					.password(saltUtil.encodePassword(accountSalt, accountPassword))
 					.registrationNum(accountDummyDto.getRegistrationNum())
+					.phoneNum(accountDummyDto.getPhoneNum())
 					.balance(1000000L)
 					.build();
 			externalAccountRepository.save(externalAccount);
@@ -124,11 +125,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.registrationNum(dto.getRegistrationNum())
 				.build();
 		userRepository.save(user);
+
 		AccountDummyDto accountDummyDto = AccountDummyDto
 				.builder()
 				.userId(user.getId())
 				.accountPassword("1234")
 				.registrationNum(dto.getRegistrationNum())
+				.phoneNum(dto.getPhonenum())
 				.build();
 		createDummyExternalAccounts(accountDummyDto);
 

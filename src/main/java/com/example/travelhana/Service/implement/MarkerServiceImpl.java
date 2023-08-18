@@ -268,7 +268,7 @@ public class MarkerServiceImpl implements MarkerService {
 				.builder()
 				.userId(userId)
 				.place(marker.getPlace())
-				.balance(storedKeyMoney)
+				.price(marker.getAmount())
 				.unit(marker.getUnit())
 				.build();
 		ApiResponse apiResponse = ApiResponse.builder()
