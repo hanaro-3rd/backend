@@ -17,4 +17,8 @@ public class ExchangeRequestDto {
 	private String unit;
 	private Long moneyToExchange;
 
+	public void updateExchangeRate(Double rate) {
+		this.exchangeRate += rate;
+	}
+
 }
