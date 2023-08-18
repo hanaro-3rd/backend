@@ -44,7 +44,7 @@ public class ExchangeHistory {
 
 	@Column
 	@CreationTimestamp
-	private final LocalDateTime exchangeDate=LocalDateTime.now();
+	private final LocalDateTime exchangeDate = LocalDateTime.now();
 
 	@Column
 	private Boolean isBusinessday;

@@ -20,6 +20,6 @@ public class ExchangeRateDto implements Serializable {
 	ExchangeRateInfo eur;
 
 	@CreationTimestamp
-	private final LocalDateTime updatedAt=LocalDateTime.now();
+	private final LocalDateTime updatedAt = LocalDateTime.now();
 
 }
