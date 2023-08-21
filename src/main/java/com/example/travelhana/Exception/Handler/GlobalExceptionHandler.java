@@ -2,8 +2,6 @@ package com.example.travelhana.Exception.Handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.example.travelhana.Dto.ResponseDto;
-import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;

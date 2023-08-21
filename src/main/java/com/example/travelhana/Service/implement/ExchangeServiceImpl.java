@@ -101,7 +101,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.jpy(jpyExchangeRate)
 				.eur(eurExchangeRate)
 				.build();
-		System.out.println(result.getUpdatedAt());
 		String dtoAsString = objectMapper.writeValueAsString(result);
 		stringStringListOperations.leftPush("mystack", dtoAsString);
 	}
