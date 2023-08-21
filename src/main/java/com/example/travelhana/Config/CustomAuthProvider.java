@@ -29,7 +29,6 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		String inputpassword = (String) authentication.getCredentials();
 		String isPassword = (String) authentication.getDetails();
 
-
 		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(username);
 		String salt = userDetails.getSalt();
