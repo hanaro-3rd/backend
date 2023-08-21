@@ -49,7 +49,7 @@ public class MarkerController {
 			@ApiResponse(code = 200, message = "OK", response = MarkerListDto.class),
 			@ApiResponse(code = 404, message = "NOT_FOUND", response = ResponseDto.class)
 	})
-	public ResponseEntity<?> createDummyAccounts(
+	public ResponseEntity<?> createDummyMarker(
 			@RequestBody MarkerDummyDto markerDummyDto) {
 		return markerService.createDummyMarker(markerDummyDto);
 	}
