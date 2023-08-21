@@ -11,4 +11,5 @@ public class RoleToUserRequestDto {
 
 	private String deviceId;
 	private Long roleId;
+
 }
