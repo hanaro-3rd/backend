@@ -50,7 +50,7 @@ public class UserController {
 
 	//휴대폰 인증코드 일치여부 확인
 	@PostMapping("/verification/auth")
-	public ResponseEntity<?> isSuccessAuth(@RequestHeader("Cookie") String ignoredHeaderValue, @RequestBody CodeRequestDto codedto) {
+	public ResponseEntity<?> isSuccessAuth(@RequestBody CodeRequestDto codedto) {
 		return phoneAuthService.checkCode(codedto);
 	}
 
