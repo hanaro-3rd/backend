@@ -30,7 +30,6 @@ out/
 =======
 application.properties
 src/main/resources/application.properties
->>>>>>> 9e3c495a3c277196c4b21d7d935da2c20afcf8da
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -40,7 +39,5 @@ src/main/resources/application.properties
 
 ### VS Code ###
 .vscode/
-<<<<<<< HEAD
-#src/main/resources/application.properties
-=======
->>>>>>> 9e3c495a3c277196c4b21d7d935da2c20afcf8da
+src/main/resources/application.properties
+

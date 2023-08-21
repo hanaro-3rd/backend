@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	public Optional<User> validateDuplicateUsername(String phoneNum) {
-		Optional<User> user=userRepository.findByPhoneNum(phoneNum);
+		Optional<User> user = userRepository.findByPhoneNum(phoneNum);
 		return user;
 	}
 
@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (roleRepository.existsByName(roleName)) {
 			throw new RuntimeException("이미 존재하는 Role입니다.");
 		}
-	};;
+	}
 
 	@Override
 	public int addRoleToUser(RoleToUserRequestDto dto) {
@@ -269,9 +269,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 	@Override
-	public void updateDevice(UpdateDeviceRequestDto dto){
-		Optional<User> user=validateDuplicateUsername(dto.getPhonenum());
-		if(user!=null){
+	public void updateDevice(UpdateDeviceRequestDto dto) {
+		Optional<User> user = validateDuplicateUsername(dto.getPhonenum());
+		if (user != null) {
 			user.get().updateDeviceId(dto.getNewDeviceId());
 		}
 	}
