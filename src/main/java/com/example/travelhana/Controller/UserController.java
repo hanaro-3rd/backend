@@ -25,11 +25,6 @@ public class UserController {
 	private final UserService userService;
 	private final PhoneAuthService phoneAuthService;
 
-	@GetMapping("/test")
-	public String isExistDevice() {
-		return "hello test success!test";
-	}
-
 	//기기 존재 여부 확인
 	@GetMapping("/registration/{deviceId}")
 	public ResponseEntity<?> isExistDevice(@PathVariable("deviceId") String deviceId) {
@@ -85,7 +80,7 @@ public class UserController {
 		return userService.updatePassword(dto);
 	}
 
-
+	//기기 변경 시 업데이트
 	@PatchMapping("/updateDevice")
 	public void updateDevice(@RequestBody UpdateDeviceRequestDto dto){
 		userService.updateDevice(dto);
