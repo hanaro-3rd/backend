@@ -26,8 +26,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-<<<<<<< HEAD
-=======
+
 application.properties
 src/main/resources/application.properties
 ### NetBeans ###
