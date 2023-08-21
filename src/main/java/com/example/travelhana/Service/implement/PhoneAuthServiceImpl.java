@@ -155,12 +155,12 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 				{
 					codeResponseDto = CodeResponseDto.builder()
 							.isCodeEqual(true)
-							.isExistUser(true)
+							.isExistUser(false)
 							.build();
 				} else { //유저가 존재하면
 					codeResponseDto = CodeResponseDto.builder()
 							.isCodeEqual(true)
-							.isExistUser(false)
+							.isExistUser(true)
 							.userResponseDto(UserResponseDto.builder()
 									.name(user.get().getName())
 									.phoneNum(user.get().getPhoneNum())
