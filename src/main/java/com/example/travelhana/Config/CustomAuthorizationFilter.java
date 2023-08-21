@@ -41,7 +41,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	//필터를 거치지 않을 url
 	private List<String> excludeUrlPatterns = new ArrayList<String>(
 			Arrays.asList(
-					"/.well-known",
 					"/swagger-ui.html",
 					"/registration",
 					"/verification/auth", "/verification", "/updatePassword",
@@ -65,7 +64,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff",
 					"/webjars/springfox-swagger-ui/favicon-16x16.png"));
 
-
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		String path = request.getRequestURI();
@@ -76,10 +74,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		}
 	}
 
-
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-	                                FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(
+			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
 		String servletPath = request.getServletPath();
 		String authrizationHeader = request.getHeader(AUTHORIZATION);

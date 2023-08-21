@@ -44,7 +44,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션 사용 X
 		http.authorizeRequests().antMatchers("/api/v2/**",
-				"/.well-known/**",
 				"/swagger-ui/index.html",
 				"/swagger-ui.html",
 				"/swagger/**",
@@ -52,7 +51,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/redistest",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**", "/refresh/**", "/userrole/**", "/verification/auth", "/verification",
+				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**",
+				"/refresh/**", "/userrole/**", "/verification/auth", "/verification",
 				"/account/dummy","/updatePassword", "/marker/dummy").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
@@ -67,7 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-
 
 }
 
