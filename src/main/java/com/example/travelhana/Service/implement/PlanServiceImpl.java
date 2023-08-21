@@ -44,7 +44,6 @@ public class PlanServiceImpl implements PlanService {
 					.startDate(planDto.getStartDate())
 					.endDate(planDto.getEndDate())
 					.country(planDto.getCountry())
-					.totalBalance(planDto.getTotalBudget())
 					.totalBudget(planDto.getTotalBudget()).user(userAccount).build();
 			Plan returnPlan = planRepository.save(plan);
 
@@ -56,7 +55,6 @@ public class PlanServiceImpl implements PlanService {
 						.category(categoryRepository.findById(updateCategoryBudgetDto.getCategoryId())
 								.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.CATEGORY_NOT_FOUND)))
 						.plan(returnPlan)
-						.categoryBalance(updateCategoryBudgetDto.getCategoryBudget())
 						.categoryBudget(updateCategoryBudgetDto.getCategoryBudget())
 						.build();
 				categoryPlanList.add(categoryPlan);
@@ -106,7 +104,6 @@ public class PlanServiceImpl implements PlanService {
 						.startDate(plan.getStartDate())
 						.endDate(plan.getEndDate())
 						.city(plan.getCity())
-						.totalBalance(plan.getTotalBalance())
 						.totalBudget(plan.getTotalBudget())
 						.build();
 				travelElementDtoList.add(travelElementDto);
@@ -156,7 +153,6 @@ public class PlanServiceImpl implements PlanService {
 			CategoryPlanDto categoryPlanDto = CategoryPlanDto
 					.builder()
 					.categoryId(categoryPlan.getCategory().getId())
-					.categoryBalance(categoryPlan.getCategoryBalance())
 					.categoryBudget(categoryPlan.getCategoryBudget())
 					.build();
 			categoryPlanDtoList.add(categoryPlanDto);
@@ -232,7 +228,6 @@ public class PlanServiceImpl implements PlanService {
 			CategoryPlanDto categoryPlanDto = CategoryPlanDto
 					.builder()
 					.categoryId(categoryPlan.getCategory().getId())
-					.categoryBalance(categoryPlan.getCategoryBalance())
 					.categoryBudget(categoryPlan.getCategoryBudget())
 					.build();
 			categoryPlanDtoList.add(categoryPlanDto);

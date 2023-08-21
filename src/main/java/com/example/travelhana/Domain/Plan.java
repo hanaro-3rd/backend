@@ -45,9 +45,6 @@ public class Plan {
 	@Column(nullable = false)
 	private LocalDateTime endDate;
 
-	@Column
-	private Long totalBalance; //디폴트 0
-
 	@ColumnDefault("false")
 	private boolean isDeleted;
 
