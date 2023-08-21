@@ -83,7 +83,6 @@ public class AccountServiceImpl implements AccountService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
-
 	@Override
 	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
 		// access token으로 유저 가져오기
