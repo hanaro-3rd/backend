@@ -88,7 +88,7 @@ public class UserController {
 
 	@PatchMapping("/updateDevice")
 	public void updateDevice(@RequestBody UpdateDeviceRequestDto dto){
-		userService.validateDuplicateUsername(dto.getRegistrationNum());
+		userService.updateDevice(dto);
 	}
 
 }

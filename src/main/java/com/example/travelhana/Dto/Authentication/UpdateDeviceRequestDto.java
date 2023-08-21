@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class UpdateDeviceRequestDto {
-//	private String phonenum;
-//	private String deviceId;
-	private String registrationNum;
+	private String phonenum;
+	private String newDeviceId;
 }

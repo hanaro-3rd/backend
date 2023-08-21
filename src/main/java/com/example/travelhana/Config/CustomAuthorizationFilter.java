@@ -44,7 +44,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/.well-known",
 					"/swagger-ui.html",
 					"/registration",
-					"/verification/auth", "/verification", "/updatePassword",
+					"/verification/auth", "/verification", "/updatePassword","/updateDevice",
 					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
@@ -85,7 +85,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
 
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-		if (servletPath.contains("registration") || servletPath.contains("dummy")
+		if (servletPath.contains("registration") || servletPath.contains("dummy")||servletPath.contains("updateDevice")
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(

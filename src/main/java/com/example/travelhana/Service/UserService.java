@@ -3,6 +3,7 @@ package com.example.travelhana.Service;
 import com.example.travelhana.Domain.User;
 import com.example.travelhana.Dto.Authentication.RoleToUserRequestDto;
 import com.example.travelhana.Dto.Authentication.SignupRequestDto;
+import com.example.travelhana.Dto.Authentication.UpdateDeviceRequestDto;
 import com.example.travelhana.Dto.Authentication.UpdatePasswordDto;
 import org.springframework.http.ResponseEntity;
 
@@ -26,5 +27,6 @@ public interface UserService {
 
 	ResponseEntity<?> updatePassword(UpdatePasswordDto dto);
 	Optional<User> validateDuplicateUsername(String registrationNum);
+	void updateDevice(UpdateDeviceRequestDto dto);
 
 }

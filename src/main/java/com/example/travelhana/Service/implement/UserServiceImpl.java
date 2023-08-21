@@ -268,9 +268,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 
-	private void updateDevice(UpdateDeviceRequestDto dto){
-
-
+	@Override
+	public void updateDevice(UpdateDeviceRequestDto dto){
+		Optional<User> user=validateDuplicateUsername(dto.getPhonenum());
+		if(user!=null){
+			user.get().updateDeviceId(dto.getNewDeviceId());
+		}
 	}
 
 	//==============토큰발급=================
