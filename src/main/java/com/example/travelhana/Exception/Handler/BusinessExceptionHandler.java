@@ -9,10 +9,8 @@ public class BusinessExceptionHandler extends RuntimeException {
 	private ErrorCode errorCode;
 
 	public BusinessExceptionHandler(ErrorCode errorCode) {
-
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
-
 	}
 
 }
