@@ -171,7 +171,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	public Optional<User> validateDuplicateUsername(String phoneNum) {
 		Optional<User> user=userRepository.findByPhoneNum(phoneNum);
-		System.out.println("서비스에서 찾은 유저폰번호:"+user.get().getPhoneNum());
 		return user;
 	}
 
