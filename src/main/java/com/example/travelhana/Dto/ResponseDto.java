@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseDto {
 
-
 	int code;
 	String message;
 
