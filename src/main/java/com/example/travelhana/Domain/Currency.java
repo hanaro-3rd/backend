@@ -9,7 +9,6 @@ public enum Currency {
 	USD("USD", 1, 10), // 미국 달러 환율
 	KRW("KRW", 1000, 10000); // 미국 달러 환율
 
-
 	private final String code;
 	private final int baseCurrency;
 	private final int minCurrency;
@@ -19,7 +18,6 @@ public enum Currency {
 		this.baseCurrency = baseCurrency;
 		this.minCurrency = minCurrency;
 	}
-
 
 	public static Currency getByCode(String code) {
 		for (Currency currency : values()) {
