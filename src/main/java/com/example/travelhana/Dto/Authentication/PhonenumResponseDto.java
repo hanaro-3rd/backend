@@ -13,4 +13,5 @@ public class PhonenumResponseDto {
 
 	private String statusCode;
 	private String statusMessage;
+
 }
