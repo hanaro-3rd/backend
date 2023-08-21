@@ -93,6 +93,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 		ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
 		ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
 		ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
 		// 각 환율 정보를 dto에 파싱
 		ExchangeRateDto result = ExchangeRateDto
 				.builder()
@@ -295,7 +296,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
 		}
 
-		if (dto.getMoneyToExchange() < currency.getMinCurrency()) {
+		Long key = dto.getMoneyToExchange();
+		if (key < currency.getMinCurrency()) {
 			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
@@ -308,8 +310,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 		account.updateBalance(dto.getMoney() * (-1)); //원화 잔액 차감
 
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+
 				.exchangeWon(dto.getMoney())
-				.exchangeKey(dto.getMoneyToExchange())
+				.exchangeKey(key)
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(true)
 				.build();

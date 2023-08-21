@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 public class ExchangeSuccess {
 
 	private Long exchangeWon;
