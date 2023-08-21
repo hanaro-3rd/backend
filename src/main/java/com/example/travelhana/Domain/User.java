@@ -1,6 +1,7 @@
 package com.example.travelhana.Domain;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
 @Entity
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
 	@Id
@@ -49,11 +52,12 @@ public class User {
 	@Column
 	private String salt;
 
+	@Column
 	private String refreshToken;
 
-	public User() {
-		this.isWithdrawal = false;
-	}
+	@Column
+	@CreationTimestamp
+	private final LocalDateTime createdAt = LocalDateTime.now();
 
 	public void updateRefreshToken(String newToken) {
 		this.refreshToken = newToken;

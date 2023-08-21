@@ -148,22 +148,20 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
     public ResponseEntity<?> checkCode(CodeRequestDto codeDto)
     {
-
         String code = (String) session.getAttribute("code");
         if(code!=null)
         {
             if (codeDto.getCode().equals(code)) {
                 Optional<User> user=userService.validateDuplicateUsername(codeDto.getPhonenum());
-
                 CodeResponseDto codeResponseDto;
-                if(user==null)
+                if(user==null) //유저가 존재하지 않으면
                 {
                     codeResponseDto=CodeResponseDto.builder()
                             .isCodeEqual(true)
                             .isExistUser(true)
                             .build();
                 }
-                else {
+                else { //유저가 존재하면
                     codeResponseDto=CodeResponseDto.builder()
                             .isCodeEqual(true)
                             .isExistUser(false)
