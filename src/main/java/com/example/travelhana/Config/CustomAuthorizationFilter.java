@@ -41,10 +41,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	//필터를 거치지 않을 url
 	private List<String> excludeUrlPatterns = new ArrayList<String>(
 			Arrays.asList(
-					"/.well-known",
 					"/swagger-ui.html",
 					"/registration",
-					"/verification/auth", "/verification", "/updatePassword",
+					"/verification/auth", "/verification", "/updatePassword","/updateDevice",
 					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
@@ -65,7 +64,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/webjars/springfox-swagger-ui/fonts/source-code-pro-v7-latin-300.woff",
 					"/webjars/springfox-swagger-ui/favicon-16x16.png"));
 
-
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		String path = request.getRequestURI();
@@ -76,16 +74,16 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		}
 	}
 
-
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-	                                FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(
+			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
 		String servletPath = request.getServletPath();
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
 
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-		if (servletPath.contains("registration") || servletPath.contains("dummy")
+		if (servletPath.contains("registration") || servletPath.contains("dummy")||servletPath.contains("updateDevice")
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(

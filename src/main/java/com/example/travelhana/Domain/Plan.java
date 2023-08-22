@@ -25,7 +25,7 @@ public class Plan {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "USER_ID")
-	private User user;
+	private Users users;
 
 	@Column(nullable = false)
 	private Long totalBudget; //디폴트 0
@@ -44,9 +44,6 @@ public class Plan {
 
 	@Column(nullable = false)
 	private LocalDateTime endDate;
-
-	@Column
-	private Long totalBalance; //디폴트 0
 
 	@ColumnDefault("false")
 	private boolean isDeleted;

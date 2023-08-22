@@ -13,5 +13,6 @@ public interface ExternalAccountRepository extends JpaRepository<ExternalAccount
 	Optional<ExternalAccount> findByIdAndIsConnected(int externalAccountId, Boolean isConnected);
 
 	List<AccountInfoProjection> findAllByRegistrationNumAndIsConnected(String registrationNum, Boolean isConnected);
+	List<AccountInfoProjection> findAllByPhoneNumAndIsConnected(String phoneNum, Boolean isConnected);
 
 }

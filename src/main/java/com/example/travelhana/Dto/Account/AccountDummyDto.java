@@ -1,6 +1,5 @@
 package com.example.travelhana.Dto.Account;
 
-import com.example.travelhana.Domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +14,6 @@ public class AccountDummyDto {
 	int userId;
 	String accountPassword;
 	String registrationNum;
+	String phoneNum;
 
 }

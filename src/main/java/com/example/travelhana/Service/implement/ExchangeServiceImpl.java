@@ -93,6 +93,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 		ExchangeRateInfo usdExchangeRate = exchangeRateUtil.getExchangeRateByAPI("USD");
 		ExchangeRateInfo jpyExchangeRate = exchangeRateUtil.getExchangeRateByAPI("JPY");
 		ExchangeRateInfo eurExchangeRate = exchangeRateUtil.getExchangeRateByAPI("EUR");
+
 		// 각 환율 정보를 dto에 파싱
 		ExchangeRateDto result = ExchangeRateDto
 				.builder()
@@ -100,16 +101,14 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.jpy(jpyExchangeRate)
 				.eur(eurExchangeRate)
 				.build();
-		System.out.println(result.getUpdatedAt());
 		String dtoAsString = objectMapper.writeValueAsString(result);
 		stringStringListOperations.leftPush("mystack", dtoAsString);
 	}
 
 	//redis에서 환율 읽기
 	public ResponseEntity<?> getExchangeRateFromRedis() throws JsonProcessingException {
-		String getone = stringStringListOperations.leftPop("mystack");
-		ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
-		System.out.println(result.getUpdatedAt());
+		String getone = stringStringListOperations.range("mystack",0,0).toString();
+		ExchangeRateDto result = objectMapper.readValue(getone.substring(1,getone.length()-1), ExchangeRateDto.class);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
@@ -170,8 +169,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
 
 		// 접속한 유저에 대한 계좌 소유 여부 확인
-		User user = userService.getUserByAccessToken(accessToken);
-		if (!user.equals(account.getUser())) {
+		Users users = userService.getUserByAccessToken(accessToken);
+		if (!users.equals(account.getUsers())) {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
 		}
 
@@ -185,12 +184,12 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.NO_ZERO_OR_MINUS);
 		}
 
-		Optional<Keymoney> keymoney = keymoneyRepository.findByUser_IdAndUnit(
-				account.getUser().getId(), dto.getUnit());
+		Optional<Keymoney> keymoney = keymoneyRepository.findByUsers_IdAndUnit(
+				account.getUsers().getId(), dto.getUnit());
 
 		//키머니가 존재하지 않는다면 만들어주기
 		if (!keymoney.isPresent()) {
-			keymoney = Optional.ofNullable(makeKeyMoney(account.getUser(), dto.getUnit()));
+			keymoney = Optional.ofNullable(makeKeyMoney(account.getUsers(), dto.getUnit()));
 		}
 
 		//잔액부족 시 에러
@@ -251,7 +250,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
 				.isBought(exchangeSuccess.getIsBought())
 				.isBusinessday(isBusinessDay)
-				.userId(account.getUser().getId())
+				.userId(account.getUsers().getId())
 				.balance(exchangeSuccess.getKeymoneyBalance())
 				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
 				.build();
@@ -296,7 +295,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_PURCHASE);
 		}
 
-		if (dto.getMoneyToExchange() < currency.getMinCurrency()) {
+		Long key = dto.getMoneyToExchange();
+		if (key < currency.getMinCurrency()) {
 			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
@@ -309,8 +309,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 		account.updateBalance(dto.getMoney() * (-1)); //원화 잔액 차감
 
 		ExchangeSuccess exchangeSuccess = ExchangeSuccess.builder()
+
 				.exchangeWon(dto.getMoney())
-				.exchangeKey(dto.getMoneyToExchange())
+				.exchangeKey(key)
 				.keymoneyBalance(keyMoney.getBalance())
 				.isBought(true)
 				.build();
@@ -343,9 +344,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외환계좌 만들기
 	@Transactional
-	public Keymoney makeKeyMoney(User user, String unit) {
+	public Keymoney makeKeyMoney(Users users, String unit) {
 		Keymoney newKeymoney = Keymoney.builder()
-				.user(user)
+				.users(users)
 				.unit(unit)
 				.balance(0L)
 				.build();

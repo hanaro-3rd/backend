@@ -1,5 +1,4 @@
-package com.example.travelhana.Dto;
-
+package com.example.travelhana.Dto.Authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,10 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class ResponseDto {
+public class UpdateDeviceRequestDto {
 
-
-	int code;
-	String message;
+	private String phonenum;
+	private String newDeviceId;
 
 }

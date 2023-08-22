@@ -2,7 +2,6 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
 import com.example.travelhana.Dto.Keymoney.*;
-import com.example.travelhana.Dto.Marker.LocationDto;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
@@ -18,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.yaml.snakeyaml.error.Mark;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,10 +52,10 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	@Override
 	public ResponseEntity<?> getKeymoney(String accessToken) {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
 
 		// userId로 유저가 보유한 모든 키머니 불러오기
-		List<Keymoney> userKeymoney = keymoneyRepository.findByUser_Id(user.getId());
+		List<Keymoney> userKeymoney = keymoneyRepository.findByUsers_Id(users.getId());
 
 		// 엔티티로 불러와진 객체를 dto로 파싱
 		List<KeymoneySimpleDto> result = new ArrayList<>();
@@ -82,7 +80,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	@Override
 	public ResponseEntity<?> getKeymoneyHistory(String accessToken, String unit, String filter) {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
 
 		// 유효하지 않은 화폐단위 에러
 		Currency currency = Currency.getByCode(unit);
@@ -96,7 +94,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 		}
 
 		// userId로 유저가 가진 unit에 해당하는 키머니 불러오기
-		Keymoney keymoney = keymoneyRepository.findByUser_IdAndUnit(user.getId(), unit)
+		Keymoney keymoney = keymoneyRepository.findByUsers_IdAndUnit(users.getId(), unit)
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 		int keymoneyId = keymoney.getId();
 
@@ -189,8 +187,8 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	@Override
 	public ResponseEntity<?> getDetailKeymoneyHistory(String accessToken, Long historyId, String type) {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
-		int userId = user.getId();
+		Users users = userService.getUserByAccessToken(accessToken);
+		int userId = users.getId();
 
 		// type이 결제(payment)나 환전(exchange)가 아니라면 에러
 		if (!type.equals("payment") && !type.equals("exchange") && !type.equals("marker")) {

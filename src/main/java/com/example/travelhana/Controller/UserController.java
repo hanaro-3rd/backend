@@ -50,7 +50,7 @@ public class UserController {
 
 	//휴대폰 인증코드 일치여부 확인
 	@PostMapping("/verification/auth")
-	public ResponseEntity<?> isSuccessAuth(@RequestHeader("Cookie") String ignoredHeaderValue, @RequestBody CodeRequestDto codedto) {
+	public ResponseEntity<?> isSuccessAuth(@RequestBody CodeRequestDto codedto) {
 		return phoneAuthService.checkCode(codedto);
 	}
 
@@ -58,11 +58,6 @@ public class UserController {
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) throws Exception {
 		return userService.saveAccount(dto);
-	}
-
-	@PostMapping("/userrole")
-	public ResponseEntity<Integer> addRoleToUser(@RequestBody RoleToUserRequestDto dto) {
-		return ResponseEntity.ok(userService.addRoleToUser(dto));
 	}
 
 	//refresh token 요청
@@ -83,6 +78,12 @@ public class UserController {
 	@PatchMapping("/updatePassword")
 	public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDto dto) {
 		return userService.updatePassword(dto);
+	}
+
+	//기기 변경 시 업데이트
+	@PatchMapping("/updateDevice")
+	public ResponseEntity<?> updateDevice(@RequestBody UpdateDeviceRequestDto dto) {
+		return userService.updateDevice(dto);
 	}
 
 }

@@ -18,7 +18,8 @@ public class ExchangeRateDto implements Serializable {
 	ExchangeRateInfo jpy;
 	ExchangeRateInfo usd;
 	ExchangeRateInfo eur;
+
 	@CreationTimestamp
-	LocalDateTime updatedAt=LocalDateTime.now();
+	private final LocalDateTime updatedAt = LocalDateTime.now();
 
 }

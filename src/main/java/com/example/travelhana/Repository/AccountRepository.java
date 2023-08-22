@@ -14,6 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 	Boolean existsAccountByAccountNum(String accountNum);
 
 	// QueryDSL 적용하고 각 컬럼만 가져오는 쿼리 짜도록 바꿀 예정
-	List<AccountInfoProjection> findAllByUser_Id(int userId);
+	List<AccountInfoProjection> findAllByUsers_Id(int userId);
 
 }
