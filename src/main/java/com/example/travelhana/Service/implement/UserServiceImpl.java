@@ -249,7 +249,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	@Transactional
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
 		findPassword(dto);
-		Users users = userRepository.findByDeviceId(dto.getDeviceId()).orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+		Users users = userRepository.findByDeviceId(dto.getDeviceId())
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
 
 		if (dto.getNewPassword().length() != 6) {
 			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
