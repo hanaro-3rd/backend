@@ -26,8 +26,8 @@ public enum ErrorCode {
 	INVALID_UPDATE(500, "Invalid Update Payment", "해당 결제내역에 대한 수정 권한이 없습니다."),
 	NO_KEYMONEY(500, "There is no keymoneyaccount like this id", "해당 키머니계좌가 존재하지 않습니다."),
 
-	UNAUTHORIZED_PASSWORD(401, "Unauthorized Password", "비밀번호가 일치하지 않습니다."),
-	UNAUTHORIZED_USER_ACCOUNT(401, "Unauthorized User to Account", "유저와 계좌 정보가 일치하지 않습니다."),
+	UNAUTHORIZED_PASSWORD(400, "Unauthorized Password", "비밀번호가 일치하지 않습니다."),
+	UNAUTHORIZED_USER_ACCOUNT(400, "Unauthorized User to Account", "유저와 계좌 정보가 일치하지 않습니다."),
 
 	USER_NOT_FOUND(404, "User Not Found", "해당하는 유저를 찾을 수 없습니다."),
 	MARKER_NOT_FOUND(404, "Marker Not Found", "해당하는 마커를 찾을 수 없습니다."),
