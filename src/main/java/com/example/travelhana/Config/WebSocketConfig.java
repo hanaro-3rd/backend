@@ -1,22 +1,36 @@
 package com.example.travelhana.Config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
-@Component
-public class WebSocketConfig {
+@Configuration
+@EnableWebSocketMessageBroker
+@RequiredArgsConstructor
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-	@Bean
-	public ServerEndpointExporter serverEndpointExporter() {
-        /*
-            2022.10.26[프뚜]:
-                Spring에서 Bean은 싱글톤으로 관리되지만,
-                @ServerEndpoint 클래스는 WebSocket이 생성될 때마다 인스턴스가 생성되고
-                JWA에 의해 관리되기 때문에 Spring의 @Autowired가 설정된 멤버들이 초기화 되지 않습니다.
-                연결해주고 초기화해주는 클래스가 필요합니다.
-         */
-		return new ServerEndpointExporter();
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/ws-stomp")
+				.withSockJS();
+	}
+
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.enableSimpleBroker("/sub");
+		registry.setApplicationDestinationPrefixes("/pub");
+	}
+
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.interceptors(stompHandler); // 핸들러 등록
 	}
 
 }
