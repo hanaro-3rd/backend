@@ -20,6 +20,6 @@ public interface PlanService {
     ResponseEntity<?> updatePlan(String accessToken, int planId, UpdatePlanDto updatePlanDto);
 
     ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto);
-
+    void makeCategory();
 }
 

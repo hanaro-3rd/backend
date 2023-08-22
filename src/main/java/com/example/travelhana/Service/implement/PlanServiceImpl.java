@@ -31,6 +31,8 @@ public class PlanServiceImpl implements PlanService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final KeymoneyRepository keymoneyRepository;
 
+
+
 	//경비 생성
 	public ResponseEntity<?> savePlan(String accessToken, PlanDto planDto) {
 		try {
@@ -346,6 +348,24 @@ public class PlanServiceImpl implements PlanService {
 				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
 				.build();
 		return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public void makeCategory(){
+		Category nullCategory1 = new Category(1,"식비");
+		Category nullCategory2 = new Category(2,"교통");
+		Category nullCategory3 = new Category(3,"숙박");
+		Category nullCategory4 = new Category(4,"쇼핑");
+		Category nullCategory5 = new Category(5,"문화");
+		Category nullCategory6 = new Category(6,"기타");
+		List<Category> categoryList = new ArrayList<>();
+		categoryList.add(nullCategory1);
+		categoryList.add(nullCategory2);
+		categoryList.add(nullCategory3);
+		categoryList.add(nullCategory4);
+		categoryList.add(nullCategory5);
+		categoryList.add(nullCategory6);
+		categoryRepository.saveAll(categoryList);
 	}
 
 }

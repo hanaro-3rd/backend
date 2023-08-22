@@ -107,8 +107,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//redis에서 환율 읽기
 	public ResponseEntity<?> getExchangeRateFromRedis() throws JsonProcessingException {
-		String getone = stringStringListOperations.rightPop("mystack");
+		String getone = stringStringListOperations.leftPop("mystack");
 		ExchangeRateDto result = objectMapper.readValue(getone, ExchangeRateDto.class);
+		System.out.println(result.getUpdatedAt());
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
