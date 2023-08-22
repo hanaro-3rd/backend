@@ -22,7 +22,7 @@ public class UserToMarker {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "USER_ID")
-	private User user;
+	private Users users;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "MARKER_ID")

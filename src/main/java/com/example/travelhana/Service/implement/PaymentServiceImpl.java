@@ -2,7 +2,7 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.Keymoney;
 import com.example.travelhana.Domain.PaymentHistory;
-import com.example.travelhana.Domain.User;
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Payment.PaymentHistoryDto;
 import com.example.travelhana.Dto.Payment.PaymentMemoDto;
 import com.example.travelhana.Dto.Payment.PaymentRequestDto;
@@ -36,11 +36,11 @@ public class PaymentServiceImpl implements PaymentService {
 	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentRequestDto) {
 		try {
 			// access token으로 유저 가져오기
-			User user = userService.getUserByAccessToken(accessToken);
-			int userId = user.getId();
+			Users users = userService.getUserByAccessToken(accessToken);
+			int userId = users.getId();
 
 			// userId로 유저가 가진 unit에 해당하는 키머니 불러오기
-			Keymoney keymoney = keyMoneyRepository.findByUser_IdAndUnit(userId, paymentRequestDto.getUnit())
+			Keymoney keymoney = keyMoneyRepository.findByUsers_IdAndUnit(userId, paymentRequestDto.getUnit())
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_KEYMONEY));
 
 			// 잔액보다 결재 금액이 높을 시 에러, 아닐 시 잔액 업데이트
@@ -104,8 +104,8 @@ public class PaymentServiceImpl implements PaymentService {
 	public ResponseEntity<?> updatePaymentHistory(String accessToken, Long paymentId, PaymentMemoDto paymentMemoDto) {
 		try {
 			// access token으로 유저 가져오기
-			User user = userService.getUserByAccessToken(accessToken);
-			int userId = user.getId();
+			Users users = userService.getUserByAccessToken(accessToken);
+			int userId = users.getId();
 
 			// 결제 id와 유저 id에 대한 내역이 있는지 확인
 			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentId, userId)
@@ -153,8 +153,8 @@ public class PaymentServiceImpl implements PaymentService {
 	public ResponseEntity<?> deletePaymentHistory(String accessToken, Long paymentId) {
 		try {
 			// access token으로 유저 가져오기
-			User user = userService.getUserByAccessToken(accessToken);
-			int userId = user.getId();
+			Users users = userService.getUserByAccessToken(accessToken);
+			int userId = users.getId();
 
 			// 결제 id와 유저 id에 대한 내역이 있는지 확인
 			PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentId, userId)

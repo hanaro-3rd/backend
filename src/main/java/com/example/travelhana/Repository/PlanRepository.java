@@ -12,13 +12,13 @@ import java.util.Optional;
 @Repository
 public interface PlanRepository extends JpaRepository<Plan, Integer> {
 
-    List<Plan> findAllByUser_Id(int id);
+    List<Plan> findAllByUsers_Id(int id);
 
-    Optional<Plan> findByIdAndUser_Id(Integer id, Integer userId);
+    Optional<Plan> findByIdAndUsers_Id(Integer id, Integer userId);
 
     @Query("SELECT pl " +
             "FROM Plan pl " +
-            "WHERE pl.user.id = :userId AND pl.isDeleted = false " +
+            "WHERE pl.users.id = :userId AND pl.isDeleted = false " +
             "ORDER BY pl.startDate DESC")
     List<Plan> findAllByUser_IdAndIsDeletedFalse(@Param("userId") int userId);
 

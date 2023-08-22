@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.travelhana.Domain.Account;
 import com.example.travelhana.Domain.ExternalAccount;
-import com.example.travelhana.Domain.User;
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Repository.AccountRepository;
 import com.example.travelhana.Repository.ExternalAccountRepository;
 import com.example.travelhana.Util.CryptoUtil;
@@ -60,11 +60,11 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public ResponseEntity<?> getConnectedAccountList(String accessToken) throws Exception {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
 
 		// userId에 대한 유저의 연결된 계좌 목록 가져오기
-		int userId = user.getId();
-		List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUser_Id(userId);
+		int userId = users.getId();
+		List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUsers_Id(userId);
 
 		// 휴일 여부 가져오기
 		Boolean isBusinessDay = holidayUtil.isBusinessDay(LocalDate.now());
@@ -86,11 +86,11 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
 
 		// 유저의 주민번호에 해당하는 연결되지 않은 외부 계좌 목록을 불러옴
 		List<AccountInfoProjection> projections =
-				externalAccountRepository.findAllByPhoneNumAndIsConnected(user.getPhoneNum(), false);
+				externalAccountRepository.findAllByPhoneNumAndIsConnected(users.getPhoneNum(), false);
 
 		// 계좌번호를 복호화하여 AccountListDto에 파싱 후 리턴
 		AccountListDto result = AccountListDto
@@ -109,14 +109,14 @@ public class AccountServiceImpl implements AccountService {
 	public ResponseEntity<?> connectExternalAccount(
 			String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
 		// access token으로 유저 가져오기
-		User user = userService.getUserByAccessToken(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
 
 		// externalAccountId에 대한 연결되지 않은 외부 계좌 존재 여부 확인
 		ExternalAccount externalAccount = externalAccountRepository.findByIdAndIsConnected(externalAccountId, false)
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
 		// 해당 유저의 계좌 소유 여부 확인
-		if (!user.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {
+		if (!users.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
 		}
 
@@ -139,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
 		// 연결된 계좌 레코드 생성
 		Account account = Account
 				.builder()
-				.user(user)
+				.users(users)
 				.accountNum(accountNum)
 				.bank(externalAccount.getBank())
 				.openDate(externalAccount.getOpenDate())
@@ -155,7 +155,7 @@ public class AccountServiceImpl implements AccountService {
 		// 계좌번호를 복호화하여 AccountConnectResultDto 파싱 후 리턴
 		AccountInformation result = AccountInformation
 				.builder()
-				.userId(user.getId())
+				.userId(users.getId())
 				.accountId(account.getId())
 				.accountNum(cryptoUtil.decrypt(accountNum))
 				.bank(externalAccount.getBank())
