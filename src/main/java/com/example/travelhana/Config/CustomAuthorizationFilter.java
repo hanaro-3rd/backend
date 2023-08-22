@@ -117,6 +117,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				//Access Token 검증
 				JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET))
 						.build();
+
 				DecodedJWT decodedJWT = verifier.verify(accessToken);
 
 				//Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
@@ -127,6 +128,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 						username, null, authorities);
 				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+				System.out.println("액세스 토큰 검증 2");
 
 				filterChain.doFilter(request, response);
 			} catch (TokenExpiredException e) {
