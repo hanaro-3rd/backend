@@ -137,7 +137,6 @@ public class HolidayUtil {
 		if (isWeekend(today) || isHoliday(today)) {
 			return false;
 		}
-
 		return true;
 	}
 
