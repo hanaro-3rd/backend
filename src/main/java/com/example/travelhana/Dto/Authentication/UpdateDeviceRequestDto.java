@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class UpdateDeviceRequestDto {
 	private String phonenum;
 	private String newDeviceId;
+
 }
