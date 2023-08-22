@@ -21,6 +21,7 @@ public class CryptoUtil {
 
 	@Value("${HARD_CODED_KEY}")
 	private String HARD_CODED_KEY;
+
 	@Value("${HARD_CODED_IV}")
 	private String HARD_CODED_IV;
 
