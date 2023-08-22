@@ -25,10 +25,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ExchangeRateUtil {
 
-	private final ExchangeRateRepository exchangeRateRepository;
-
 	public ExchangeRateInfo getExchangeRateByAPI(String currencyCode) throws URISyntaxException {
-
 		System.setProperty("https.protocols", "TLSv1.2");
 
 		StringBuilder urlBuilder = new StringBuilder(
@@ -43,8 +40,8 @@ public class ExchangeRateUtil {
 
 		URI uri = new URI(urlBuilder.toString());
 
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request,
-				String.class);
+		ResponseEntity<String> response
+				= restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 
 		JSONArray parser = new JSONArray(response.getBody());
 		JSONObject object = parser.getJSONObject(0);
@@ -54,4 +51,5 @@ public class ExchangeRateUtil {
 
 		return new ExchangeRateInfo(basePrice, changePrice);
 	}
+
 }
