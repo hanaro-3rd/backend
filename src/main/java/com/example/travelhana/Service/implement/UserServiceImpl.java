@@ -272,11 +272,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 	@Override
-	public void updateDevice(UpdateDeviceRequestDto dto) {
+	public ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto) {
 		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum());
-		if (user.isPresent()) {
-			user.get().updateDeviceId(dto.getNewDeviceId());
+		if (user.isEmpty()) {
+			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
+		user.get().updateDeviceId(dto.getNewDeviceId());
+		return new ResponseEntity<>(user.get().getDeviceId(),HttpStatus.OK);
 	}
 
 	//==============토큰발급=================

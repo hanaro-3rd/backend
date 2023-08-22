@@ -25,6 +25,6 @@ public interface UserService {
 
 	ResponseEntity<?> updatePassword(UpdatePasswordDto dto);
 	Optional<Users> validateDuplicateUsername(String registrationNum);
-	void updateDevice(UpdateDeviceRequestDto dto);
+	ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto);
 
 }
