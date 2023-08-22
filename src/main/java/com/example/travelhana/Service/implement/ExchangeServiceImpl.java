@@ -169,8 +169,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_ACCOUNT));
 
 		// 접속한 유저에 대한 계좌 소유 여부 확인
-		User user = userService.getUserByAccessToken(accessToken);
-		if (!user.equals(account.getUser())) {
+		Users users = userService.getUserByAccessToken(accessToken);
+		if (!users.equals(account.getUsers())) {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
 		}
 
@@ -184,12 +184,12 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.NO_ZERO_OR_MINUS);
 		}
 
-		Optional<Keymoney> keymoney = keymoneyRepository.findByUser_IdAndUnit(
-				account.getUser().getId(), dto.getUnit());
+		Optional<Keymoney> keymoney = keymoneyRepository.findByUsers_IdAndUnit(
+				account.getUsers().getId(), dto.getUnit());
 
 		//키머니가 존재하지 않는다면 만들어주기
 		if (!keymoney.isPresent()) {
-			keymoney = Optional.ofNullable(makeKeyMoney(account.getUser(), dto.getUnit()));
+			keymoney = Optional.ofNullable(makeKeyMoney(account.getUsers(), dto.getUnit()));
 		}
 
 		//잔액부족 시 에러
@@ -250,7 +250,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 				.exchangeKey(exchangeSuccess.getExchangeKey()) //환전한 외화
 				.isBought(exchangeSuccess.getIsBought())
 				.isBusinessday(isBusinessDay)
-				.userId(account.getUser().getId())
+				.userId(account.getUsers().getId())
 				.balance(exchangeSuccess.getKeymoneyBalance())
 				.exchangeWon(exchangeSuccess.getExchangeWon()) //환전한 원화
 				.build();
@@ -344,9 +344,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//외환계좌 만들기
 	@Transactional
-	public Keymoney makeKeyMoney(User user, String unit) {
+	public Keymoney makeKeyMoney(Users users, String unit) {
 		Keymoney newKeymoney = Keymoney.builder()
-				.user(user)
+				.users(users)
 				.unit(unit)
 				.balance(0L)
 				.build();

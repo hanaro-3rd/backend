@@ -19,7 +19,7 @@ public class Account {
 
 	@JoinColumn(name = "USER_ID")
 	@ManyToOne(fetch = FetchType.LAZY)
-	private User user;
+	private Users users;
 
 	@Column(nullable = false)
 	private String accountNum;

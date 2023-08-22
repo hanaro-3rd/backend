@@ -55,11 +55,6 @@ public class UserController {
 		return userService.saveAccount(dto);
 	}
 
-	@PostMapping("/userrole")
-	public ResponseEntity<Integer> addRoleToUser(@RequestBody RoleToUserRequestDto dto) {
-		return ResponseEntity.ok(userService.addRoleToUser(dto));
-	}
-
 	//refresh token 요청
 	@GetMapping("/refresh")
 	public ResponseEntity<?> refresh(

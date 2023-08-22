@@ -25,7 +25,7 @@ public class Plan {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "USER_ID")
-	private User user;
+	private Users users;
 
 	@Column(nullable = false)
 	private Long totalBudget; //디폴트 0

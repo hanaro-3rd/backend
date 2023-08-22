@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface KeymoneyRepository extends JpaRepository<Keymoney, Integer> {
 
-	Optional<Keymoney> findByUser_IdAndUnit(int userId, String unit);
+	Optional<Keymoney> findByUsers_IdAndUnit(int userId, String unit);
 
-	List<Keymoney> findByUser_Id(int userId);
+	List<Keymoney> findByUsers_Id(int userId);
 
 }
