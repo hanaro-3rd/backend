@@ -272,7 +272,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return new ResponseEntity(apiResponse, HttpStatus.ACCEPTED);
 	}
 
-
 	@Override
 	public ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto) {
 		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum());
