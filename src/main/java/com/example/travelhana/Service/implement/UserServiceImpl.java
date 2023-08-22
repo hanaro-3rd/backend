@@ -22,6 +22,7 @@ import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.UserService;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
@@ -278,7 +279,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());
-		return new ResponseEntity<>(user.get().getDeviceId(), HttpStatus.OK);
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(user.get().getDeviceId())
+				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+				.build();
+		return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
 	}
 
 	//==============토큰발급=================
