@@ -1,5 +1,9 @@
 package com.example.travelhana.Config;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Service.CustomUserDetails;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +23,24 @@ public class CustomAuthProvider implements AuthenticationProvider {
 
 	private final UserDetailsService userDetailsService;
 	private final SaltUtil saltUtil;
+	private final JwtConstants jwtConstants;
 
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		log.info("CustomAuthProvider");
 
-		String username = authentication.getName();
+		String accessToken = authentication.getPrincipal().toString();
+		//Access Token 검증
+		JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET))
+				.build();
+		DecodedJWT decodedJWT = verifier.verify(accessToken);
+		String phoneNum=decodedJWT.getSubject();
 		String inputpassword = (String) authentication.getCredentials();
 		String isPassword = (String) authentication.getDetails();
 
 		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService
-				.loadUserByUsername(username);
+				.loadUserByUsername(phoneNum);
 		String salt = userDetails.getSalt();
 		String userpattern = userDetails.getPattern();
 		String userpassword = userDetails.getPassword();

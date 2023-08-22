@@ -78,7 +78,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(
 			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
+		log.info("CustomAuthorizationFilter");
 		String servletPath = request.getServletPath();
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
 
@@ -88,7 +88,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(
 				"/updatePassword") || servletPath.contains(".well-known")) {
-			System.out.println("CustomAuthorizationFilter");
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
 			log.info("CustomAuthorizationFilter : No header.");

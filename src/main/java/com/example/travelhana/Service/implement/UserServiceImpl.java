@@ -216,9 +216,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//==============로그인=================
 	//로그인 시 권한 확인
 	@Override
-	public CustomUserDetailsImpl loadUserByUsername(String username)
+	public CustomUserDetailsImpl loadUserByUsername(String phoneNum)
 			throws UsernameNotFoundException {
-		Users users = userRepository.findByDeviceId(username)
+		Users users = userRepository.findByPhoneNum(phoneNum)
 				.orElseThrow(() -> new UsernameNotFoundException(
 						"UserDetailsService - loadUserByUsername : 사용자를 찾을 수 없습니다."));
 
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.stream().map(role -> new SimpleGrantedAuthority(role.getName()))
 				.collect(Collectors.toList());
 
-		return new CustomUserDetailsImpl(users.getDeviceId(), users.getPassword(), users.getPattern(), users.getSalt(),
+		return new CustomUserDetailsImpl(users.getPhoneNum(), users.getPassword(), users.getPattern(), users.getSalt(),
 				authorities, true, true, true, true);
 	}
 
