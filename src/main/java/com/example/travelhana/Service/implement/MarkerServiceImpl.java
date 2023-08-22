@@ -80,7 +80,7 @@ public class MarkerServiceImpl implements MarkerService {
 
 		double result = 2 * radius * Math.asin(squareRoot);
 		double distance = (Math.round(result * 100) / 100.0);
-		System.out.println("distance = " + distance);
+
 		// 거리가 50m(0.05km)이내면 True, 아니면 False를 반환
 		return distance < 0.05 ;
 	}
