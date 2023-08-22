@@ -170,8 +170,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	public Optional<User> validateDuplicateUsername(String phoneNum) {
-		Optional<User> user = userRepository.findByPhoneNum(phoneNum);
-		return user;
+		Optional<User> userOptional = userRepository.findByPhoneNum(phoneNum);
+		User user = userOptional.orElse(null);
+		return Optional.ofNullable(user);
 	}
 
 	@Override

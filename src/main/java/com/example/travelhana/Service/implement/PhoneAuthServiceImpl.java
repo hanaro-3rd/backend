@@ -148,7 +148,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 			if (codeDto.getCode().equals(code)) { //코드가 일치하면
 				Optional<User> user = userService.validateDuplicateUsername(codeDto.getPhonenum());
-				if (user == null) //유저가 존재하지 않으면
+				if (!user.isPresent()) //유저가 존재하지 않으면
 				{
 					codeResponseDto = CodeResponseDto.builder()
 							.isCodeEqual(true)
