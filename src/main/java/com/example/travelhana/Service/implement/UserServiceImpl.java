@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception {
-		if(validateDuplicateUsername(dto.getRegistrationNum()).isPresent()){
+		if (validateDuplicateUsername(dto.getRegistrationNum()).isPresent()) {
 			throw new RuntimeException("이미 존재하는 유저입니다.");
 		}
 		isValidUser(dto);
@@ -278,7 +278,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());
-		return new ResponseEntity<>(user.get().getDeviceId(),HttpStatus.OK);
+		return new ResponseEntity<>(user.get().getDeviceId(), HttpStatus.OK);
 	}
 
 	//==============토큰발급=================

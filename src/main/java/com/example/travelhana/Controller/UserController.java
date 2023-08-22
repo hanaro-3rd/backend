@@ -77,7 +77,7 @@ public class UserController {
 
 	//기기 변경 시 업데이트
 	@PatchMapping("/updateDevice")
-	public ResponseEntity<?> updateDevice(@RequestBody UpdateDeviceRequestDto dto){
+	public ResponseEntity<?> updateDevice(@RequestBody UpdateDeviceRequestDto dto) {
 		return userService.updateDevice(dto);
 	}
 
