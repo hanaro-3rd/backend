@@ -135,7 +135,6 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 		}
 	}
 
-
 	private void setCodeIntoSession(String code) {
 		session.setAttribute("code", code);
 		session.setMaxInactiveInterval(180); //코드 유효기간 3뷴
