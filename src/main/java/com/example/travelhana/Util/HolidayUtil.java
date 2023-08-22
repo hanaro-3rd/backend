@@ -115,7 +115,6 @@ public class HolidayUtil {
 	}
 
 	private Boolean isHoliday(LocalDate today) {
-
 		List<String> holidays = Holidays.HOLIDAYS;
 
 		String strToday = today.toString().replace("-", "");
