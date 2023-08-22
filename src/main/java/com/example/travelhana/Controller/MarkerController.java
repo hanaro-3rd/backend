@@ -28,7 +28,7 @@ public class MarkerController {
 	}
 
 	@PostMapping("/dummy")
-	public ResponseEntity<?> createDummyMarker(
+	public ResponseEntity<?> createDummyMarkers(
 			@RequestBody MarkerDummyDto markerDummyDto) {
 		return markerService.createDummyMarker(markerDummyDto);
 	}
