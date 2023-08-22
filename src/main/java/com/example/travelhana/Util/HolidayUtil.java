@@ -104,7 +104,6 @@ public class HolidayUtil {
 	}
 
 	private Boolean isWeekend(LocalDate today) {
-
 		DayOfWeek dayOfWeek = today.getDayOfWeek();
 
 		if (dayOfWeek.getValue() >= 6) {
