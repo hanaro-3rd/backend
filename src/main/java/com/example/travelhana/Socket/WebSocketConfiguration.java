@@ -1,18 +1,23 @@
 package com.example.travelhana.Socket;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
+	private final SocketPreHandler socketPreHandler;
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry){
 		registry.addEndpoint("/ws")
-				.setAllowedOrigins("*"); //클라이언트에서 웹소켓 서버에 요청 시 모든 요청 수용 (CORS)
+				.setAllowedOrigins("*")
+				.withSockJS();//클라이언트에서 웹소켓 서버에 요청 시 모든 요청 수용 (CORS)
 	}
 
 	//클라이언트는 구독 경로 '/sub/channel/{채널아이디}'
@@ -21,6 +26,12 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 	public void configureMessageBroker(MessageBrokerRegistry registry){
 		registry.enableSimpleBroker("/sub");
 		registry.setApplicationDestinationPrefixes("/pub");
+	}
+
+
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.interceptors(socketPreHandler);
 	}
 
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message {
+public class Message<T> {
 	private String type;
 	private String sender;
 	private String channelId;
