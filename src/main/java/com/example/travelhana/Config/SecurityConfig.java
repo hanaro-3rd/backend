@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/redistest",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**",
+				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**","/sub","/ws",
 				"/refresh/**", "/userrole/**", "/verification/auth", "/verification",
 				"/account/dummy","/updatePassword", "/updateDevice","/marker/dummy").permitAll();
 
