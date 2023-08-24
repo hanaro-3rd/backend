@@ -32,8 +32,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			return super.attemptAuthentication(request, response);
 		}
 		String servletPath = request.getServletPath();
+		request.getSession().setAttribute("count",0);
 		if (servletPath.contains("pattern")) {
 			try {
+				System.out.println("CustomAuthenticationFilter:"+request.getSession().getAttribute("count"));
 				log.info("CustomAuthenticationFilter - pattern");
 				// Request를 JSON으로 변환
 				JsonAuthRequestPattern authRequest = objectMapper.readValue(
@@ -51,6 +53,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		} else {
 			try {
 				log.info("CustomAuthenticationFilter - password");
+				System.out.println("CustomAuthenticationFilter:"+request.getSession().getAttribute("count"));
+
 				// Request를 JSON으로 변환
 				JsonAuthRequest authRequest = objectMapper.readValue(request.getReader(),
 						JsonAuthRequest.class);

@@ -22,6 +22,10 @@ public class CustomFailureHandler implements AuthenticationFailureHandler {
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
+		System.out.println("비번 카운트 수:"+ request.getSession().getAttribute("count"));
+		int count=Integer.parseInt(request.getSession().getAttribute("count").toString());
+		count++;
+		request.getSession().setAttribute("count",count);
 		log.info("CustomFailureHandler");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		response.setContentType(APPLICATION_JSON_VALUE);

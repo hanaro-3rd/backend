@@ -4,6 +4,7 @@ import com.example.travelhana.Service.CustomUserDetails;
 import com.example.travelhana.Util.SaltUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -19,11 +26,18 @@ public class CustomAuthProvider implements AuthenticationProvider {
 
 	private final UserDetailsService userDetailsService;
 	private final SaltUtil saltUtil;
-
+	private final HttpSession session;
+	@Bean
+	public RequestContextListener requestContextListener(){
+		return new RequestContextListener();
+	}
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		log.info("CustomAuthProvider");
+		ServletRequestAttributes servletRequestAttribute = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+
+		System.out.println("CustomAuthProvider: "+servletRequestAttribute.getRequest().getAttribute("count"));
 
 		String username = authentication.getName();
 		String inputpassword = (String) authentication.getCredentials();
@@ -49,6 +63,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
 				throw new BadCredentialsException("Provider - authenticate() : 패턴이 일치하지 않습니다.");
 			}
 		}
+
 
 		return new UsernamePasswordAuthenticationToken(
 				userDetails, null, userDetails.getAuthorities());
