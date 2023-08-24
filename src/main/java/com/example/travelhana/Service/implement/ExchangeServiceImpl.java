@@ -107,8 +107,8 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 	//redis에서 환율 읽기
 	public ResponseEntity<?> getExchangeRateFromRedis() throws JsonProcessingException {
-		String getone = stringStringListOperations.range("mystack",0,0).toString();
-		ExchangeRateDto result = objectMapper.readValue(getone.substring(1,getone.length()-1), ExchangeRateDto.class);
+		String getone = stringStringListOperations.range("mystack", 0, 0).toString();
+		ExchangeRateDto result = objectMapper.readValue(getone.substring(1, getone.length() - 1), ExchangeRateDto.class);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
@@ -325,9 +325,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
-		}
-		if (dto.getMoneyToExchange() < currency.getMinCurrency()) {
-			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
 		}
 
 		keyMoney.updatePlusBalance(dto.getMoneyToExchange() * (-1)); //키머니 잔액 차감
