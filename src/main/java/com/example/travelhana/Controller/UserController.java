@@ -25,6 +25,11 @@ public class UserController {
 	private final UserService userService;
 	private final PhoneAuthService phoneAuthService;
 
+	@GetMapping("/test")
+	public String isExistDevice() {
+		return "hello test success!test";
+	}
+
 	//기기 존재 여부 확인
 	@GetMapping("/registration/{deviceId}")
 	public ResponseEntity<?> isExistDevice(@PathVariable("deviceId") String deviceId) {
