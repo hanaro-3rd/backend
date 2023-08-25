@@ -251,7 +251,7 @@ public class MarkerServiceImpl implements MarkerService {
 
 		// 해당 마커의 수량이 남아있지 않은 경우
 		if (marker.getLimitAmount() < 1) {
-			throw new BusinessExceptionHandler(ErrorCode.LOCATION_NOT_SAME);
+			throw new BusinessExceptionHandler(ErrorCode.NOT_ENOUGH_MARKER);
 		}
 
 		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인
