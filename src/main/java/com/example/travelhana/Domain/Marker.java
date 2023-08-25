@@ -37,6 +37,9 @@ public class Marker {
 	@Column
 	private String unit;
 
+	@Column
+	private String address;
+
 	public void decreaseLimitAmount() {
 		this.limitAmount -= 1;
 	}
