@@ -10,9 +10,11 @@ import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
@@ -40,11 +43,17 @@ public class SocketPreHandler implements ChannelInterceptor {
 
 		String authorizationHeader = String.valueOf(headerAccessor.getNativeHeader("Authorization"));
 
-		System.out.println("헤더값:"+authorizationHeader);
-		if (!authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
-			// 토큰값이 없거나 정상적이지 않다면 400 오류
-			throw new MessageDeliveryException("메세지 예외");
-		} else {
+		if (StompCommand.CONNECT == headerAccessor.getCommand() || StompCommand.SUBSCRIBE == headerAccessor.getCommand()) {
+			if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+				// 토큰값이 없거나 정상적이지 않다면 400 오류
+				throw new MessageDeliveryException("메세지 예외");
+			}
+
+			if (!authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
+				// 토큰값이 유효하지 않다면 400 오류
+				throw new MessageDeliveryException("메세지 예외");
+			}
+
 			try {
 				// Access Token만 꺼내옴
 				String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
@@ -70,8 +79,33 @@ public class SocketPreHandler implements ChannelInterceptor {
 				throw new MessageDeliveryException("메세지 예외");
 			}
 		}
-
-
 		return message;
 	}
+
+
+
+	@Override
+	public void postSend(Message message, MessageChannel channel, boolean sent) {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String sessionId = accessor.getSessionId();
+
+		switch ((accessor.getCommand())) {
+			case CONNECT:
+				// 유저가 connect()를 한 뒤 호출됨
+				System.out.println("세션 들어옴 " + sessionId);
+				break;
+
+			case DISCONNECT:
+
+				// 유저가 disconnect() 를 한 뒤 호출됨 or 세션이 끊어졌을 때 발생
+				System.out.println("세션 끊음 "+ sessionId);
+				break;
+
+			default:
+
+				break;
+		}
+
+	}
+
 }
