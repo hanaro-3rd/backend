@@ -296,12 +296,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 		}
 
 		Long key = dto.getMoneyToExchange();
-		if (key < currency.getMinCurrency()) {
-			throw new BusinessExceptionHandler(ErrorCode.MIN_CURRENCY);
-		}
 
 		//키머니 잔액 200만원 초과 금지
-		if (dto.getMoneyToExchange() + keyMoney.getBalance() >= 2000000) {
+		if (key + keyMoney.getBalance() >= 2000000) {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
 		}
 
