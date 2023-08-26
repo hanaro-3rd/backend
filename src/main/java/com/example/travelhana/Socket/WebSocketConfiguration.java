@@ -16,8 +16,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry){
 		registry.addEndpoint("/ws")
-				.setAllowedOrigins("*")
-				.withSockJS();//클라이언트에서 웹소켓 서버에 요청 시 모든 요청 수용 (CORS)
+				.setAllowedOrigins("*");
 	}
 
 	//클라이언트는 구독 경로 '/sub/channel/{채널아이디}'
@@ -28,10 +27,5 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 		registry.setApplicationDestinationPrefixes("/pub");
 	}
 
-
-	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		registration.interceptors(socketPreHandler);
-	}
 
 }
