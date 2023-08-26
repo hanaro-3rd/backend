@@ -327,12 +327,28 @@ public class PlanServiceImpl implements PlanService {
 	@Transactional
 	//카테고리별 경비 계획 수정
 	public ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto) {
+		// accessToken으로 유저 검증
+		Users usersAccount = userService.getUserByAccessToken(accessToken);
+
+		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
+
+		Long totalBudget = 0L;
+
 		List<UpdateCategoryBudgetDto> updateCategoryBudgetDtoList = updateCategoryArrayDto.getCategory();
+
 		for (UpdateCategoryBudgetDto updateCategoryBudgetDto : updateCategoryBudgetDtoList) {
 			CategoryPlan categoryPlan = categoryPlanRepository.findByCategory_IdAndPlan_Id(updateCategoryBudgetDto.getCategoryId(), planId)
 					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.CATEGORY_PLAN_NOT_FOUND));
-			categoryPlan.updateCategoryBudget(updateCategoryBudgetDto.getCategoryBudget());
+			Long categoryBudget = updateCategoryBudgetDto.getCategoryBudget();
+			categoryPlan.updateCategoryBudget(categoryBudget);
+			totalBudget += categoryBudget;
 		}
+
+		// 총금액 업데이트
+		plan.updateTotalBudget(totalBudget);
+
 
 		// apiResponse에 담아서 리턴
 		ApiResponse apiResponse = ApiResponse.builder()
