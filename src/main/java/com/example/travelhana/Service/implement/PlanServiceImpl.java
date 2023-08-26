@@ -349,7 +349,6 @@ public class PlanServiceImpl implements PlanService {
 		// 총금액 업데이트
 		plan.updateTotalBudget(totalBudget);
 
-
 		// apiResponse에 담아서 리턴
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result("카테고리 경비계획 수정 성공")

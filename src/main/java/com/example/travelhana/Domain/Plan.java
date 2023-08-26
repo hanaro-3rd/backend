@@ -59,6 +59,7 @@ public class Plan {
 	public void updateTotalBudget(Long totalBudget) {
 		this.totalBudget= totalBudget;
 	}
+
 	public void softDeletePlan() {
 		this.isDeleted = true;
 	}
