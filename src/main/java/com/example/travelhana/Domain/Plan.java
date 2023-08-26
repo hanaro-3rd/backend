@@ -56,6 +56,10 @@ public class Plan {
 		this.title = updatePlanDto.getTitle();
 	}
 
+	public void updateTotalBudget(Long totalBudget) {
+		this.totalBudget= totalBudget;
+	}
+
 	public void softDeletePlan() {
 		this.isDeleted = true;
 	}
