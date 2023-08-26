@@ -1,6 +1,7 @@
 package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
+import com.example.travelhana.Dto.Keymoney.KeymoneyDto;
 import com.example.travelhana.Dto.Marker.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +35,19 @@ public class MarkerServiceImpl implements MarkerService {
 	private final UserService userService;
 
 	// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱하는 함수
-	private MarkerListDto parseMarkerEntitiesToMarkerListDto(int userId, List<Marker> markers) {
+	private MarkerListDto parseMarkerEntitiesToMarkerListDto(
+			int userId, List<Marker> markers, String filter, String sort, LocationDto userLocation) {
 		List<MarkerResultDto> returnMarkers = new ArrayList<>();
+
 		for (Marker marker : markers) {
+			// userToMarker테이블을 확인하여 유저가 마커를 주운 이력이 있는지 판단
+			Boolean isPickup = userToMarkerRepository
+					.existsByUsers_IdAndMarker_Id(userId, marker.getId());
+
+			// 마커와 유저의 위치를 계산
+			LocationDto markerLocation = new LocationDto(marker.getLat(), marker.getLng());
+			Double distance = calcMarkerToUser(markerLocation, userLocation);
+
 			MarkerResultDto returnMarker = MarkerResultDto
 					.builder()
 					.id(marker.getId())
@@ -45,15 +57,34 @@ public class MarkerServiceImpl implements MarkerService {
 					.unit(marker.getUnit())
 					.amount(marker.getAmount())
 					.limitAmount(marker.getLimitAmount())
-					.isPickUp(userToMarkerRepository.existsByUsers_IdAndMarker_Id(userId,
-							marker.getId()))
+					.isPickUp(isPickup)
+					.distance(distance)
+					.address(marker.getAddress())
 					.build();
-			returnMarkers.add(returnMarker);
+
+			// FILTERING
+			// filter가 all이거나 filter의 값이 isPicked와 같을 땐 리턴배열에 추가
+			if (filter.equals("all") || filter.equals(Boolean.toString(isPickup))) {
+				returnMarkers.add(returnMarker);
+			} else if (!filter.equals("true") && !filter.equals("false")) {
+				throw new BusinessExceptionHandler(ErrorCode.INVALID_MARKER_FILTER);
+			}
+
+			// SORTING
+			if (sort.equals("distance")) {
+				returnMarkers.sort(Comparator.comparing(MarkerResultDto::getDistance));
+			} else if (sort.equals("amount")) {
+				returnMarkers.sort(Comparator.comparing(MarkerResultDto::getAmount));
+			} else if (sort.equals("limitAmount")) {
+				returnMarkers.sort(Comparator.comparing(MarkerResultDto::getLimitAmount));
+			} else {
+				throw new BusinessExceptionHandler(ErrorCode.INVALID_MARKER_SORT);
+			}
 		}
 		return new MarkerListDto(returnMarkers);
 	}
 
-	private Boolean inRangeOfMarker(LocationDto markerLocation, LocationDto userLocation) {
+	private Double calcMarkerToUser(LocationDto markerLocation, LocationDto userLocation) {
 		// 마커의 위도, 경도
 		double markerX = markerLocation.getLat();
 		double markerY = markerLocation.getLng();
@@ -82,19 +113,29 @@ public class MarkerServiceImpl implements MarkerService {
 		double distance = (Math.round(result * 100) / 100.0);
 
 		// 거리가 50m(0.05km)이내면 True, 아니면 False를 반환
-		return distance < 0.05 ;
+		return distance;
 	}
 
 	@Override
-	public ResponseEntity<?> getMarkerList(String accessToken) {
+	public ResponseEntity<?> getMarkerList(
+			String accessToken, LocationDto locationDto, String unit, String isPickup, String sort) {
 		// access token으로 유저 가져오기
 		Users users = userService.getUserByAccessToken(accessToken);
 
-		// 모든 마커를 가져옴
-		List<Marker> markers = markerRepository.findAll();
+		List<Marker> markers;
+		if (unit.equals("all")) {
+			// country가 all이라면 모든 마커를 가져옴
+			markers = markerRepository.findAll();
+		} else {
+			if (Currency.getByCode(unit) == null) {
+				throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+			}
+			// 아니라면 unit에 해당하는 모든 마커를 가져옴
+			markers = markerRepository.findAllByUnit(unit);
+		}
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
-		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(users.getId(), markers);
+		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(users.getId(), markers, isPickup, sort, locationDto);
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
@@ -123,6 +164,7 @@ public class MarkerServiceImpl implements MarkerService {
 					.limitAmount(20)
 					.place("도쿄역")
 					.unit("JPY")
+					.address("일본 도쿄도 지요다구 마루노우치 1 조메-9")
 					.build();
 			markerRepository.save(tokyoStation);
 
@@ -132,8 +174,9 @@ public class MarkerServiceImpl implements MarkerService {
 					.lat(35.6586)
 					.lng(139.7454)
 					.limitAmount(20)
-					.place("도쿄타워")
+					.place("도쿄 타워")
 					.unit("JPY")
+					.address("일본 도쿄도 미나토구 시바코엔 4 조메-2-8")
 					.build();
 			markerRepository.save(tokyoTower);
 
@@ -145,6 +188,7 @@ public class MarkerServiceImpl implements MarkerService {
 					.limitAmount(20)
 					.place("센소지")
 					.unit("JPY")
+					.address("일본 도쿄도 다이토구 아사쿠사 2 조메-3-1")
 					.build();
 			markerRepository.save(sensouji);
 
@@ -156,6 +200,7 @@ public class MarkerServiceImpl implements MarkerService {
 					.limitAmount(20)
 					.place("시부야 스카이")
 					.unit("JPY")
+					.address("일본 도쿄도 시부야구 시부야 2 조메-24-12")
 					.build();
 			markerRepository.save(sibuyaSky);
 		}
@@ -169,6 +214,7 @@ public class MarkerServiceImpl implements MarkerService {
 				.lat(markerDummyDto.getLat())
 				.lng(markerDummyDto.getLng())
 				.place(markerDummyDto.getPlace())
+				.address(markerDummyDto.getAddress())
 				.build();
 		markerRepository.save(marker);
 
@@ -176,7 +222,7 @@ public class MarkerServiceImpl implements MarkerService {
 		List<Marker> markers = markerRepository.findAll();
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
-		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers);
+		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers, "all", "distance", new LocationDto(0.0,0.0));
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
@@ -199,13 +245,13 @@ public class MarkerServiceImpl implements MarkerService {
 
 		// 현재 위치가 마커를 주울 수 있는 범위내인지 확인
 		LocationDto markerLocation = new LocationDto(marker.getLat(), marker.getLng());
-		if (!inRangeOfMarker(markerLocation, userLocation)) {
+		if (calcMarkerToUser(markerLocation, userLocation) > 0.5) {
 			throw new BusinessExceptionHandler(ErrorCode.LOCATION_NOT_SAME);
 		}
 
 		// 해당 마커의 수량이 남아있지 않은 경우
 		if (marker.getLimitAmount() < 1) {
-			throw new BusinessExceptionHandler(ErrorCode.LOCATION_NOT_SAME);
+			throw new BusinessExceptionHandler(ErrorCode.NOT_ENOUGH_MARKER);
 		}
 
 		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인

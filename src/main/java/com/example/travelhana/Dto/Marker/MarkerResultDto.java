@@ -19,5 +19,7 @@ public class MarkerResultDto {
 	int limitAmount;
 	String unit;
 	Boolean isPickUp;
+	Double distance;
+	String address;
 
 }

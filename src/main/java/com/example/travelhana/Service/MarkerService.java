@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 
 public interface MarkerService {
 
-	ResponseEntity<?> getMarkerList(String accessToken);
+	ResponseEntity<?> getMarkerList(String accessToken, LocationDto locationDto, String unit, String isPickup, String sort);
 
 	ResponseEntity<?> createDummyMarker(MarkerDummyDto markerDummyDto);
 
-	ResponseEntity<?> pickUpMarker(
-			String accessToken, int markerId, LocationDto locationDto);
+	ResponseEntity<?> pickUpMarker(String accessToken, int markerId, LocationDto locationDto);
 
 }
