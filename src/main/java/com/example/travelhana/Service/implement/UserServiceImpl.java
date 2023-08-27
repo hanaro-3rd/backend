@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.stream().map(role -> new SimpleGrantedAuthority(role.getName()))
 				.collect(Collectors.toList());
 
-		return new CustomUserDetailsImpl(users.getDeviceId(), users.getPassword(), users.getSalt(),
+		return new CustomUserDetailsImpl(users.getDeviceId(), users.getPassword(), users.getPattern(), users.getSalt(),
 				authorities, true, true, true, true);
 	}
 

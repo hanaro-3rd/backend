@@ -31,6 +31,9 @@ public class Users {
 	private String password;
 
 	@Column(nullable = false)
+	private String pattern;
+
+	@Column(nullable = false)
 	private String registrationNum;
 
 	@Column(nullable = false)
