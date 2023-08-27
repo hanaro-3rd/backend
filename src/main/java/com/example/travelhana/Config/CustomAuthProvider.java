@@ -32,7 +32,6 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(username);
 		String salt = userDetails.getSalt();
-		String userpattern = userDetails.getPattern();
 		String userpassword = userDetails.getPassword();
 
 
@@ -41,12 +40,6 @@ public class CustomAuthProvider implements AuthenticationProvider {
 			// 비밀번호 검사
 			if (!userpassword.equals(inputsaltpw)) {
 				throw new BadCredentialsException("Provider - authenticate() : 비밀번호가 일치하지 않습니다.");
-			}
-		} else {
-			String inputsaltpat = saltUtil.encodePassword(salt, inputpassword); //받아온거
-			// 패턴 검사
-			if (!userpattern.equals(inputsaltpat)) {
-				throw new BadCredentialsException("Provider - authenticate() : 패턴이 일치하지 않습니다.");
 			}
 		}
 

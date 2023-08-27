@@ -36,9 +36,6 @@ public class Users {
 	@Column(nullable = false)
 	private String phoneNum;
 
-	@Column(nullable = false)
-	private String pattern;
-
 	@Builder.Default
 	private Boolean isWithdrawal = false; //디폴트 =false
 

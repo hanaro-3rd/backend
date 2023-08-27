@@ -78,7 +78,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 	}
 
-
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
 		Random random = new Random();
 
@@ -113,21 +112,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception {
-		if (validateDuplicateUsername(dto.getRegistrationNum()).isPresent()) {
-			throw new RuntimeException("이미 존재하는 유저입니다.");
+		if (validateDuplicateUsername(dto.getPhonenum()).isPresent()) {
+			throw new BusinessExceptionHandler(ErrorCode.USER_ALREADY_EXIST);
 		}
+
 		isValidUser(dto);
+
 		String salt = saltUtil.generateSalt();
 		Users users = new Users().builder()
 				.password(saltUtil.encodePassword(salt, dto.getPassword()))
-				.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
 				.phoneNum(dto.getPhonenum())
 				.deviceId(dto.getDeviceId())
 				.salt(salt)
 				.name(dto.getName())
 				.registrationNum(dto.getRegistrationNum())
 				.build();
-		userRepository.save(users);
+		Users savedUser = userRepository.save(users);
 
 		AccountDummyDto accountDummyDto = AccountDummyDto
 				.builder()
@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		createDummyExternalAccounts(accountDummyDto);
 
 		ApiResponse apiResponse = ApiResponse.builder()
-				.result(users.getName())
+				.result(savedUser.getName())
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.build();
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.stream().map(role -> new SimpleGrantedAuthority(role.getName()))
 				.collect(Collectors.toList());
 
-		return new CustomUserDetailsImpl(users.getDeviceId(), users.getPassword(), users.getPattern(), users.getSalt(),
+		return new CustomUserDetailsImpl(users.getDeviceId(), users.getPassword(), users.getSalt(),
 				authorities, true, true, true, true);
 	}
 
