@@ -13,8 +13,8 @@ public class SignupRequestDto {
 
 	private String name;
 	private String password;
-	private String phonenum;
 	private String pattern;
+	private String phonenum;
 	private String deviceId;
 	private String registrationNum;
 
