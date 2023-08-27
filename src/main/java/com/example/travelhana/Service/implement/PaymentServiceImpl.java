@@ -33,10 +33,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	@Transactional
-	public ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentRequestDto) {
+	public ResponseEntity<?> payment(Users users, PaymentRequestDto paymentRequestDto) {
 		try {
-			// access token으로 유저 가져오기
-			Users users = userService.getUserByAccessToken(accessToken);
 			int userId = users.getId();
 
 			// userId로 유저가 가진 unit에 해당하는 키머니 불러오기
@@ -101,10 +99,8 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Transactional
-	public ResponseEntity<?> updatePaymentHistory(String accessToken, Long paymentId, PaymentMemoDto paymentMemoDto) {
+	public ResponseEntity<?> updatePaymentHistory(Users users, Long paymentId, PaymentMemoDto paymentMemoDto) {
 		try {
-			// access token으로 유저 가져오기
-			Users users = userService.getUserByAccessToken(accessToken);
 			int userId = users.getId();
 
 			// 결제 id와 유저 id에 대한 내역이 있는지 확인
@@ -150,10 +146,8 @@ public class PaymentServiceImpl implements PaymentService {
 	// 취소되면 승인여부 false
 	// 키머니 잔액 update
 	@Transactional
-	public ResponseEntity<?> deletePaymentHistory(String accessToken, Long paymentId) {
+	public ResponseEntity<?> cancelPayment(Users users, Long paymentId) {
 		try {
-			// access token으로 유저 가져오기
-			Users users = userService.getUserByAccessToken(accessToken);
 			int userId = users.getId();
 
 			// 결제 id와 유저 id에 대한 내역이 있는지 확인

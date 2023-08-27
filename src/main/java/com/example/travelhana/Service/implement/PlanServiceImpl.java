@@ -32,11 +32,8 @@ public class PlanServiceImpl implements PlanService {
 	private final KeymoneyRepository keymoneyRepository;
 
 	//경비 생성
-	public ResponseEntity<?> savePlan(String accessToken, PlanDto planDto) {
+	public ResponseEntity<?> savePlan(Users users, PlanDto planDto) {
 		try {
-			// accessToken으로 유저 검증
-			Users usersAccount = userService.getUserByAccessToken(accessToken);
-
 			// 경비 계획 저장
 			Plan plan = Plan.builder()
 					.title(planDto.getTitle())
@@ -44,7 +41,7 @@ public class PlanServiceImpl implements PlanService {
 					.startDate(planDto.getStartDate())
 					.endDate(planDto.getEndDate())
 					.country(planDto.getCountry())
-					.totalBudget(planDto.getTotalBudget()).users(usersAccount).build();
+					.totalBudget(planDto.getTotalBudget()).users(users).build();
 			Plan returnPlan = planRepository.save(plan);
 
 			// 경비 계획에 필요한 카테고리명, 카테고리 경비, 카테고리 잔액 저장
@@ -64,7 +61,7 @@ public class PlanServiceImpl implements PlanService {
 			// 성공시 userId와 생성한 planId
 			PlanSuccessDto planSuccessDto = PlanSuccessDto
 					.builder()
-					.userId(usersAccount.getId())
+					.userId(users.getId())
 					.planId(returnPlan.getId())
 					.build();
 
@@ -85,13 +82,10 @@ public class PlanServiceImpl implements PlanService {
 	}
 
 	// 경비계획 리스트 읽기
-	public ResponseEntity<?> getPlanList(String accessToken) {
+	public ResponseEntity<?> getPlanList(Users users) {
 		try {
-			// accessToken으로 유저 검증
-			Users usersAccount = userService.getUserByAccessToken(accessToken);
-
 			// 유저가 가지고 있는 경비계획 리스트 가져오기
-			List<Plan> planList = planRepository.findAllByUser_IdAndIsDeletedFalse(usersAccount.getId());
+			List<Plan> planList = planRepository.findAllByUser_IdAndIsDeletedFalse(users.getId());
 
 			// 가져온 엔티티를 dto에 파싱
 			List<TravelElementDto> travelElementDtoList = new ArrayList<>();
@@ -126,12 +120,9 @@ public class PlanServiceImpl implements PlanService {
 	}
 
 	// 경비 계획 상세 읽어오기
-	public ResponseEntity<?> getPlan(String accessToken, int planId) {
-		// accessToken으로 유저 검증
-		Users usersAccount = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getPlan(Users users, int planId) {
 		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
-		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, users.getId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
 
 		// 가져온 엔티티를 dto에 파싱
@@ -160,7 +151,8 @@ public class PlanServiceImpl implements PlanService {
 
 		// 결제 내역 추출 및 그룹화 로직 추가
 		List<PaymentHistory> paymentHistoryList =
-				paymentHistoryRepository.findByUserIdAndPaymentDateBetween(usersAccount.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
+				paymentHistoryRepository.findByUserIdAndPaymentDateBetween(users.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
+
 		Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
 		for (PaymentHistory paymentHistory : paymentHistoryList) {
 			String paymentDate = paymentHistory.getCreatedAt().toString();
@@ -201,12 +193,9 @@ public class PlanServiceImpl implements PlanService {
 	}
 
 	//카테고리 정렬로 경비내역 보여주기
-	public ResponseEntity<?> getPlanByCategory(String accessToken, int planId) {
-		// accessToken으로 유저 검증
-		Users usersAccount = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getPlanByCategory(Users users, int planId) {
 		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
-		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, users.getId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
 
 		// 가져온 엔티티를 dto에 파싱
@@ -235,7 +224,7 @@ public class PlanServiceImpl implements PlanService {
 
 		// 결제 내역 추출 및 그룹화 로직 추가
 		List<PaymentHistory> paymentHistoryList =
-				paymentHistoryRepository.findByUserIdAndPaymentDateBetween(usersAccount.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
+				paymentHistoryRepository.findByUserIdAndPaymentDateBetween(users.getId(), travelBudgetDto.getStartDate(), travelBudgetDto.getEndDate());
 		Map<String, List<PlanPaymentHistoryDto>> paymentHistoryByDate = new LinkedHashMap<>();
 		for (PaymentHistory paymentHistory : paymentHistoryList) {
 			Keymoney keymoney = keymoneyRepository.findById(paymentHistory.getKeymoneyId()).orElseThrow(
@@ -274,18 +263,15 @@ public class PlanServiceImpl implements PlanService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
-	public ResponseEntity<?> deletePlan(String accessToken, int planId) {
-		// accessToken으로 유저 검증
-		Users usersAccount = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> deletePlan(Users users, int planId) {
 		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
-		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, users.getId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
 
 		// plan 삭제
 		plan.softDeletePlan();
 
-		// planId에 해당하는 카테고리별 경비 가쟈오기
+		// planId에 해당하는 카테고리별 경비 가져오기
 		List<CategoryPlan> categoryPlans = categoryPlanRepository.findAllByPlan_Id(planId);
 
 		// categoryPlan 삭제
@@ -304,12 +290,9 @@ public class PlanServiceImpl implements PlanService {
 
 	@Transactional
 	// 카테고리별 경비 계획 제외한 수정
-	public ResponseEntity<?> updatePlan(String accessToken, int planId, UpdatePlanDto updatePlanDto) {
-		// accessToken으로 유저 검증
-		Users usersAccount = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> updatePlan(Users users, int planId, UpdatePlanDto updatePlanDto) {
 		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
-		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, users.getId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
 
 		// plan 업데이트
@@ -326,12 +309,9 @@ public class PlanServiceImpl implements PlanService {
 
 	@Transactional
 	//카테고리별 경비 계획 수정
-	public ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto) {
-		// accessToken으로 유저 검증
-		Users usersAccount = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> updateCategoryPlan(Users users, int planId, UpdateCategoryArrayDto updateCategoryArrayDto) {
 		// planId와 userId로 유저 소유 여부 식별 및 엔티티 가져오기
-		Plan plan = planRepository.findByIdAndUsers_Id(planId, usersAccount.getId())
+		Plan plan = planRepository.findByIdAndUsers_Id(planId, users.getId())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PLAN_NOT_FOUND));
 
 		Long totalBudget = 0L;

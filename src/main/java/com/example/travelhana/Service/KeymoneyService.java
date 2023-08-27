@@ -1,13 +1,14 @@
 package com.example.travelhana.Service;
 
+import com.example.travelhana.Domain.Users;
 import org.springframework.http.ResponseEntity;
 
 public interface KeymoneyService {
 
-	ResponseEntity<?> getKeymoney(String accessToken);
+	ResponseEntity<?> getKeymoney(Users users);
 
-	ResponseEntity<?> getKeymoneyHistory(String accessToken, String unit, String filter);
+	ResponseEntity<?> getKeymoneyHistory(Users users, String unit, String filter);
 
-	ResponseEntity<?> getDetailKeymoneyHistory(String accessToken, Long historyId, String type);
+	ResponseEntity<?> getDetailKeymoneyHistory(Users users, Long historyId, String type);
 
 }

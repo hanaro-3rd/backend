@@ -1,16 +1,17 @@
 package com.example.travelhana.Service;
 
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Account.*;
 
 import org.springframework.http.ResponseEntity;
 
 public interface AccountService {
 
-	ResponseEntity<?> getConnectedAccountList(String accessToken) throws Exception;
+	ResponseEntity<?> getConnectedAccountList(Users users) throws Exception;
 
-	ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception;
+	ResponseEntity<?> findExternalAccountList(Users users) throws Exception;
 
 	ResponseEntity<?> connectExternalAccount(
-			String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception;
+			Users users, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception;
 
 }

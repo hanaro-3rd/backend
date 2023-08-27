@@ -1,7 +1,9 @@
 package com.example.travelhana.Controller;
 
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Account.*;
 import com.example.travelhana.Service.AccountService;
+import com.example.travelhana.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,29 +15,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/account")
 public class AccountController {
 
+	private final UserService userService;
 	private final AccountService accountService;
 
 	@GetMapping(value = "")
 	public ResponseEntity<?> getAccountList(
 			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
-		return accountService.getConnectedAccountList(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
+		return accountService.getConnectedAccountList(users);
 	}
 
 	@GetMapping(value = "/external")
 	public ResponseEntity<?> getExternalAccountList(
 			@RequestHeader(value = "Authorization") String accessToken) throws Exception {
-		return accountService.findExternalAccountList(accessToken);
+		Users users = userService.getUserByAccessToken(accessToken);
+		return accountService.findExternalAccountList(users);
 	}
 
 	@PostMapping("/{externalAccountId}")
 	public ResponseEntity<?> connectExternalAccount(
 			@RequestHeader(value = "Authorization") String accessToken,
-			@PathVariable int externalAccountId, @RequestBody AccountPasswordDto accountPasswordDto)
-			throws Exception {
-		return accountService.connectExternalAccount(accessToken, externalAccountId,
-				accountPasswordDto);
+			@PathVariable int externalAccountId,
+			@RequestBody AccountPasswordDto accountPasswordDto)	throws Exception {
+		Users users = userService.getUserByAccessToken(accessToken);
+		return accountService.connectExternalAccount(users, externalAccountId, accountPasswordDto);
 	}
-
-
 
 }

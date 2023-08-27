@@ -50,10 +50,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	}
 
 	@Override
-	public ResponseEntity<?> getKeymoney(String accessToken) {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getKeymoney(Users users) {
 		// userId로 유저가 보유한 모든 키머니 불러오기
 		List<Keymoney> userKeymoney = keymoneyRepository.findByUsers_Id(users.getId());
 
@@ -78,10 +75,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	}
 
 	@Override
-	public ResponseEntity<?> getKeymoneyHistory(String accessToken, String unit, String filter) {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getKeymoneyHistory(Users users, String unit, String filter) {
 		// 유효하지 않은 화폐단위 에러
 		Currency currency = Currency.getByCode(unit);
 		if (currency == null) {
@@ -185,9 +179,7 @@ public class KeymoneyServiceImpl implements KeymoneyService {
 	}
 
 	@Override
-	public ResponseEntity<?> getDetailKeymoneyHistory(String accessToken, Long historyId, String type) {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
+	public ResponseEntity<?> getDetailKeymoneyHistory(Users users, Long historyId, String type) {
 		int userId = users.getId();
 
 		// type이 결제(payment)나 환전(exchange)가 아니라면 에러

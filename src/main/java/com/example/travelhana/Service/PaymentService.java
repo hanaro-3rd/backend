@@ -1,15 +1,16 @@
 package com.example.travelhana.Service;
 
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Payment.PaymentRequestDto;
 import com.example.travelhana.Dto.Payment.PaymentMemoDto;
 import org.springframework.http.ResponseEntity;
 
 public interface PaymentService {
 
-	ResponseEntity<?> payment(String accessToken, PaymentRequestDto paymentListDto);
+	ResponseEntity<?> payment(Users users, PaymentRequestDto paymentListDto);
 
-	ResponseEntity<?> updatePaymentHistory(String accessToken, Long paymentId, PaymentMemoDto paymentMemoDto);
+	ResponseEntity<?> updatePaymentHistory(Users users, Long paymentId, PaymentMemoDto paymentMemoDto);
 
-	ResponseEntity<?> deletePaymentHistory(String accessToken, Long paymentId);
+	ResponseEntity<?> cancelPayment(Users users, Long paymentId);
 
 }

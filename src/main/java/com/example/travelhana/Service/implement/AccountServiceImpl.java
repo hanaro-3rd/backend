@@ -58,10 +58,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> getConnectedAccountList(String accessToken) throws Exception {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getConnectedAccountList(Users users) throws Exception {
 		// userId에 대한 유저의 연결된 계좌 목록 가져오기
 		int userId = users.getId();
 		List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUsers_Id(userId);
@@ -84,10 +81,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> findExternalAccountList(Users users) throws Exception {
 		// 유저의 주민번호에 해당하는 연결되지 않은 외부 계좌 목록을 불러옴
 		List<AccountInfoProjection> projections =
 				externalAccountRepository.findAllByPhoneNumAndIsConnected(users.getPhoneNum(), false);
@@ -107,24 +101,22 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public ResponseEntity<?> connectExternalAccount(
-			String accessToken, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+			Users users, int externalAccountId, AccountPasswordDto accountPasswordDto) throws Exception {
 		// externalAccountId에 대한 연결되지 않은 외부 계좌 존재 여부 확인
 		ExternalAccount externalAccount = externalAccountRepository.findByIdAndIsConnected(externalAccountId, false)
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND));
 
 		// 해당 유저의 계좌 소유 여부 확인
-		if (!users.getRegistrationNum().equals(externalAccount.getRegistrationNum())) {
+		if (!users.getPhoneNum().equals(externalAccount.getPhoneNum())) {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_ACCOUNT);
 		}
 
 		// 비밀번호 확인
 		String storedSalt = externalAccount.getSalt();
 		String storedPassword = externalAccount.getPassword();
-		String encodedPassword = saltUtil.encodePassword(storedSalt,
-				accountPasswordDto.getAccountPassword());
+		String encodedPassword =
+				saltUtil.encodePassword(storedSalt,	accountPasswordDto.getAccountPassword());
+
 		if (!storedPassword.equals(encodedPassword)) {
 			throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_PASSWORD);
 		}

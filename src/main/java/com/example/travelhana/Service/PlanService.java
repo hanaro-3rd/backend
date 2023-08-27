@@ -1,5 +1,6 @@
 package com.example.travelhana.Service;
 
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Plan.PlanDto;
 import com.example.travelhana.Dto.Plan.UpdateCategoryArrayDto;
 import com.example.travelhana.Dto.Plan.UpdatePlanDto;
@@ -7,19 +8,19 @@ import org.springframework.http.ResponseEntity;
 
 public interface PlanService {
 
-    ResponseEntity<?> savePlan (String accessToken, PlanDto planDto);
+    ResponseEntity<?> savePlan (Users users, PlanDto planDto);
 
-    ResponseEntity<?> getPlanList(String accessToken);
+    ResponseEntity<?> getPlanList(Users users);
 
-    ResponseEntity<?> getPlan(String accessToken, int planId);
+    ResponseEntity<?> getPlan(Users users, int planId);
 
-    ResponseEntity<?> getPlanByCategory(String accessToken, int planId);
+    ResponseEntity<?> getPlanByCategory(Users users, int planId);
 
-    ResponseEntity<?> deletePlan(String accessToken, int planId);
+    ResponseEntity<?> deletePlan(Users users, int planId);
 
-    ResponseEntity<?> updatePlan(String accessToken, int planId, UpdatePlanDto updatePlanDto);
+    ResponseEntity<?> updatePlan(Users users, int planId, UpdatePlanDto updatePlanDto);
 
-    ResponseEntity<?> updateCategoryPlan(String accessToken, int planId, UpdateCategoryArrayDto updateCategoryArrayDto);
+    ResponseEntity<?> updateCategoryPlan(Users users, int planId, UpdateCategoryArrayDto updateCategoryArrayDto);
 
 }
 

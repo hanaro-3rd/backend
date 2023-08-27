@@ -118,10 +118,7 @@ public class MarkerServiceImpl implements MarkerService {
 
 	@Override
 	public ResponseEntity<?> getMarkerList(
-			String accessToken, LocationDto locationDto, String unit, String isPickup, String sort) {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+			Users users, LocationDto locationDto, String unit, String isPickup, String sort) {
 		List<Marker> markers;
 		if (unit.equals("all")) {
 			// country가 all이라면 모든 마커를 가져옴
@@ -234,9 +231,7 @@ public class MarkerServiceImpl implements MarkerService {
 	@Override
 	@Transactional
 	public ResponseEntity<?> pickUpMarker(
-			String accessToken, int markerId, LocationDto userLocation) {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
+			Users users, int markerId, LocationDto userLocation) {
 		int userId = users.getId();
 
 		// markerId에 해당하는 마커가 있는지 확인
@@ -255,8 +250,8 @@ public class MarkerServiceImpl implements MarkerService {
 		}
 
 		// userId와 markerId에 해당하는 user-marker 중간 테이블 레코드가 이미 존재하는지 확인
-		Boolean isAlreadyPickUp = userToMarkerRepository.existsByUsers_IdAndMarker_Id(userId,
-				markerId);
+		Boolean isAlreadyPickUp
+				= userToMarkerRepository.existsByUsers_IdAndMarker_Id(userId, markerId);
 		if (isAlreadyPickUp) {
 			throw new BusinessExceptionHandler(ErrorCode.ALREADY_PICK_UPPED_MARKER);
 		}
