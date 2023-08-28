@@ -44,12 +44,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 						user.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 								.collect(Collectors.toList()))
 				.withIssuedAt(new Date(System.currentTimeMillis()))
-				.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
+				.sign(Algorithm.HMAC256("7ZWt7ZW0OTntmZTsnbTtjIXtlZzqta3snYTrhIjrqLjshLjqs4TroZzrgpjslYTqsIDsnpDtm4zrpa3tlZzqsJzrsJzsnpDrpbzrp4zrk6TslrTqsIDsnpA="));
 		String refreshToken = JWT.create()
 				.withSubject(user.getUsername())
 				.withExpiresAt(new Date(System.currentTimeMillis() + RT_EXP_TIME))
 				.withIssuedAt(new Date(System.currentTimeMillis()))
-				.sign(Algorithm.HMAC256(jwtConstants.JWT_SECRET));
+				.sign(Algorithm.HMAC256("7ZWt7ZW0OTntmZTsnbTtjIXtlZzqta3snYTrhIjrqLjshLjqs4TroZzrgpjslYTqsIDsnpDtm4zrpa3tlZzqsJzrsJzsnpDrpbzrp4zrk6TslrTqsIDsnpA="));
 
 		// Refresh Token DB에 저장
 		userService.updateRefreshToken(user.getUsername(), refreshToken);

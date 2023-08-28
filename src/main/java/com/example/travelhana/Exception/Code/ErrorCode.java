@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public enum ErrorCode {
 
 	INVALID_PASSWORD(400, "Internal Server Error", "비밀번호는 6개의 숫자로 구성해주세요"),
-	USER_ALREADY_EXIST(500, "USER_ALREADY_EXIST", "이미 존재하는 유저입니다."),
+	USER_ALREADY_EXIST(400, "USER_ALREADY_EXIST", "이미 존재하는 유저입니다."),
 	AUTH_FAILURE(500, "AUTH_FAILURE", "인증코드가 일치하지 않습니다."),
 	SESSION_INVALID(500, "SESSION_INVALID", "코드가 만료되었습니다. 다시 코드를 발급받으세요."),
 	BUSINESS_EXCEPTION_ERROR(500, "TOKEN isn't userId", "TOKEN isn't userId"),
@@ -18,7 +18,7 @@ public enum ErrorCode {
 	INVALID_EXCHANGE_UNIT(500, "Invalid exchange unit.", "유효하지 않은 화폐단위입니다."),
 	TOO_MUCH_PURCHASE(500, "TOO_MUCH_PURCHASE", "외화 매수는 100만원 이상 불가합니다"),
 	INVALID_HISTORY_FILTER(500, "Invalid History Filter.", "유효하지 입출금내역 필터입니다."),
-	INVALID_HISTORY_TYPE(500, "Invalid History Filter.", "유효하지 입출금내역 타입입니다."),
+	INVALID_HISTORY_TYPE(500, "Invalid History Filter.", "유효하지 않은 입출금내역 타입입니다."),
 	NO_ZERO_OR_MINUS(500, "NO_ZERO_OR_MINUS", "환전금액은 양수로 입력해주세요."),
 	NO_ACCOUNT(500, "There is no account like this id", "계좌가 존재하지 않습니다."),
 	NO_USER(500, "NO_USER", "유저가 존재하지 않습니다."),
@@ -37,6 +37,8 @@ public enum ErrorCode {
 	EXCHANGE_HISTORY_NOT_FOUND(404, "Exchange History Not Found", "해당하는 환전 내역을 찾을 수 없습니다."),
 	MARKER_HISTORY_NOT_FOUND(404, "Marker History Not Found", "해당하는 마커줍기 내역을 찾을 수 없습니다."),
 
+	INVALID_MARKER_FILTER(400, "Invalid Marker Filter.", "유효하지 않은 마커 필터입니다."),
+	INVALID_MARKER_SORT(400, "Invalid Marker Sort.", "유효하지 않은 마커 정렬입니다."),
 	CATEGORY_PLAN_NOT_FOUND(404, "Category Plan Not Found", "해당하는 카테고리 경비계획을 찾을 수 없습니다."),
 	LOCATION_NOT_SAME(406, "Location Not Same", "마커의 위치와 현재 위치가 다릅니다."),
 	PLAN_NOT_FOUND(404, "Plan Not Found", "해당하는 경비계획을 찾을 수 없습니다."),

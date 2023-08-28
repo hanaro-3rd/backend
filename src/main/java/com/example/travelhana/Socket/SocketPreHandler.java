@@ -42,19 +42,20 @@ public class SocketPreHandler implements ChannelInterceptor {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(message);
 
 		String authorizationHeader = String.valueOf(headerAccessor.getNativeHeader("Authorization"));
+		System.out.println(authorizationHeader);
 
+		System.out.println(headerAccessor.getCommand());
 		if (StompCommand.CONNECT == headerAccessor.getCommand() || StompCommand.SUBSCRIBE == headerAccessor.getCommand()) {
 			if (authorizationHeader == null || authorizationHeader.isEmpty()) {
 				// 토큰값이 없거나 정상적이지 않다면 400 오류
-				throw new MessageDeliveryException("메세지 예외");
+				throw new MessageDeliveryException("토큰값 없음");
 			}
 
 			if (!authorizationHeader.startsWith(TOKEN_HEADER_PREFIX)) {
 				// 토큰값이 유효하지 않다면 400 오류
-				throw new MessageDeliveryException("메세지 예외");
+				throw new MessageDeliveryException("토큰이 유효하지 않음");
 			}
 
-			try {
 				// Access Token만 꺼내옴
 				String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
@@ -72,40 +73,35 @@ public class SocketPreHandler implements ChannelInterceptor {
 						username, null, authorities);
 				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-			} catch (TokenExpiredException e) {
-				throw new MessageDeliveryException("메세지 예외");
 
-			} catch (Exception e) {
-				throw new MessageDeliveryException("메세지 예외");
-			}
 		}
 		return message;
 	}
 
-
-
-	@Override
-	public void postSend(Message message, MessageChannel channel, boolean sent) {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String sessionId = accessor.getSessionId();
-
-		switch ((accessor.getCommand())) {
-			case CONNECT:
-				// 유저가 connect()를 한 뒤 호출됨
-				System.out.println("세션 들어옴 " + sessionId);
-				break;
-
-			case DISCONNECT:
-
-				// 유저가 disconnect() 를 한 뒤 호출됨 or 세션이 끊어졌을 때 발생
-				System.out.println("세션 끊음 "+ sessionId);
-				break;
-
-			default:
-
-				break;
-		}
-
-	}
+//
+//
+//	@Override
+//	public void postSend(Message message, MessageChannel channel, boolean sent) {
+//		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+//		String sessionId = accessor.getSessionId();
+//
+//		switch ((accessor.getCommand())) {
+//			case CONNECT:
+//				// 유저가 connect()를 한 뒤 호출됨
+//				System.out.println("세션 들어옴 " + sessionId);
+//				break;
+//
+//			case DISCONNECT:
+//
+//				// 유저가 disconnect() 를 한 뒤 호출됨 or 세션이 끊어졌을 때 발생
+//				System.out.println("세션 끊음 "+ sessionId);
+//				break;
+//
+//			default:
+//
+//				break;
+//		}
+//
+//	}
 
 }

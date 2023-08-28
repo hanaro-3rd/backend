@@ -17,5 +17,6 @@ public class MarkerDummyDto {
 	String place;
 	int limitAmount;
 	String unit;
+	String address;
 
 }

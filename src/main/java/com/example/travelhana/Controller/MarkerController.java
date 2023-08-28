@@ -14,15 +14,20 @@ public class MarkerController {
 
 	private final MarkerService markerService;
 
-	@GetMapping("")
+	@PostMapping("")
 	public ResponseEntity<?> getMarkerList(
-			@RequestHeader(value = "Authorization") String accessToken) {
-		return markerService.getMarkerList(accessToken);
+			@RequestHeader(value = "Authorization") String accessToken,
+			@RequestBody LocationDto locationDto,
+			@RequestParam(defaultValue = "all", required = false) String unit,
+			@RequestParam(defaultValue = "all", required = false) String isPickup,
+			@RequestParam(defaultValue = "distance", required = false) String sort) {
+		return markerService.getMarkerList(accessToken, locationDto, unit, isPickup, sort);
 	}
 
 	@PostMapping("/{markerId}")
 	public ResponseEntity<?> pickUpMarker(
-			@RequestHeader(value = "Authorization") String accessToken, @PathVariable int markerId,
+			@RequestHeader(value = "Authorization") String accessToken,
+			@PathVariable int markerId,
 			@RequestBody LocationDto locationDto) {
 		return markerService.pickUpMarker(accessToken, markerId, locationDto);
 	}

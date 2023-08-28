@@ -27,10 +27,10 @@ public class CustomFailureHandler implements AuthenticationFailureHandler {
 		count++;
 		request.getSession().setAttribute("count",count);
 		log.info("CustomFailureHandler");
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		response.setContentType(APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding("utf-8");
-		ErrorResponse errorResponse = new ErrorResponse(401, "ID 또는 비밀번호가 일치하지 않습니다.");
+		ErrorResponse errorResponse = new ErrorResponse(403, "ID 또는 비밀번호가 일치하지 않습니다.");
 		new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 	}
 }

@@ -58,10 +58,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> getConnectedAccountList(String accessToken) throws Exception {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> getConnectedAccountList(Users users) throws Exception {
 		// userId에 대한 유저의 연결된 계좌 목록 가져오기
 		int userId = users.getId();
 		List<AccountInfoProjection> connectedAccounts = accountRepository.findAllByUsers_Id(userId);
@@ -84,10 +81,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseEntity<?> findExternalAccountList(String accessToken) throws Exception {
-		// access token으로 유저 가져오기
-		Users users = userService.getUserByAccessToken(accessToken);
-
+	public ResponseEntity<?> findExternalAccountList(Users users) throws Exception {
 		// 유저의 주민번호에 해당하는 연결되지 않은 외부 계좌 목록을 불러옴
 		List<AccountInfoProjection> projections =
 				externalAccountRepository.findAllByPhoneNumAndIsConnected(users.getPhoneNum(), false);
