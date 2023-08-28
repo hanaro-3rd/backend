@@ -5,6 +5,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.travelhana.Config.JwtConstants;
+import com.example.travelhana.Domain.Users;
+import com.example.travelhana.Service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -27,6 +31,7 @@ import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 @RequiredArgsConstructor
 public class SocketPreHandler implements ChannelInterceptor {
 	private final JwtConstants jwtConstants;
+	private final UserService userService;
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -37,6 +42,7 @@ public class SocketPreHandler implements ChannelInterceptor {
 		System.out.println(authorizationHeader);
 
 		System.out.println(headerAccessor.getCommand());
+
 		if (StompCommand.CONNECT == headerAccessor.getCommand()) {
 			if (authorizationHeader == null || authorizationHeader.isEmpty()) {
 				// 토큰값이 없거나 정상적이지 않다면 400 오류
@@ -48,25 +54,20 @@ public class SocketPreHandler implements ChannelInterceptor {
 				throw new MessageDeliveryException("토큰이 유효하지 않음");
 			}
 
-			// Access Token만 꺼내옴
-			String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
+			try {
+				// Access Token만 꺼내옴
+				Users user = userService.getUserByAccessToken(authorizationHeader);
 
-			//Access Token 검증
-			JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET))
-					.build();
-			DecodedJWT decodedJWT = verifier.verify(accessToken);
-
-			//Access Token 내 Claim에서 Authorities 꺼내 Authentication 객체 생성 & SecurityContext에 저장
-			List<String> strAuthorities = decodedJWT.getClaim("roles").asList(String.class);
-			List<SimpleGrantedAuthority> authorities = strAuthorities.stream()
-					.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-			String username = decodedJWT.getSubject();
-			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-					username, null, authorities);
-			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+			}catch (MessageDeliveryException e){
+				throw new MessageDeliveryException("메세지 에러");
+			}catch (MalformedJwtException e){
+				throw new MessageDeliveryException("예외3");
+			}
 
 		}
 		return message;
+
+
 	}
 
 
