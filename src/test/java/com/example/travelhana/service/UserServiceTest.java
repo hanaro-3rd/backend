@@ -2,6 +2,7 @@ package com.example.travelhana.service;
 
 import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Users;
+import com.example.travelhana.Dto.Authentication.DeviceDto;
 import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
@@ -11,6 +12,7 @@ import com.example.travelhana.Service.implement.UserServiceImpl;
 import com.example.travelhana.TravelhanaApplication;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,17 +48,25 @@ public class UserServiceTest {
 	@Mock
 	private ExternalAccountRepository externalAccountRepository;
 
-	@Test
-	public void signUpTest() throws Exception {
-		// given
-		String name = "테스트";
-		String password = "123456";
-		String pattern = "1234";
-		String phonenum = "01012345678";
-		String deviceId = "test-device-1";
-		String registrationNum = "0001013";
+	private static String name;
+	private static String password;
+	private static String pattern;
+	private static String phonenum;
+	private static String deviceId;
+	private static String registrationNum;
+	private static Users users;
 
-		Users users = Users.builder()
+	@BeforeEach
+	public void setUp(){
+		// given
+		name = "테스트";
+		password = "123456";
+		pattern = "1234";
+		phonenum = "01012345678";
+		deviceId = "test-device-1";
+		registrationNum = "0001013";
+
+		users = Users.builder()
 				.name(name)
 				.password(password)
 				.phoneNum(phonenum)
@@ -64,6 +74,11 @@ public class UserServiceTest {
 				.salt("salt")
 				.registrationNum(registrationNum)
 				.build();
+	}
+
+	@Test
+	public void signUpTest() throws Exception {
+
 		SignupRequestDto signupRequestDto = new SignupRequestDto(name, password, pattern, phonenum, deviceId, registrationNum);
 
 		ExternalAccount externalAccount = new ExternalAccount();
@@ -85,6 +100,25 @@ public class UserServiceTest {
 		assertEquals(apiResponse.getResult(), name);
 		assertEquals(SuccessCode.INSERT_SUCCESS.getStatusCode(), apiResponse.getResultCode());
 		assertEquals(SuccessCode.INSERT_SUCCESS.getMessage(), apiResponse.getResultMsg());
+	}
+
+	@Test
+	public void isExistDeviceTest(){
+
+		//given
+		given(userRepository.save(any(Users.class))).willReturn(users);
+
+		//when
+//		ResponseEntity<?> responseEntity = userService.isExistDevice(deviceId);
+//
+//
+//		//then
+//		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+
+
+
+
 	}
 
 }

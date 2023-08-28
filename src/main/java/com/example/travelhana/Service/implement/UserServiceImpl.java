@@ -56,26 +56,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
-		try {
-			Users users = userRepository.findByDeviceId(deviceId)
-					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
-			DeviceDto deviceDto = DeviceDto.builder()
-					.isRegistrate(true)
-					.name(users.getName())
-					.build();
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result(deviceDto)
-					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
-					.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
-					.build();
-			return ResponseEntity.ok(apiResponse);
-		} catch (BusinessExceptionHandler e) {
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorCode(ErrorCode.NO_USER.getStatusCode())
-					.errorMessage(ErrorCode.NO_USER.getMessage())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		Users users = userRepository.findByDeviceId(deviceId)
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+		DeviceDto deviceDto = DeviceDto.builder()
+				.isRegistrate(true)
+				.name(users.getName())
+				.build();
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(deviceDto)
+				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+				.build();
+		return ResponseEntity.ok(apiResponse);
+
 	}
 
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
