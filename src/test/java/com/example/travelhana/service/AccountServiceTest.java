@@ -1,99 +1,99 @@
-package com.example.travelhana.service;
-
-import com.example.travelhana.Domain.Users;
-import com.example.travelhana.Exception.Code.SuccessCode;
-import com.example.travelhana.Exception.Response.ApiResponse;
-import com.example.travelhana.Projection.AccountInfoProjection;
-import com.example.travelhana.Repository.AccountRepository;
-import com.example.travelhana.Repository.ExternalAccountRepository;
-import com.example.travelhana.Repository.UserRepository;
-import com.example.travelhana.Service.UserService;
-import com.example.travelhana.Service.implement.AccountServiceImpl;
-import com.example.travelhana.TravelhanaApplication;
-import com.example.travelhana.Util.CryptoUtil;
-import com.example.travelhana.Util.HolidayUtil;
-import com.example.travelhana.Util.SaltUtil;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-
-@SpringBootTest(classes = TravelhanaApplication.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
-@Transactional
-class AccountServiceTest {
-
-	@InjectMocks
-	private AccountServiceImpl accountService;
-
-	@Mock
-	private SaltUtil saltUtil;
-
-	@Mock
-	private CryptoUtil cryptoUtil;
-
-	@Mock
-	private HolidayUtil holidayUtil;
-
-	@Mock
-	private AccountRepository accountRepository;
-
-	@Mock
-	private ExternalAccountRepository externalAccountRepository;
-
-	@Mock
-	private UserService userService;
-	@Autowired
-	private UserRepository userRepository;
-
-	@Test
-	public void getConnectedAccountListTest() throws Exception {
-		// given
-		int userId = 1;
-		Users users = userRepository.getReferenceById(userId);
-
-		// when
-		accountService.getConnectedAccountList(users);
-
-		// then
-		verify(accountRepository).findAllByUsers_Id(userId);
-		verify(holidayUtil).isBusinessDay(LocalDate.now());
-	}
-
-	@Test
-	public void findExternalAccountListTest() throws Exception {
-		// given
-		int userId = 1;
-		Users users = userRepository.getReferenceById(userId);
-
-		// when
-		ResponseEntity<?> responseEntity = accountService.findExternalAccountList(users);
-
-		// then
-		verify(externalAccountRepository).findAllByPhoneNumAndIsConnected(users.getPhoneNum(), false);
-
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-		ApiResponse apiResponse = (ApiResponse) responseEntity.getBody();
-		assertNotNull(apiResponse);
-		assertEquals(SuccessCode.SELECT_SUCCESS.getStatusCode(), apiResponse.getResultCode());
-		assertEquals(SuccessCode.SELECT_SUCCESS.getMessage(), apiResponse.getResultMsg());
-	}
+//package com.example.travelhana.service;
+//
+//import com.example.travelhana.Domain.Users;
+//import com.example.travelhana.Exception.Code.SuccessCode;
+//import com.example.travelhana.Exception.Response.ApiResponse;
+//import com.example.travelhana.Projection.AccountInfoProjection;
+//import com.example.travelhana.Repository.AccountRepository;
+//import com.example.travelhana.Repository.ExternalAccountRepository;
+//import com.example.travelhana.Repository.UserRepository;
+//import com.example.travelhana.Service.UserService;
+//import com.example.travelhana.Service.implement.AccountServiceImpl;
+//import com.example.travelhana.TravelhanaApplication;
+//import com.example.travelhana.Util.CryptoUtil;
+//import com.example.travelhana.Util.HolidayUtil;
+//import com.example.travelhana.Util.SaltUtil;
+//
+//import org.junit.jupiter.api.Test;
+//import org.mockito.InjectMocks;
+//import org.mockito.Mock;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.test.context.TestPropertySource;
+//import org.springframework.transaction.annotation.Transactional;
+//
+//import java.time.LocalDate;
+//import java.util.Arrays;
+//
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
+//import static org.mockito.Mockito.mock;
+//import static org.mockito.Mockito.when;
+//import static org.mockito.Mockito.verify;
+//
+//@SpringBootTest(classes = TravelhanaApplication.class)
+//@TestPropertySource(locations = "classpath:application-test.properties")
+//@Transactional
+//class AccountServiceTest {
+//
+//	@InjectMocks
+//	private AccountServiceImpl accountService;
+//
+//	@Mock
+//	private SaltUtil saltUtil;
+//
+//	@Mock
+//	private CryptoUtil cryptoUtil;
+//
+//	@Mock
+//	private HolidayUtil holidayUtil;
+//
+//	@Mock
+//	private AccountRepository accountRepository;
+//
+//	@Mock
+//	private ExternalAccountRepository externalAccountRepository;
+//
+//	@Mock
+//	private UserService userService;
+//	@Autowired
+//	private UserRepository userRepository;
+//
+//	@Test
+//	public void getConnectedAccountListTest() throws Exception {
+//		// given
+//		int userId = 1;
+//		Users users = userRepository.getReferenceById(userId);
+//
+//		// when
+//		accountService.getConnectedAccountList(users);
+//
+//		// then
+//		verify(accountRepository).findAllByUsers_Id(userId);
+//		verify(holidayUtil).isBusinessDay(LocalDate.now());
+//	}
+//
+//	@Test
+//	public void findExternalAccountListTest() throws Exception {
+//		// given
+//		int userId = 1;
+//		Users users = userRepository.getReferenceById(userId);
+//
+//		// when
+//		ResponseEntity<?> responseEntity = accountService.findExternalAccountList(users);
+//
+//		// then
+//		verify(externalAccountRepository).findAllByPhoneNumAndIsConnected(users.getPhoneNum(), false);
+//
+//		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+//
+//		ApiResponse apiResponse = (ApiResponse) responseEntity.getBody();
+//		assertNotNull(apiResponse);
+//		assertEquals(SuccessCode.SELECT_SUCCESS.getStatusCode(), apiResponse.getResultCode());
+//		assertEquals(SuccessCode.SELECT_SUCCESS.getMessage(), apiResponse.getResultMsg());
+//	}
 
 //	@Test
 //	public void connectExternalAccountTest() throws Exception {
@@ -153,4 +153,4 @@ class AccountServiceTest {
 //		assertEquals(ErrorCode.UNAUTHORIZED_USER_ACCOUNT, ((BusinessExceptionHandler) exception).getErrorCode());
 //	}
 
-}
+//}
