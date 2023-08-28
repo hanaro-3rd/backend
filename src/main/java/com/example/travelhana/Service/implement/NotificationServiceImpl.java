@@ -38,6 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
 				.type(notification.getType())
 				.channelId(notification.getChannelId())
 				.data(notification.getData())
+				.sender(notification.getSender())
 				.createdAt(notification.getCreatedAt())
 				.build();
 
@@ -61,7 +62,6 @@ public class NotificationServiceImpl implements NotificationService {
 				.build();
 
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-
 	}
 
 
