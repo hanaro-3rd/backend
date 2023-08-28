@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = TravelhanaApplication.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application-local.properties")
 @Transactional
 class AccountServiceTest {
 
