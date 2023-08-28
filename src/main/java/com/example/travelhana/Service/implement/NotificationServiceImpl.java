@@ -2,6 +2,7 @@ package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.Notification;
 import com.example.travelhana.Dto.Notification.NotificationRequestDto;
+import com.example.travelhana.Dto.Notification.NotificationResponseDto;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.NotificationRepository;
@@ -29,11 +30,21 @@ public class NotificationServiceImpl implements NotificationService {
 				.build();
 
 		notificationRepository.save(notification);
+
+		NotificationResponseDto responseDto=NotificationResponseDto.builder()
+				.id(notification.getId())
+				.type(notification.getType())
+				.channelId(notification.getChannelId())
+				.data(notification.getData())
+				.createdAt(notification.getCreatedAt())
+				.build();
+
 		ApiResponse apiResponse = ApiResponse.builder()
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
-				.result(notification)
+				.result(responseDto)
 				.build();
+
 
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
