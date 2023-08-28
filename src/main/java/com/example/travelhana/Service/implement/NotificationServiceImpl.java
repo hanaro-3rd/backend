@@ -36,6 +36,7 @@ public class NotificationServiceImpl implements NotificationService {
 		NotificationResponseDto responseDto=NotificationResponseDto.builder()
 				.id(notification.getId())
 				.type(notification.getType())
+				.sender(notification.getSender())
 				.channelId(notification.getChannelId())
 				.data(notification.getData())
 				.createdAt(notification.getCreatedAt())
@@ -46,7 +47,6 @@ public class NotificationServiceImpl implements NotificationService {
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.result(responseDto)
 				.build();
-
 
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
@@ -61,8 +61,6 @@ public class NotificationServiceImpl implements NotificationService {
 				.build();
 
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-
 	}
-
 
 }
