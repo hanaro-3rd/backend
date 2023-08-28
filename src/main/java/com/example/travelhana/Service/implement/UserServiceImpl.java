@@ -121,6 +121,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		String salt = saltUtil.generateSalt();
 		Users users = new Users().builder()
 				.password(saltUtil.encodePassword(salt, dto.getPassword()))
+				.pattern(saltUtil.encodePassword(salt,dto.getPattern()))
 				.phoneNum(dto.getPhonenum())
 				.deviceId(dto.getDeviceId())
 				.salt(salt)
@@ -143,7 +144,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.build();
-		return ResponseEntity.ok(apiResponse);
+		return new ResponseEntity<>(apiResponse,HttpStatus.CREATED);
 	}
 
 	//회원가입 형식 유효성 검사
@@ -253,13 +254,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
 
 		if (dto.getNewPassword().length() != 6) {
-			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_PASSWORD);
 		}
 		if (!dto.getNewPassword().matches("\\d+")) {
 			throw new IllegalArgumentException("숫자로만 구성해주세요");
 		}
 		if (saltUtil.encodePassword(users.getSalt(), dto.getNewPassword()).equals(users.getPassword())) {
-			throw new IllegalArgumentException("이전 비밀번호와 다른 비밀번호로 설정해주세요.");
+			throw new BusinessExceptionHandler(ErrorCode.ALREADY_USED_PASSWORD);
 		}
 
 		String newPassword = saltUtil.encodePassword(users.getSalt(), dto.getNewPassword());
@@ -280,7 +281,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());
 		ApiResponse apiResponse = ApiResponse.builder()
-				.result(user.get().getDeviceId())
+				.result(user.get().getName())
 				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
 				.resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
 				.build();
