@@ -44,8 +44,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/swagger-ui.html",
 					"/registration",
 					"/verification/auth", "/verification", "/updatePassword", "/updateDevice",
-					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
-					"/ws", "/sub/**", "/pub/**",
+					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh","/testSocket",
+					"/ws", "/sub", "/pub",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -88,7 +88,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(
-				"/updatePassword") || servletPath.contains(".well-known")
+				"/updatePassword") || servletPath.contains(".well-known")|| servletPath.contains("testSocket")
 				|| servletPath.contains("sub") || servletPath.contains("pub") || servletPath.contains("ws")) {
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
@@ -110,6 +110,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 		} else {
 			try {
+				System.out.println("CustomAuthorizationFilter : 기능 시 토큰검사");
 				// Access Token만 꺼내옴
 				String accessToken = authrizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
