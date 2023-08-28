@@ -22,17 +22,4 @@ public class MessageController {
 		simpMessageSendingOperations.convertAndSend("/sub/channel/"+message.getChannelId(),message);
 	}
 
-	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
-//	@EventListener
-//	public void handleWebSocketConnectListener(SessionConnectEvent event) {
-//		System.out.println("새로운 소켓 연결");
-//	}
-//
-//	// 사용자가 웹 소켓 연결을 끊으면 실행됨
-//	@EventListener
-//	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-//		StompHeaderAccessor headerAccesor = StompHeaderAccessor.wrap(event.getMessage());
-//		String sessionId = headerAccesor.getSessionId();
-//		System.out.println("세션 끊김 아이디 : " + sessionId);
-//	}
 }
