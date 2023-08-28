@@ -1,15 +1,19 @@
 package com.example.travelhana.Service.implement;
 
 import com.example.travelhana.Domain.*;
-import com.example.travelhana.Dto.Keymoney.KeymoneyDto;
 import com.example.travelhana.Dto.Marker.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
-import com.example.travelhana.Repository.*;
+import com.example.travelhana.Repository.KeymoneyRepository;
+import com.example.travelhana.Repository.MarkerHistoryRepository;
+import com.example.travelhana.Repository.MarkerRepository;
+import com.example.travelhana.Repository.UserToMarkerRepository;
 import com.example.travelhana.Service.MarkerService;
 import com.example.travelhana.Service.UserService;
+import com.example.travelhana.Socket.Message;
+import com.example.travelhana.Socket.MessageController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +35,7 @@ public class MarkerServiceImpl implements MarkerService {
 	private final KeymoneyRepository keyMoneyRepository;
 	private final MarkerHistoryRepository markerHistoryRepository;
 	private final UserToMarkerRepository userToMarkerRepository;
-
+	private final MessageController messageController;
 	private final UserService userService;
 
 	// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱하는 함수
@@ -223,6 +227,12 @@ public class MarkerServiceImpl implements MarkerService {
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
 		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers, "all", "distance", new LocationDto(0.0,0.0));
+		messageController.message(Message.builder()
+				.type("alarm")
+				.sender("admin")
+				.channelId("keylog")
+				.data(result)
+				.build());
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
