@@ -307,6 +307,10 @@ public class ExchangeServiceImpl implements ExchangeService {
 			throw new BusinessExceptionHandler(ErrorCode.TOO_MUCH_KEYMONEY_BALANCE);
 		}
 
+		if (account.getBalance() < dto.getMoney()) {
+			throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
+		}
+
 		keyMoney.updatePlusBalance(dto.getMoneyToExchange()); //키머니 잔액 추가
 		account.updateBalance(dto.getMoney() * (-1)); //원화 잔액 차감
 
@@ -326,6 +330,10 @@ public class ExchangeServiceImpl implements ExchangeService {
 		Currency currency = Currency.getByCode(keyMoney.getUnit());
 		if (currency == null) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_EXCHANGE_UNIT);
+		}
+
+		if (keyMoney.getBalance() < dto.getMoneyToExchange()) {
+			throw new BusinessExceptionHandler(ErrorCode.INSUFFICIENT_BALANCE);
 		}
 
 		keyMoney.updatePlusBalance(dto.getMoneyToExchange() * (-1)); //키머니 잔액 차감

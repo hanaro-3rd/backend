@@ -107,21 +107,4 @@ public class UserServiceTest {
 		assertEquals(SuccessCode.INSERT_SUCCESS.getMessage(), apiResponse.getResultMsg());
 	}
 
-//	ResponseEntity<?> isExistDevice(String deviceId);
-
-	//	void updateRefreshToken(String username, String refreshToken);
-//
-//	ResponseEntity<?> refresh(String refreshToken);
-//
-//	Users getUserByAccessToken(String header);
-//
-//	ResponseEntity<?> updatePassword(UpdatePasswordDto dto);
-//	Optional<Users> validateDuplicateUsername(String registrationNum);
-//	ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto);
-	@Test
-	public void isExistDeviceTest() {
-
-	}
-
-
 }
