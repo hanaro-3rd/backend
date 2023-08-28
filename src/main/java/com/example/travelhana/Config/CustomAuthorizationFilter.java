@@ -89,7 +89,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(
 				"/updatePassword") || servletPath.contains(".well-known")|| servletPath.contains("testSocket")
-				|| servletPath.contains("sub") || servletPath.contains("pub") || servletPath.contains("ws")) {
+				|| servletPath.contains("sub") || servletPath.contains("pub") || servletPath.contains("ws")|| servletPath.contains("notification")) {
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
 			log.info("CustomAuthorizationFilter : No header.");
