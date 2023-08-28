@@ -121,6 +121,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		String salt = saltUtil.generateSalt();
 		Users users = new Users().builder()
 				.password(saltUtil.encodePassword(salt, dto.getPassword()))
+				.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
 				.phoneNum(dto.getPhonenum())
 				.deviceId(dto.getDeviceId())
 				.salt(salt)
