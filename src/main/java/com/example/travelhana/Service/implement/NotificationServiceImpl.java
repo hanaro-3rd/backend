@@ -63,5 +63,4 @@ public class NotificationServiceImpl implements NotificationService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 
-
 }
