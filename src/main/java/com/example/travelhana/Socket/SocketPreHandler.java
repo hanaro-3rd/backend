@@ -26,6 +26,7 @@ import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 @Component
 @RequiredArgsConstructor
 public class SocketPreHandler implements ChannelInterceptor {
+	private final JwtConstants jwtConstants;
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -51,7 +52,7 @@ public class SocketPreHandler implements ChannelInterceptor {
 			String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
 			//Access Token 검증
-			JWTVerifier verifier = JWT.require(Algorithm.HMAC256(JwtConstants.JWT_SECRET))
+			JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET))
 					.build();
 			DecodedJWT decodedJWT = verifier.verify(accessToken);
 
@@ -69,30 +70,5 @@ public class SocketPreHandler implements ChannelInterceptor {
 		return message;
 	}
 
-//
-//
-//	@Override
-//	public void postSend(Message message, MessageChannel channel, boolean sent) {
-//		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-//		String sessionId = accessor.getSessionId();
-//
-//		switch ((accessor.getCommand())) {
-//			case CONNECT:
-//				// 유저가 connect()를 한 뒤 호출됨
-//				System.out.println("세션 들어옴 " + sessionId);
-//				break;
-//
-//			case DISCONNECT:
-//
-//				// 유저가 disconnect() 를 한 뒤 호출됨 or 세션이 끊어졌을 때 발생
-//				System.out.println("세션 끊음 "+ sessionId);
-//				break;
-//
-//			default:
-//
-//				break;
-//		}
-//
-//	}
 
 }

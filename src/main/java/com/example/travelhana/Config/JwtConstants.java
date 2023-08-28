@@ -17,7 +17,7 @@ public class JwtConstants {
 
 	// Secret
 	@Value("${jwt.secret.key}")
-	public static String JWT_SECRET;
+	public String JWT_SECRET;
 
 	// Header
 	public static final String AT_HEADER = "access_token";
