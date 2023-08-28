@@ -1,6 +1,5 @@
 package com.example.travelhana.Controller;
 
-import com.example.travelhana.Domain.Notification;
 import com.example.travelhana.Dto.Notification.NotificationRequestDto;
 import com.example.travelhana.Dto.Notification.NotificationResponseDto;
 import com.example.travelhana.Exception.Response.ApiResponse;
@@ -8,7 +7,6 @@ import com.example.travelhana.Service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,21 +27,21 @@ public class MessageController {
 //	}
 
 	@MessageMapping("/alarm")
-	public void message(NotificationResponseDto message){
-		simpMessageSendingOperations.convertAndSend("/sub/channel/"+message.getChannelId(),message);
+	public void message(NotificationResponseDto message) {
+		simpMessageSendingOperations.convertAndSend("/sub/channel/" + message.getChannelId(), message);
 	}
 
 	@PostMapping("/notification")
-	public ResponseEntity<?> sendNotification(@RequestBody NotificationRequestDto dto){
-		ResponseEntity response=notificationService.sendNotification(dto);
-		ApiResponse apiResponse=(ApiResponse)response.getBody();
-		NotificationResponseDto responseDto= (NotificationResponseDto) apiResponse.getResult();
+	public ResponseEntity<?> sendNotification(@RequestBody NotificationRequestDto dto) {
+		ResponseEntity response = notificationService.sendNotification(dto);
+		ApiResponse apiResponse = (ApiResponse) response.getBody();
+		NotificationResponseDto responseDto = (NotificationResponseDto) apiResponse.getResult();
 		message(responseDto);
-		return notificationService.sendNotification(dto);
+		return response;
 	}
 
 	@GetMapping("/notification")
-	public ResponseEntity<?> getNotifications(){
+	public ResponseEntity<?> getNotifications() {
 		return notificationService.findAllNotifiaction();
 	}
 }

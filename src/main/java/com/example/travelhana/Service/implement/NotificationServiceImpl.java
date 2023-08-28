@@ -7,7 +7,6 @@ import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.NotificationRepository;
 import com.example.travelhana.Service.NotificationService;
-import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
