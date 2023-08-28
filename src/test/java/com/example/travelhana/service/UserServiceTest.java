@@ -28,7 +28,7 @@ import static org.mockito.BDDMockito.any;
 
 @Transactional
 @SpringBootTest(classes = TravelhanaApplication.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application.properties")
 public class UserServiceTest {
 
 	@InjectMocks
