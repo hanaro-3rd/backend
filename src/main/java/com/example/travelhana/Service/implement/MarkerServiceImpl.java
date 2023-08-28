@@ -9,6 +9,8 @@ import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.*;
 import com.example.travelhana.Service.MarkerService;
 import com.example.travelhana.Service.UserService;
+import com.example.travelhana.Socket.Message;
+import com.example.travelhana.Socket.MessageController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ public class MarkerServiceImpl implements MarkerService {
 	private final KeymoneyRepository keyMoneyRepository;
 	private final MarkerHistoryRepository markerHistoryRepository;
 	private final UserToMarkerRepository userToMarkerRepository;
+	private final MessageController messageController;
 
 	private final UserService userService;
 
@@ -182,6 +185,12 @@ public class MarkerServiceImpl implements MarkerService {
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.build();
+		messageController.message(Message.builder()
+				.type("alarm")
+				.sender("admin")
+				.channelId("keylog")
+				.data(result)
+				.build());
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
