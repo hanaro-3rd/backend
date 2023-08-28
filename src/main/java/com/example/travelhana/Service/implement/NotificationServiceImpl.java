@@ -48,7 +48,6 @@ public class NotificationServiceImpl implements NotificationService {
 				.result(responseDto)
 				.build();
 
-
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
