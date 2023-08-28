@@ -11,6 +11,7 @@ import com.example.travelhana.Service.implement.UserServiceImpl;
 import com.example.travelhana.TravelhanaApplication;
 import com.example.travelhana.Util.CryptoUtil;
 import com.example.travelhana.Util.SaltUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,17 +49,24 @@ public class UserServiceTest {
 	@Mock
 	private ExternalAccountRepository externalAccountRepository;
 
-	@Test
-	public void signUpTest() throws Exception {
-		// given
-		String name = "테스트";
-		String password = "123456";
-		String pattern = "1234";
-		String phonenum = "01012345678";
-		String deviceId = "test-device-1";
-		String registrationNum = "0001013";
+	public String name;
+	public String password;
+	public String pattern;
+	public String phonenum;
+	public String deviceId;
+	public String registrationNum;
+	public Users users;
 
-		Users users = Users.builder()
+	@BeforeEach
+	void setUp(){
+		name = "테스트";
+		password = "123456";
+		pattern = "1234";
+		phonenum = "01012345678";
+		deviceId = "test-device-1";
+		registrationNum = "0001013";
+
+		users = Users.builder()
 				.name(name)
 				.password(password)
 				.phoneNum(phonenum)
@@ -64,6 +74,11 @@ public class UserServiceTest {
 				.salt("salt")
 				.registrationNum(registrationNum)
 				.build();
+	}
+
+	@Test
+	public void signUpTest() throws Exception {
+		// given
 		SignupRequestDto signupRequestDto = new SignupRequestDto(name, password, pattern, phonenum, deviceId, registrationNum);
 
 		ExternalAccount externalAccount = new ExternalAccount();
@@ -82,9 +97,28 @@ public class UserServiceTest {
 
 		ApiResponse apiResponse = (ApiResponse) responseEntity.getBody();
 		assertNotNull(apiResponse);
+		System.out.println(apiResponse.getResult());
 		assertEquals(apiResponse.getResult(), name);
 		assertEquals(SuccessCode.INSERT_SUCCESS.getStatusCode(), apiResponse.getResultCode());
 		assertEquals(SuccessCode.INSERT_SUCCESS.getMessage(), apiResponse.getResultMsg());
+	}
+
+
+	@Test
+	public void isExistDevice() throws Exception {
+
+		//given
+		given(userRepository.findByDeviceId(users.getDeviceId())).willReturn(Optional.ofNullable(users));
+
+		//when
+		ResponseEntity<?> responseEntity = userService.isExistDevice(deviceId);
+
+		//then
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+		ApiResponse apiResponse = (ApiResponse) responseEntity.getBody();
+		assertNotNull(apiResponse);
+
 	}
 
 }
