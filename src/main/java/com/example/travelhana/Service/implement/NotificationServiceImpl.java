@@ -7,11 +7,14 @@ import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Repository.NotificationRepository;
 import com.example.travelhana.Service.NotificationService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,5 +51,19 @@ public class NotificationServiceImpl implements NotificationService {
 
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
+
+	@Override
+	public ResponseEntity<?> findAllNotifiaction(){
+		List<Notification> arr=notificationRepository.findAll();
+		ApiResponse apiResponse= ApiResponse.builder()
+				.result(arr)
+				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+				.build();
+
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+
+	}
+
 
 }

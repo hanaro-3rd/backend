@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,5 +40,10 @@ public class MessageController {
 		NotificationResponseDto responseDto= (NotificationResponseDto) apiResponse.getResult();
 		message(responseDto);
 		return notificationService.sendNotification(dto);
+	}
+
+	@GetMapping("/notification")
+	public ResponseEntity<?> getNotifications(){
+		return notificationService.findAllNotifiaction();
 	}
 }

@@ -5,4 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface NotificationService {
 	ResponseEntity<?> sendNotification(NotificationRequestDto dto);
+	ResponseEntity<?> findAllNotifiaction();
 }
