@@ -2,6 +2,7 @@ package com.example.travelhana.service;
 
 import com.example.travelhana.Domain.ExternalAccount;
 import com.example.travelhana.Domain.Users;
+import com.example.travelhana.Dto.Authentication.DeviceDto;
 import com.example.travelhana.Dto.Authentication.SignupRequestDto;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
@@ -118,6 +119,9 @@ public class UserServiceTest {
 
 		ApiResponse apiResponse = (ApiResponse) responseEntity.getBody();
 		assertNotNull(apiResponse);
+		DeviceDto deviceDto= (DeviceDto) apiResponse.getResult();
+		assertEquals(deviceDto.getIsRegistrate(),true);
+		assertEquals(deviceDto.getName(),users.getName());
 
 	}
 
