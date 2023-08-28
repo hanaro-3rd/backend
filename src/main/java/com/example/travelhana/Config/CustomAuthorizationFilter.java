@@ -45,7 +45,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 					"/registration",
 					"/verification/auth", "/verification", "/updatePassword", "/updateDevice",
 					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh","/testSocket",
-					"/ws", "/sub", "/pub",
+					"/ws", "/sub/**", "/pub/**",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",

@@ -12,7 +12,7 @@ import org.springframework.web.socket.config.annotation.*;
 @RequiredArgsConstructor
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
-	private final SocketPreHandler socketPreHandler;
+//	private final SocketPreHandler socketPreHandler;
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry){
 		registry.addEndpoint("/ws")
