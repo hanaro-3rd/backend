@@ -227,12 +227,12 @@ public class MarkerServiceImpl implements MarkerService {
 
 		// 마커를 주웠는지 여부를 포함하여 Marker 엔티티를 MarkerListDto로 파싱 후 리턴
 		MarkerListDto result = parseMarkerEntitiesToMarkerListDto(0, markers, "all", "distance", new LocationDto(0.0,0.0));
-//		messageController.message(Message.builder()
-//				.type("alarm")
-//				.sender("admin")
-//				.channelId("keylog")
-//				.data(result)
-//				.build());
+		messageController.message(Message.builder()
+				.type("alarm")
+				.sender("admin")
+				.channelId("keylog")
+				.data(result)
+				.build());
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(result)
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())

@@ -26,6 +26,7 @@ import static com.example.travelhana.Config.JwtConstants.TOKEN_HEADER_PREFIX;
 @Component
 @RequiredArgsConstructor
 public class SocketPreHandler implements ChannelInterceptor {
+	private final JwtConstants jwtConstants;
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -36,7 +37,7 @@ public class SocketPreHandler implements ChannelInterceptor {
 		System.out.println(authorizationHeader);
 
 		System.out.println(headerAccessor.getCommand());
-		if (StompCommand.CONNECT == headerAccessor.getCommand() || StompCommand.SUBSCRIBE == headerAccessor.getCommand()) {
+		if (StompCommand.CONNECT == headerAccessor.getCommand()) {
 			if (authorizationHeader == null || authorizationHeader.isEmpty()) {
 				// 토큰값이 없거나 정상적이지 않다면 400 오류
 				throw new MessageDeliveryException("토큰값 없음");
@@ -51,7 +52,7 @@ public class SocketPreHandler implements ChannelInterceptor {
 			String accessToken = authorizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
 			//Access Token 검증
-			JWTVerifier verifier = JWT.require(Algorithm.HMAC256(JwtConstants.JWT_SECRET))
+			JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtConstants.JWT_SECRET))
 					.build();
 			DecodedJWT decodedJWT = verifier.verify(accessToken);
 
@@ -63,7 +64,6 @@ public class SocketPreHandler implements ChannelInterceptor {
 			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 					username, null, authorities);
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
 
 		}
 		return message;
