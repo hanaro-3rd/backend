@@ -107,6 +107,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (validateDuplicateUsername(dto.getPhonenum()).isPresent()) {
 			throw new BusinessExceptionHandler(ErrorCode.USER_ALREADY_EXIST);
 		}
+		List<Users> arr = userRepository.findAllByDeviceId(dto.getDeviceId());
+		for (Users user1 : arr) {
+			user1.updateDeviceId(null);
+		}
 
 		isValidUser(dto);
 
@@ -273,7 +277,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 		List<Users> arr = userRepository.findAllByDeviceId(user.get().getDeviceId());
 		for (Users user1 : arr) {
-			System.out.println(user1.getId());
 			user1.updateDeviceId(null);
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());

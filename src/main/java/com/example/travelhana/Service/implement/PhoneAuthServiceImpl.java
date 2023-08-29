@@ -7,6 +7,7 @@ import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +49,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 	private final HttpSession session;
 	private final UserService userService;
+	private final UserRepository userRepository;
 
 	public static int generateRandomNumber() {
 		return ThreadLocalRandom.current().nextInt(100000, 1000000);
@@ -147,22 +149,61 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 			if (codeDto.getCode().equals(code)) { //코드가 일치하면
 				Optional<Users> user = userService.validateDuplicateUsername(codeDto.getPhonenum());
+				Optional<Users> users = userRepository.findByDeviceId(user.get().getDeviceId());
 				if (!user.isPresent()) { //유저가 존재하지 않으면
-					codeResponseDto = CodeResponseDto.builder()
-							.isCodeEqual(true)
-							.isExistUser(false)
-							.build();
+					if (users.isPresent()) { //동일한 디바이스 아이디가 존재하면
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(false)
+								.isExistDevice(true)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					} else { //동일한 디바이스 아이디가 존재하지 않으면
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(false)
+								.isExistDevice(false)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					}
 				} else { //유저가 존재하면
-					codeResponseDto = CodeResponseDto.builder()
-							.isCodeEqual(true)
-							.isExistUser(true)
-							.userResponseDto(UserResponseDto.builder()
-									.name(user.get().getName())
-									.phoneNum(user.get().getPhoneNum())
-									.registrationNum(user.get().getRegistrationNum())
-									.createdAt(user.get().getCreatedAt())
-									.build())
-							.build();
+					if (users.isPresent()) { //동일한 디바이스 아이디가 존재하면
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(true)
+								.isExistDevice(true)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					} else {
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(true)
+								.isExistDevice(false)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+
+					}
+
 				}
 				ApiResponse apiResponse = ApiResponse.builder()
 						.result(codeResponseDto)

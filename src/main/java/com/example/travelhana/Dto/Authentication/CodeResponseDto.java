@@ -13,6 +13,7 @@ public class CodeResponseDto {
 
 	private Boolean isExistUser;
 	private Boolean isCodeEqual;
+	private Boolean isExistDevice;
 	private UserResponseDto userResponseDto;
 
 }
