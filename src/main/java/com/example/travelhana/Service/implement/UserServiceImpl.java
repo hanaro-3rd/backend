@@ -56,26 +56,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
-		try {
-			Users users = userRepository.findByDeviceId(deviceId)
-					.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
-			DeviceDto deviceDto = DeviceDto.builder()
-					.isRegistrate(true)
-					.name(users.getName())
-					.build();
-			ApiResponse apiResponse = ApiResponse.builder()
-					.result(deviceDto)
-					.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
-					.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
-					.build();
-			return ResponseEntity.ok(apiResponse);
-		} catch (BusinessExceptionHandler e) {
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorCode(ErrorCode.NO_USER.getStatusCode())
-					.errorMessage(ErrorCode.NO_USER.getMessage())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		Users users = userRepository.findByDeviceId(deviceId)
+				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+		DeviceDto deviceDto = DeviceDto.builder()
+				.isRegistrate(true)
+				.name(users.getName())
+				.build();
+		ApiResponse apiResponse = ApiResponse.builder()
+				.result(deviceDto)
+				.resultCode(SuccessCode.SELECT_SUCCESS.getStatusCode())
+				.resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
+				.build();
+		return ResponseEntity.ok(apiResponse);
 	}
 
 	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
@@ -121,7 +113,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		String salt = saltUtil.generateSalt();
 		Users users = new Users().builder()
 				.password(saltUtil.encodePassword(salt, dto.getPassword()))
-				.pattern(saltUtil.encodePassword(salt,dto.getPattern()))
+				.pattern(saltUtil.encodePassword(salt, dto.getPattern()))
 				.phoneNum(dto.getPhonenum())
 				.deviceId(dto.getDeviceId())
 				.salt(salt)
@@ -144,13 +136,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
 				.resultCode(SuccessCode.INSERT_SUCCESS.getStatusCode())
 				.build();
-		return new ResponseEntity<>(apiResponse,HttpStatus.CREATED);
+		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
 
 	//회원가입 형식 유효성 검사
 	public void isValidUser(SignupRequestDto dto) {
 		if (dto.getPassword().length() != 6) {
-			throw new IllegalArgumentException("비밀번호는 6자리의 숫자로 구성해주세요.");
+			throw new BusinessExceptionHandler(ErrorCode.INVALID_PASSWORD);
 		}
 		if (!dto.getPassword().matches("\\d+")) {
 			throw new IllegalArgumentException("숫자로만 구성해주세요");
@@ -233,9 +225,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	//==============비밀번호 찾기==============
 	//휴대폰 인증이 끝난다음 진행할 로직
-	private void findPassword(UpdatePasswordDto dto) {
-		//디바이스 아이디로 조회
-		Users users = userRepository.findByDeviceId(dto.getDeviceId())
+	private Users findPassword(UpdatePasswordDto dto) {
+		//폰번호로 조회
+		Users users = userRepository.findByPhoneNum(dto.getPhoneNum())
 				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
 		//주민번호가 일치하지 않을 때
 		if (!dto.getRegistrateNum().equals(users.getRegistrationNum())) {
@@ -245,13 +237,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (!dto.getName().equals(users.getName())) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
+		return users;
 	}
 
 	@Transactional
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
-		findPassword(dto);
-		Users users = userRepository.findByDeviceId(dto.getDeviceId())
-				.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NO_USER));
+
+		Users users = findPassword(dto);
+		//해당 유저의 기기와 같은 다른 유저의 기기 null 처리
+		List<Users> arr=userRepository.findAllByDeviceId(users.getDeviceId());
+		for(Users user:arr){
+			System.out.println(user.getId());
+			user.updateDeviceId(null);
+		}
 
 		if (dto.getNewPassword().length() != 6) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_PASSWORD);
@@ -275,9 +273,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	@Override
 	public ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto) {
-		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum());
+		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum()); //이미 존재하는 유저인지 확인
 		if (user.isEmpty()) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
+		}
+		List<Users> arr=userRepository.findAllByDeviceId(user.get().getDeviceId());
+		for(Users user1:arr){
+			System.out.println(user1.getId());
+			user1.updateDeviceId(null);
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());
 		ApiResponse apiResponse = ApiResponse.builder()
