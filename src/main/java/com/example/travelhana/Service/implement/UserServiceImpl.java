@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	//회원가입 - 계정 저장
 	@Override
-	public ResponseEntity<?> saveAccount(SignupRequestDto dto) throws Exception {
+	public ResponseEntity<?> signUp(SignupRequestDto dto) throws Exception {
 		if (validateDuplicateUsername(dto.getPhonenum()).isPresent()) {
 			throw new BusinessExceptionHandler(ErrorCode.USER_ALREADY_EXIST);
 		}
