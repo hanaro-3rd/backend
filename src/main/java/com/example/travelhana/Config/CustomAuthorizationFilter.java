@@ -43,8 +43,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			Arrays.asList(
 					"/swagger-ui.html",
 					"/registration",
-					"/verification/auth", "/verification", "/updatePassword","/updateDevice",
-					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh",
+					"/verification/auth", "/verification", "/updatePassword", "/updateDevice",
+					"/swagger-uui.html", "/webjars/springfox-swagger-ui/springfox.css", "/redistest", "/dummy", "/refresh","/testSocket",
+					"/ws", "/sub/**", "/pub/**",
 					"/webjars/springfox-swagger-ui/swagger-ui-bundle.js",
 					"/webjars/springfox-swagger-ui/swagger-ui.css",
 					"/webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js",
@@ -83,12 +84,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
 
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
-		if (servletPath.contains("registration") || servletPath.contains("dummy")||servletPath.contains("updateDevice")
+		if (servletPath.contains("registration") || servletPath.contains("dummy") || servletPath.contains("updateDevice")
 				|| servletPath.equals("/swagger-ui/index.html") || request.getServletPath()
 				.equals("/signin/password") || servletPath.equals("/refresh") || servletPath.equals(
 				"/signup") || servletPath.equals(
-				"/updatePassword") || servletPath.contains(".well-known")) {
-			System.out.println("CustomAuthorizationFilter");
+				"/updatePassword") || servletPath.contains(".well-known")|| servletPath.contains("testSocket")
+				|| servletPath.contains("sub") || servletPath.contains("pub") || servletPath.contains("ws")|| servletPath.contains("notification")) {
 			filterChain.doFilter(request, response);
 		} else if (authrizationHeader == null) {
 			log.info("CustomAuthorizationFilter : No header.");
@@ -109,6 +110,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 			new ObjectMapper().writeValue(response.getWriter(), errorResponse);
 		} else {
 			try {
+				System.out.println("CustomAuthorizationFilter : 기능 시 토큰검사");
 				// Access Token만 꺼내옴
 				String accessToken = authrizationHeader.substring(TOKEN_HEADER_PREFIX.length());
 
