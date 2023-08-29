@@ -5,8 +5,10 @@ import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
+import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.PhoneAuthService;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +50,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 	private final HttpSession session;
 	private final UserService userService;
+	private final UserRepository userRepository;
 
 	public static int generateRandomNumber() {
 		return ThreadLocalRandom.current().nextInt(100000, 1000000);
@@ -147,22 +150,60 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 			if (codeDto.getCode().equals(code)) { //코드가 일치하면
 				Optional<Users> user = userService.validateDuplicateUsername(codeDto.getPhonenum());
+				Optional<Users> isDeviceUserExist = userRepository.findByDeviceId(codeDto.getDeviceId());
 				if (!user.isPresent()) { //유저가 존재하지 않으면
-					codeResponseDto = CodeResponseDto.builder()
-							.isCodeEqual(true)
-							.isExistUser(false)
-							.build();
+					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 회원은 아니지만 누군가 등록한 적 있는 기기 -> 회원가입 필요
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(false)
+								.isExistDevice(true)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					} else { //동일한 디바이스 아이디가 존재하지 않으면 -> 회원가입 필요
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(false)
+								.isExistDevice(false)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					}
 				} else { //유저가 존재하면
-					codeResponseDto = CodeResponseDto.builder()
-							.isCodeEqual(true)
-							.isExistUser(true)
-							.userResponseDto(UserResponseDto.builder()
-									.name(user.get().getName())
-									.phoneNum(user.get().getPhoneNum())
-									.registrationNum(user.get().getRegistrationNum())
-									.createdAt(user.get().getCreatedAt())
-									.build())
-							.build();
+					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 이미 존재하는 회원 -> 비밀번호 변경
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(true)
+								.isExistDevice(true)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					} else { //디바이스 아이디가 존재하지 않으면 -> 기존 회원인데 새로운 기기로 접속한거임 -> 기기 업데이트 필요
+						codeResponseDto = CodeResponseDto.builder()
+								.isCodeEqual(true)
+								.isExistUser(true)
+								.isExistDevice(false)
+								.userResponseDto(UserResponseDto.builder()
+										.name(user.get().getName())
+										.phoneNum(user.get().getPhoneNum())
+										.registrationNum(user.get().getRegistrationNum())
+										.createdAt(user.get().getCreatedAt())
+										.build())
+								.build();
+					}
+
 				}
 				ApiResponse apiResponse = ApiResponse.builder()
 						.result(codeResponseDto)
@@ -173,20 +214,11 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 				return ResponseEntity.ok(apiResponse);
 			} else { //코드가 일치하지 않는다면
-				ErrorResponse apiResponse = ErrorResponse.builder()
-						.errorCode(ErrorCode.AUTH_FAILURE.getStatusCode())
-						.errorMessage(ErrorCode.AUTH_FAILURE.getMessage())
-						.build();
-				return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-
+				throw new BusinessExceptionHandler(ErrorCode.AUTH_FAILURE);
 			}
 		} else {
 			session.removeAttribute("code");
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorMessage(ErrorCode.SESSION_INVALID.getMessage())
-					.errorCode(ErrorCode.SESSION_INVALID.getStatusCode())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new BusinessExceptionHandler(ErrorCode.SESSION_INVALID);
 		}
 	}
 

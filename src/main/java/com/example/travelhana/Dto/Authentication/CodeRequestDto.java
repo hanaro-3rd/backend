@@ -13,5 +13,6 @@ public class CodeRequestDto {
 
 	private String phonenum;
 	private String code;
+	private String deviceId;
 
 }

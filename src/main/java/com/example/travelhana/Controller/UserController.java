@@ -52,7 +52,7 @@ public class UserController {
 	//회원가입
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) throws Exception {
-		return userService.saveAccount(dto);
+		return userService.signUp(dto);
 	}
 
 	//refresh token 요청
