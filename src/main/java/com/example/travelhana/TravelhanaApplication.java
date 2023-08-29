@@ -7,8 +7,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
-//@EnableScheduling
-//@EnableCaching
+@EnableScheduling
+@EnableCaching
 public class TravelhanaApplication {
 
     public static void main(String[] args) {

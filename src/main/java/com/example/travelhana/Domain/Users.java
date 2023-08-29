@@ -45,7 +45,7 @@ public class Users {
 	@ManyToMany
 	private final List<Role> roles = new ArrayList<>();
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String deviceId;
 
 	@Column
