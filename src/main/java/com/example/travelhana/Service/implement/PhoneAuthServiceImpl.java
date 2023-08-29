@@ -157,28 +157,16 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 								.isCodeEqual(true)
 								.isExistUser(false)
 								.isExistDevice(true)
-								.userResponseDto(UserResponseDto.builder()
-										.name(user.get().getName())
-										.phoneNum(user.get().getPhoneNum())
-										.registrationNum(user.get().getRegistrationNum())
-										.createdAt(user.get().getCreatedAt())
-										.build())
 								.build();
 					} else { //동일한 디바이스 아이디가 존재하지 않으면 -> 회원가입 필요
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(false)
 								.isExistDevice(false)
-								.userResponseDto(UserResponseDto.builder()
-										.name(user.get().getName())
-										.phoneNum(user.get().getPhoneNum())
-										.registrationNum(user.get().getRegistrationNum())
-										.createdAt(user.get().getCreatedAt())
-										.build())
 								.build();
 					}
 				} else { //유저가 존재하면
-					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 이미 존재하는 회원 -> 비밀번호 변경
+					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 이미 존재하는 회원 -> 로그인 필요
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(true)
