@@ -53,7 +53,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	private final CryptoUtil cryptoUtil;
 	private final ExternalAccountRepository externalAccountRepository;
 
-	//==============회원가입=================
 	//최초 접속 시 기기 존재 여부 확인
 	public ResponseEntity<?> isExistDevice(String deviceId) {
 		Users users = userRepository.findByDeviceId(deviceId)
@@ -70,51 +69,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return ResponseEntity.ok(apiResponse);
 	}
 
-	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
-		Random random = new Random();
-
-		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
-		String accountPassword = accountDummyDto.getAccountPassword();
-		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
-
-		for (int i = 0; i < 5; i++) {
-			String accountSalt = saltUtil.generateSalt();
-
-			String group1 = String.format("%03d", random.nextInt(1000));
-			String group2 = String.format("%04d", random.nextInt(10000));
-			String group3 = String.format("%04d", random.nextInt(10000));
-
-			String accountNum = group1 + "-" + group2 + "-" + group3;
-
-			ExternalAccount externalAccount = ExternalAccount
-					.builder()
-					.accountNum(cryptoUtil.encrypt(accountNum))
-					.bank(banks.get(random.nextInt(banks.size())))
-					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
-					.salt(accountSalt)
-					.password(saltUtil.encodePassword(accountSalt, accountPassword))
-					.registrationNum(accountDummyDto.getRegistrationNum())
-					.phoneNum(accountDummyDto.getPhoneNum())
-					.balance(1000000L)
-					.build();
-			externalAccountRepository.save(externalAccount);
-		}
-	}
 
 	//회원가입 - 계정 저장
 	@Override
 	public ResponseEntity<?> signUp(SignupRequestDto dto) throws Exception {
+
+		//휴대폰 번호로 유저 존재여부 확인
 		if (validateDuplicateUsername(dto.getPhonenum()).isPresent()) {
 			throw new BusinessExceptionHandler(ErrorCode.USER_ALREADY_EXIST);
 		}
-		List<Users> arr = userRepository.findAllByDeviceId(dto.getDeviceId());
-		for (Users user1 : arr) {
-			user1.updateDeviceId(null);
-			user1.updateRefreshToken(null);
-		}
 
+		//회원가입 형식 유효성 검사
 		isValidUser(dto);
 
+		//유저 객체 생성 및 저장
 		String salt = saltUtil.generateSalt();
 		Users users = new Users().builder()
 				.password(saltUtil.encodePassword(salt, dto.getPassword()))
@@ -125,8 +93,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.name(dto.getName())
 				.registrationNum(dto.getRegistrationNum())
 				.build();
-		Users savedUser = userRepository.save(users);
 
+		//기존 유저와 같은 디바이스 아이디 모두 제거
+		List<Users> arr = userRepository.findAllByDeviceId(dto.getDeviceId());
+		for (Users user1 : arr) {
+			user1.updateDeviceId(null);
+			user1.updateRefreshToken(null);
+		}
+
+		Users savedUser = userRepository.save(users);
+		
+		//더미 외부계좌 생성
 		AccountDummyDto accountDummyDto = AccountDummyDto
 				.builder()
 				.userId(users.getId())
@@ -143,6 +120,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.build();
 		return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
 	}
+
 
 	//회원가입 형식 유효성 검사
 	public void isValidUser(SignupRequestDto dto) {
@@ -170,11 +148,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 	}
 
+	//유저 존재여부를 휴대폰번호로 검사
 	public Optional<Users> validateDuplicateUsername(String phoneNum) {
 		Optional<Users> userOptional = userRepository.findByPhoneNum(phoneNum);
 		Users users = userOptional.orElse(null);
 		return Optional.ofNullable(users);
 	}
+
 
 	@Override
 	public void saveRole(String roleName) {
@@ -182,11 +162,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		roleRepository.save(new Role(roleName)).getId();
 	}
 
+
 	private void validateDuplicateRoleName(String roleName) {
 		if (roleRepository.existsByName(roleName)) {
 			throw new RuntimeException("이미 존재하는 Role입니다.");
 		}
 	}
+
 
 	@Override
 	public int addRoleToUser(RoleToUserRequestDto dto) {
@@ -197,6 +179,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		users.getRoles().add(role);
 		return users.getId();
 	}
+
 
 	//토큰에서 deviceId 추출해 User 객체 찾기
 	public Users getUserByAccessToken(String header) {
@@ -210,8 +193,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 		return users;
 	}
+	
 
-	//==============로그인=================
 	//로그인 시 권한 확인
 	@Override
 	public CustomUserDetailsImpl loadUserByUsername(String username)
@@ -228,8 +211,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				authorities, true, true, true, true);
 	}
 
-	//==============비밀번호 찾기==============
-	//휴대폰 인증이 끝난다음 진행할 로직
+
 	private Users findPassword(UpdatePasswordDto dto) {
 		//폰번호로 조회
 		Users users = userRepository.findByPhoneNum(dto.getPhoneNum())
@@ -245,6 +227,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return users;
 	}
 
+	//비밀번호 바꾸기
 	@Transactional
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
 
@@ -267,21 +250,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 				.resultCode(SuccessCode.OPEN_API_SUCCESS.getStatusCode())
 				.result("success")
 				.build();
+		
 		return new ResponseEntity(apiResponse, HttpStatus.ACCEPTED);
 	}
 
+	//기기 업데이트
 	@Override
 	public ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto) {
-		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum()); //이미 존재하는 유저인지 확인
+		//이미 존재하는 유저인지 확인
+		Optional<Users> user = validateDuplicateUsername(dto.getPhonenum()); 
 		if (user.isEmpty()) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
+
+		//기존 유저와 같은 디바이스 아이디 모두 제거
 		List<Users> arr = userRepository.findAllByDeviceId(user.get().getDeviceId());
 		for (Users user1 : arr) {
 			user1.updateDeviceId(null);
 			user1.updateRefreshToken(null);
 		}
+		
 		user.get().updateDeviceId(dto.getNewDeviceId());
+		
 		ApiResponse apiResponse = ApiResponse.builder()
 				.result(user.get().getName())
 				.resultCode(SuccessCode.UPDATE_SUCCESS.getStatusCode())
@@ -290,7 +280,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
 	}
 
-	//==============토큰발급=================
+
 	//로그인 성공 시 refresh token 발급 후 DB에 저장
 	@Override
 	public void updateRefreshToken(String deviceId, String refreshToken) {
@@ -299,6 +289,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		users.updateRefreshToken(refreshToken);
 	}
 
+	
 	//Refresh token 재발급
 	@Transactional
 	public ResponseEntity<?> refresh(String refreshToken) {
@@ -351,4 +342,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		}
 	}
 
+	//외부 더미계좌 생성
+	private void createDummyExternalAccounts(AccountDummyDto accountDummyDto) throws Exception {
+		Random random = new Random();
+
+		// 입력한 정보와 랜덤값으로 더미 외부 계좌 정보 생성
+		String accountPassword = accountDummyDto.getAccountPassword();
+		List<String> banks = Arrays.asList("한국", "스타", "하늘", "바람", "노을", "여름");
+
+		for (int i = 0; i < 5; i++) {
+			String accountSalt = saltUtil.generateSalt();
+
+			String group1 = String.format("%03d", random.nextInt(1000));
+			String group2 = String.format("%04d", random.nextInt(10000));
+			String group3 = String.format("%04d", random.nextInt(10000));
+
+			String accountNum = group1 + "-" + group2 + "-" + group3;
+
+			ExternalAccount externalAccount = ExternalAccount
+					.builder()
+					.accountNum(cryptoUtil.encrypt(accountNum))
+					.bank(banks.get(random.nextInt(banks.size())))
+					.openDate(java.sql.Date.valueOf(LocalDate.now().minusDays(random.nextInt(365))))
+					.salt(accountSalt)
+					.password(saltUtil.encodePassword(accountSalt, accountPassword))
+					.registrationNum(accountDummyDto.getRegistrationNum())
+					.phoneNum(accountDummyDto.getPhoneNum())
+					.balance(1000000L)
+					.build();
+			externalAccountRepository.save(externalAccount);
+		}
+	}
 }

@@ -14,7 +14,9 @@ public interface UserService {
 	ResponseEntity<?> isExistDevice(String deviceId);
 
 	ResponseEntity<?> signUp(SignupRequestDto dto) throws Exception;
+
 	void saveRole(String roleName);
+
 	int addRoleToUser(RoleToUserRequestDto dto);
 
 	void updateRefreshToken(String username, String refreshToken);
@@ -24,7 +26,9 @@ public interface UserService {
 	Users getUserByAccessToken(String header);
 
 	ResponseEntity<?> updatePassword(UpdatePasswordDto dto);
+
 	Optional<Users> validateDuplicateUsername(String registrationNum);
+
 	ResponseEntity<?> updateDevice(UpdateDeviceRequestDto dto);
 
 }

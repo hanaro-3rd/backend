@@ -5,6 +5,7 @@ import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Dto.Authentication.*;
 import com.example.travelhana.Exception.Code.ErrorCode;
 import com.example.travelhana.Exception.Code.SuccessCode;
+import com.example.travelhana.Exception.Handler.BusinessExceptionHandler;
 import com.example.travelhana.Exception.Response.ApiResponse;
 import com.example.travelhana.Exception.Response.ErrorResponse;
 import com.example.travelhana.Repository.UserRepository;
@@ -201,7 +202,6 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 										.createdAt(user.get().getCreatedAt())
 										.build())
 								.build();
-
 					}
 
 				}
@@ -214,19 +214,11 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 				return ResponseEntity.ok(apiResponse);
 			} else { //코드가 일치하지 않는다면
-				ErrorResponse apiResponse = ErrorResponse.builder()
-						.errorCode(ErrorCode.AUTH_FAILURE.getStatusCode())
-						.errorMessage(ErrorCode.AUTH_FAILURE.getMessage())
-						.build();
-				return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+				throw new BusinessExceptionHandler(ErrorCode.AUTH_FAILURE);
 			}
 		} else {
 			session.removeAttribute("code");
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.errorMessage(ErrorCode.SESSION_INVALID.getMessage())
-					.errorCode(ErrorCode.SESSION_INVALID.getStatusCode())
-					.build();
-			return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new BusinessExceptionHandler(ErrorCode.SESSION_INVALID);
 		}
 	}
 
