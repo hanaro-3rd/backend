@@ -2,8 +2,10 @@ package com.example.travelhana.Config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.example.travelhana.Domain.Users;
 import com.example.travelhana.Exception.Code.SuccessCode;
 import com.example.travelhana.Exception.Response.ApiResponse;
+import com.example.travelhana.Repository.UserRepository;
 import com.example.travelhana.Service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.travelhana.Config.JwtConstants.*;
@@ -30,6 +33,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final UserService userService;
 	private final JwtConstants jwtConstants;
+	private final UserRepository userRepository;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -53,6 +57,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
 		// Refresh Token DB에 저장
 		userService.updateRefreshToken(user.getUsername(), refreshToken);
+		Optional<Users> user1=userRepository.findByDeviceId(user.getUsername());
 
 		// Access Token , Refresh Token 프론트 단에 Response Header로 전달
 		response.setContentType(APPLICATION_JSON_VALUE);
@@ -61,7 +66,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 		response.setHeader(RT_HEADER, refreshToken);
 
 		ApiResponse apiResponse = ApiResponse.builder()
-				.result("Success")
+				.result(user1.get().getName())
 				.resultCode(SuccessCode.AUTH_SUCCESS.getStatusCode())
 				.resultMsg(SuccessCode.AUTH_SUCCESS.getMessage())
 				.build();
