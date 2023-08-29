@@ -244,12 +244,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	public ResponseEntity<?> updatePassword(UpdatePasswordDto dto) {
 
 		Users users = findPassword(dto);
-		//해당 유저의 기기와 같은 다른 유저의 기기 null 처리
-		List<Users> arr=userRepository.findAllByDeviceId(users.getDeviceId());
-		for(Users user:arr){
-			System.out.println(user.getId());
-			user.updateDeviceId(null);
-		}
 
 		if (dto.getNewPassword().length() != 6) {
 			throw new BusinessExceptionHandler(ErrorCode.INVALID_PASSWORD);
@@ -277,8 +271,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		if (user.isEmpty()) {
 			throw new BusinessExceptionHandler(ErrorCode.NO_USER);
 		}
-		List<Users> arr=userRepository.findAllByDeviceId(user.get().getDeviceId());
-		for(Users user1:arr){
+		List<Users> arr = userRepository.findAllByDeviceId(user.get().getDeviceId());
+		for (Users user1 : arr) {
 			System.out.println(user1.getId());
 			user1.updateDeviceId(null);
 		}
