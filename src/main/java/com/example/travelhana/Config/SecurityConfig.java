@@ -51,9 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/redistest",
 				"/v2/api-docs",
 				"/webjars/**",
-				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**",
+				"/signup/**", "/signin/password/**","/signin/pattern", "/registration/**","/notification",
 				"/refresh/**", "/userrole/**", "/verification/auth", "/verification",
-				"/account/dummy","/updatePassword", "/updateDevice","/marker/dummy").permitAll();
+				"/account/dummy","/updatePassword", "/updateDevice","/marker/dummy","/ws","/sub/**","/pub/**").permitAll();
 
 		http.authorizeRequests().anyRequest().authenticated();
 		http.addFilter(customAuthenticationFilter);
@@ -69,4 +69,3 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 }
-

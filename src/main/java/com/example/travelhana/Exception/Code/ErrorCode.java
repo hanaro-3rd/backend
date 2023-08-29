@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public enum ErrorCode {
 
 	INVALID_PASSWORD(400, "Internal Server Error", "비밀번호는 6개의 숫자로 구성해주세요"),
+	ALREADY_USED_PASSWORD(500,"ALREADY_USED_PASSWORD","이전 비밀번호와 다른 비밀번호로 설정해주세요."),
 	USER_ALREADY_EXIST(400, "USER_ALREADY_EXIST", "이미 존재하는 유저입니다."),
 	AUTH_FAILURE(500, "AUTH_FAILURE", "인증코드가 일치하지 않습니다."),
 	SESSION_INVALID(500, "SESSION_INVALID", "코드가 만료되었습니다. 다시 코드를 발급받으세요."),
