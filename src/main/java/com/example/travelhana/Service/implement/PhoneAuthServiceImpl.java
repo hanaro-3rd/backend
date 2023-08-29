@@ -149,9 +149,9 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 
 			if (codeDto.getCode().equals(code)) { //코드가 일치하면
 				Optional<Users> user = userService.validateDuplicateUsername(codeDto.getPhonenum());
-				Optional<Users> users = userRepository.findByDeviceId(user.get().getDeviceId());
+				Optional<Users> isDeviceUserExist = userRepository.findByDeviceId(codeDto.getDeviceId());
 				if (!user.isPresent()) { //유저가 존재하지 않으면
-					if (users.isPresent()) { //동일한 디바이스 아이디가 존재하면
+					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 회원은 아니지만 누군가 등록한 적 있는 기기 -> 회원가입 필요
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(false)
@@ -163,7 +163,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 										.createdAt(user.get().getCreatedAt())
 										.build())
 								.build();
-					} else { //동일한 디바이스 아이디가 존재하지 않으면
+					} else { //동일한 디바이스 아이디가 존재하지 않으면 -> 회원가입 필요
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(false)
@@ -177,7 +177,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 								.build();
 					}
 				} else { //유저가 존재하면
-					if (users.isPresent()) { //동일한 디바이스 아이디가 존재하면
+					if (isDeviceUserExist.isPresent()) { //동일한 디바이스 아이디가 존재하면 -> 이미 존재하는 회원 -> 비밀번호 변경
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(true)
@@ -189,7 +189,7 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 										.createdAt(user.get().getCreatedAt())
 										.build())
 								.build();
-					} else {
+					} else { //디바이스 아이디가 존재하지 않으면 -> 기존 회원인데 새로운 기기로 접속한거임 -> 기기 업데이트 필요
 						codeResponseDto = CodeResponseDto.builder()
 								.isCodeEqual(true)
 								.isExistUser(true)
@@ -219,7 +219,6 @@ public class PhoneAuthServiceImpl implements PhoneAuthService {
 						.errorMessage(ErrorCode.AUTH_FAILURE.getMessage())
 						.build();
 				return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-
 			}
 		} else {
 			session.removeAttribute("code");
