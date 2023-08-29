@@ -110,6 +110,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		List<Users> arr = userRepository.findAllByDeviceId(dto.getDeviceId());
 		for (Users user1 : arr) {
 			user1.updateDeviceId(null);
+			user1.updateRefreshToken(null);
 		}
 
 		isValidUser(dto);
@@ -278,6 +279,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		List<Users> arr = userRepository.findAllByDeviceId(user.get().getDeviceId());
 		for (Users user1 : arr) {
 			user1.updateDeviceId(null);
+			user1.updateRefreshToken(null);
 		}
 		user.get().updateDeviceId(dto.getNewDeviceId());
 		ApiResponse apiResponse = ApiResponse.builder()
