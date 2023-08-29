@@ -23,6 +23,5 @@ public class JwtConstants {
 	public static final String AT_HEADER = "access_token";
 	public static final String RT_HEADER = "refresh_token";
 	public static final String TOKEN_HEADER_PREFIX = "Bearer ";
-	public static final String LOGIN_OR_REFRESH = "noAuthrization ";
 
 }

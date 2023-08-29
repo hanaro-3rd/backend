@@ -82,6 +82,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 		String servletPath = request.getServletPath();
 		String authrizationHeader = request.getHeader(AUTHORIZATION);
+		log.info("CustomAuthorizationFilter시작");
 
 		// 로그인, 리프레시 요청이라면 토큰 검사하지 않음
 		if (servletPath.contains("registration") || servletPath.contains("dummy") || servletPath.contains("updateDevice")
